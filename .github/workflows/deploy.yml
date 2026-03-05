@@ -45,3 +45,4 @@ jobs:
             # 或者重启Nginx服务：
             # sudo systemctl reload nginx
             echo "部署完成！"
+

@@ -61,8 +61,7 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
     try:
         # 写入DuckDB
         conn = db.get_connection()
-        if test:
-            conn.execute("""
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS a_stocks_basic (
                 ts_code VARCHAR(20),                    -- TS代码
                 symbol VARCHAR(20) NOT NULL,             -- 股票代码
@@ -84,8 +83,8 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
                 last_updated TIMESTAMP,                       -- 最后更新时间
                 UNIQUE(symbol)
                 )
-            """)
-            conn.execute("DELETE FROM a_stocks_basic")
+        """)
+        conn.execute("DELETE FROM a_stocks_basic")
             
         conn.register("pl_stocks_ts", pl_stocks_ts.to_arrow())
         
@@ -134,7 +133,7 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
 
     context.add_output_metadata({
         "active_count": dg.MetadataValue.int(active_count),
-        "sample": dg.MetadataValue.text(str(pl_stocks_ak.head(5).to_dict(as_series=False))),
+        "sample": dg.MetadataValue.text(str(pl_stocks_ts.head(5).to_dict(as_series=False))),
     })
 
     return pl_stocks_ts

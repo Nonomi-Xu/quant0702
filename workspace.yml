@@ -1,0 +1,4 @@
+load_from:
+  - python_module:
+      module_name: "quant.definitions"
+      working_directory: /home/ubuntu/quant

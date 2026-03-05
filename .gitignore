@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# 项目特定（股票分析常用）
+*.csv
+*.xlsx
+*.db
+*.log
+config_local.py
+.env
+data/
+temp/
+logs/
+
+# Jupyter Notebook 临时文件
+.ipynb_checkpoints/
+*.ipynb

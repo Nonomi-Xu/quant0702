@@ -1,0 +1,12 @@
+[32m2026-02-20 21:10:20 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ec149fb9-5aa0-4312-a361-73560b8e51ad - 24898 - LOGS_CAPTURED - Started capturing logs in process (pid: 24898).
+[32m2026-02-20 21:10:20 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ec149fb9-5aa0-4312-a361-73560b8e51ad - 24898 - Add_Listing_Stocks - STEP_START - Started execution of step "Add_Listing_Stocks".
+[32m2026-02-20 21:10:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - ec149fb9-5aa0-4312-a361-73560b8e51ad - Add_Listing_Stocks - 开始逐个查询补齐A股上市时间...
+[32m2026-02-20 21:10:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - ec149fb9-5aa0-4312-a361-73560b8e51ad - Add_Listing_Stocks - 需要补上市日期的在市股票: 5810 只
+/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py:149: DataOrientationWarning: Row orientation inferred during DataFrame construction. Explicitly specify the orientation by passing `orient="row"` to silence this warning.
+  upd = pl.DataFrame(results, schema=["symbol", "list_date"]).with_columns(
+[32m2026-02-20 21:14:31 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - ec149fb9-5aa0-4312-a361-73560b8e51ad - Add_Listing_Stocks - ✅ 补上市日期成功: 5810 只
+[32m2026-02-20 21:14:31 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ec149fb9-5aa0-4312-a361-73560b8e51ad - 24898 - Add_Listing_Stocks - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
+[32m2026-02-20 21:14:31 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ec149fb9-5aa0-4312-a361-73560b8e51ad - Add_Listing_Stocks - Writing file at: /Users/sheng/Desktop/Quant/a-stock/.tmp_dagster_home_fmqshrmy/storage/Add_Listing_Stocks using PickledObjectFilesystemIOManager...
+[32m2026-02-20 21:14:31 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ec149fb9-5aa0-4312-a361-73560b8e51ad - 24898 - Add_Listing_Stocks - ASSET_MATERIALIZATION - Materialized value Add_Listing_Stocks.
+[32m2026-02-20 21:14:31 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ec149fb9-5aa0-4312-a361-73560b8e51ad - 24898 - Add_Listing_Stocks - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
+[32m2026-02-20 21:14:31 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ec149fb9-5aa0-4312-a361-73560b8e51ad - 24898 - Add_Listing_Stocks - STEP_SUCCESS - Finished execution of step "Add_Listing_Stocks" in 4m10s.

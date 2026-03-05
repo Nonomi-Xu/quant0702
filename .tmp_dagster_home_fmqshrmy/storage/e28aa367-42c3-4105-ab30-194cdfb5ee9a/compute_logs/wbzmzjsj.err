@@ -1,0 +1,31 @@
+[32m2026-02-20 20:34:10 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - e28aa367-42c3-4105-ab30-194cdfb5ee9a - 18216 - LOGS_CAPTURED - Started capturing logs in process (pid: 18216).
+[32m2026-02-20 20:34:10 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - e28aa367-42c3-4105-ab30-194cdfb5ee9a - 18216 - Add_Listing_Stocks - STEP_START - Started execution of step "Add_Listing_Stocks".
+[32m2026-02-20 20:34:10 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - e28aa367-42c3-4105-ab30-194cdfb5ee9a - Add_Listing_Stocks - 开始逐个查询补齐A股上市时间...
+[32m2026-02-20 20:34:10 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - e28aa367-42c3-4105-ab30-194cdfb5ee9a - Add_Listing_Stocks - 需要补上市日期的在市股票: 5810 只
+/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py:149: DataOrientationWarning: Row orientation inferred during DataFrame construction. Explicitly specify the orientation by passing `orient="row"` to silence this warning.
+  upd = pl.DataFrame(results, schema=["symbol", "list_date"]).with_columns(
+[32m2026-02-20 20:37:02 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - e28aa367-42c3-4105-ab30-194cdfb5ee9a - Add_Listing_Stocks - 使用逐个查询补齐A股活跃股票上市时间失败: Connection Error: Connection already closed!
+[32m2026-02-20 20:37:02 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - e28aa367-42c3-4105-ab30-194cdfb5ee9a - 18216 - Add_Listing_Stocks - STEP_FAILURE - Execution of step "Add_Listing_Stocks" failed.
+
+dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "Add_Listing_Stocks"::
+
+_duckdb.ConnectionException: Connection Error: Connection already closed!
+
+Stack Trace:
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
+    yield
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
+    next_output = next(iterator)
+                  ^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
+    result = invoke_compute_fn(
+             ^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
+    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 154, in Add_Listing_Stocks
+    with db.get_connection() as conn:
+         ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 155, in Add_Listing_Stocks
+    conn.register("upd_list_date", upd.to_arrow())
+[0m

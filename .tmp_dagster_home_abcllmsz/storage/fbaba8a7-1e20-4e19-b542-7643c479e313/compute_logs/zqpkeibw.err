@@ -1,0 +1,130 @@
+[32m2026-02-16 01:07:06 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - 61994 - LOGS_CAPTURED - Started capturing logs in process (pid: 61994).
+[32m2026-02-16 01:07:06 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - 61994 - Refresh_Daily_Prices - STEP_START - Started execution of step "Refresh_Daily_Prices".
+[32m2026-02-16 01:07:06 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 开始更新日线数据...
+[32m2026-02-16 01:07:06 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 无历史数据，从 20200101 开始获取
+[32m2026-02-16 01:07:06 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 1/117
+[32m2026-02-16 01:07:35 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 2/117
+[32m2026-02-16 01:07:56 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 3/117
+[32m2026-02-16 01:08:14 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 4/117
+[32m2026-02-16 01:08:35 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 5/117
+[32m2026-02-16 01:08:56 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 6/117
+[32m2026-02-16 01:09:18 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 7/117
+[32m2026-02-16 01:09:44 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 8/117
+[32m2026-02-16 01:10:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 9/117
+[32m2026-02-16 01:10:21 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 10/117
+[32m2026-02-16 01:10:39 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 11/117
+[32m2026-02-16 01:10:59 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 12/117
+[32m2026-02-16 01:11:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 13/117
+[32m2026-02-16 01:11:41 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 14/117
+[32m2026-02-16 01:12:03 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 15/117
+[32m2026-02-16 01:12:32 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 16/117
+[32m2026-02-16 01:12:53 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 17/117
+[32m2026-02-16 01:13:09 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 18/117
+[32m2026-02-16 01:13:29 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 19/117
+[32m2026-02-16 01:13:53 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 20/117
+[32m2026-02-16 01:14:22 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 21/117
+[32m2026-02-16 01:14:41 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 22/117
+[32m2026-02-16 01:14:58 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 23/117
+[32m2026-02-16 01:15:15 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 24/117
+[32m2026-02-16 01:15:44 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 25/117
+[32m2026-02-16 01:16:12 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 26/117
+[32m2026-02-16 01:16:32 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 27/117
+[32m2026-02-16 01:16:54 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 28/117
+[32m2026-02-16 01:17:14 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 29/117
+[32m2026-02-16 01:17:35 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 30/117
+[32m2026-02-16 01:17:56 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 31/117
+[32m2026-02-16 01:18:16 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 32/117
+[32m2026-02-16 01:18:35 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 33/117
+[32m2026-02-16 01:18:56 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 34/117
+[32m2026-02-16 01:19:15 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 35/117
+[32m2026-02-16 01:19:35 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 36/117
+[32m2026-02-16 01:19:54 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 37/117
+[32m2026-02-16 01:20:17 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 38/117
+[32m2026-02-16 01:20:36 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 39/117
+[32m2026-02-16 01:20:54 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 40/117
+[32m2026-02-16 01:21:15 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 41/117
+[32m2026-02-16 01:21:37 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 42/117
+[32m2026-02-16 01:21:56 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 43/117
+[32m2026-02-16 01:22:18 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 44/117
+[32m2026-02-16 01:22:38 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 45/117
+[32m2026-02-16 01:23:07 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 46/117
+[32m2026-02-16 01:23:25 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 47/117
+[32m2026-02-16 01:23:40 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 48/117
+[32m2026-02-16 01:23:54 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 49/117
+[32m2026-02-16 01:24:14 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 50/117
+[32m2026-02-16 01:24:37 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 51/117
+[32m2026-02-16 01:24:56 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 52/117
+[32m2026-02-16 01:25:15 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 53/117
+[32m2026-02-16 01:25:38 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 54/117
+[32m2026-02-16 01:26:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 55/117
+[32m2026-02-16 01:26:25 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 56/117
+[32m2026-02-16 01:26:52 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 57/117
+[32m2026-02-16 01:27:10 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 58/117
+[32m2026-02-16 01:27:33 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 59/117
+[32m2026-02-16 01:27:54 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 60/117
+[32m2026-02-16 01:28:17 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 61/117
+[32m2026-02-16 01:28:38 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 62/117
+[32m2026-02-16 01:28:59 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 63/117
+[32m2026-02-16 01:29:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 64/117
+[32m2026-02-16 01:29:41 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 65/117
+[32m2026-02-16 01:30:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 66/117
+[32m2026-02-16 01:30:26 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 67/117
+[32m2026-02-16 01:30:44 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 68/117
+[32m2026-02-16 01:31:02 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 69/117
+[32m2026-02-16 01:31:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 70/117
+[32m2026-02-16 01:31:42 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 71/117
+[32m2026-02-16 01:32:00 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 72/117
+[32m2026-02-16 01:32:22 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 73/117
+[32m2026-02-16 01:32:49 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 74/117
+[32m2026-02-16 01:34:19 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 75/117
+[32m2026-02-16 01:34:40 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 76/117
+[32m2026-02-16 01:35:59 +0800[0m - dagster - [34mWARNING[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 获取 688606 失败: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+[32m2026-02-16 01:36:05 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 77/117
+[32m2026-02-16 01:36:28 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 78/117
+[32m2026-02-16 01:36:49 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 79/117
+[32m2026-02-16 01:37:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 80/117
+[32m2026-02-16 01:37:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 81/117
+[32m2026-02-16 01:37:36 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 82/117
+[32m2026-02-16 01:37:55 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 83/117
+[32m2026-02-16 01:38:13 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 84/117
+[32m2026-02-16 01:38:29 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 85/117
+[32m2026-02-16 01:38:44 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 86/117
+[32m2026-02-16 01:39:00 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 87/117
+[32m2026-02-16 01:39:16 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 88/117
+[32m2026-02-16 01:39:33 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 89/117
+[32m2026-02-16 01:39:49 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 90/117
+[32m2026-02-16 01:40:05 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 91/117
+[32m2026-02-16 01:40:21 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 92/117
+[32m2026-02-16 01:40:37 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 93/117
+[32m2026-02-16 01:40:55 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 94/117
+[32m2026-02-16 01:41:13 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 95/117
+[32m2026-02-16 01:41:30 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 96/117
+[32m2026-02-16 01:41:46 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 97/117
+[32m2026-02-16 01:42:05 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 98/117
+[32m2026-02-16 01:42:26 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 99/117
+[32m2026-02-16 01:42:45 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 100/117
+[32m2026-02-16 01:43:02 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 101/117
+[32m2026-02-16 01:43:17 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 102/117
+[32m2026-02-16 01:43:37 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 103/117
+[32m2026-02-16 01:43:53 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 104/117
+[32m2026-02-16 01:44:11 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 105/117
+[32m2026-02-16 01:44:29 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 106/117
+[32m2026-02-16 01:44:48 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 107/117
+[32m2026-02-16 01:45:03 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 108/117
+[32m2026-02-16 01:45:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 109/117
+[32m2026-02-16 01:45:36 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 110/117
+[32m2026-02-16 01:45:52 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 111/117
+[32m2026-02-16 01:46:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 112/117
+[32m2026-02-16 01:46:22 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 113/117
+[32m2026-02-16 01:46:38 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 114/117
+[32m2026-02-16 01:46:54 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 115/117
+[32m2026-02-16 01:47:08 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 116/117
+[32m2026-02-16 01:47:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - 处理批次 117/117
+[32m2026-02-16 01:47:27 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices - ✅ 数据更新完成
+[32m2026-02-16 01:47:27 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices -    - 更新股票数: 5694
+[32m2026-02-16 01:47:27 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices -    - 新增行数: 7222716
+[32m2026-02-16 01:47:27 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices -    - 总股票数: 5694
+[32m2026-02-16 01:47:27 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - Refresh_Daily_Prices -    - 日期范围: 2020-01-02 至 2026-02-13
+[32m2026-02-16 01:47:27 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - 61994 - Refresh_Daily_Prices - STEP_OUTPUT - Yielded output "result" of type "Any". (Type check passed).
+[32m2026-02-16 01:47:27 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - 61994 - Refresh_Daily_Prices - ASSET_MATERIALIZATION - Materialized value Refresh_Daily_Prices.
+[32m2026-02-16 01:47:27 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fbaba8a7-1e20-4e19-b542-7643c479e313 - 61994 - Refresh_Daily_Prices - STEP_SUCCESS - Finished execution of step "Refresh_Daily_Prices" in 40m21s.

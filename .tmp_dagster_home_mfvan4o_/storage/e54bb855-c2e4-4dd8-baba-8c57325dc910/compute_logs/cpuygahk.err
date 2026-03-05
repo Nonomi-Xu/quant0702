@@ -1,0 +1,46 @@
+[32m2026-02-21 21:53:23 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - e54bb855-c2e4-4dd8-baba-8c57325dc910 - 38450 - LOGS_CAPTURED - Started capturing logs in process (pid: 38450).
+[32m2026-02-21 21:53:23 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - e54bb855-c2e4-4dd8-baba-8c57325dc910 - 38450 - Start_Basic_Prices - STEP_START - Started execution of step "Start_Basic_Prices".
+[32m2026-02-21 21:53:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - e54bb855-c2e4-4dd8-baba-8c57325dc910 - Start_Basic_Prices - 开始创建日线数据
+[32m2026-02-21 21:53:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - e54bb855-c2e4-4dd8-baba-8c57325dc910 - Start_Basic_Prices - 找到 5495 只股票
+[32m2026-02-21 21:53:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - e54bb855-c2e4-4dd8-baba-8c57325dc910 - Start_Basic_Prices - 已有数据截止: 2026-02-13, 从 2026-02-14 开始更新
+[32m2026-02-21 21:53:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - e54bb855-c2e4-4dd8-baba-8c57325dc910 - Start_Basic_Prices - 处理批次 1/110
+[32m2026-02-21 21:53:23 +0800[0m - dagster - [34mWARNING[0m - __ASSET_JOB - e54bb855-c2e4-4dd8-baba-8c57325dc910 - Start_Basic_Prices - 获取 000001 失败: Conversion Error: invalid date field format: "20260214", expected format is (YYYY-MM-DD)
+
+LINE 3:                     WHERE symbol = ? AND date >= ?::DATE AND date <= ?::DATE
+                                                          ^
+[32m2026-02-21 21:53:37 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - e54bb855-c2e4-4dd8-baba-8c57325dc910 - 38450 - Start_Basic_Prices - STEP_FAILURE - Execution of step "Start_Basic_Prices" failed.
+
+dagster._core.errors.DagsterExecutionInterruptedError
+
+Stack Trace:
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_plan.py", line 247, in dagster_event_sequence_for_step
+    yield from check.generator(step_events)
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 505, in core_dagster_event_sequence_for_step
+    for user_event in _step_output_error_checked_user_event_sequence(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 184, in _step_output_error_checked_user_event_sequence
+    for user_event in user_event_sequence:
+                      ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 88, in _process_asset_results_to_events
+    for user_event in user_event_sequence:
+                      ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute.py", line 188, in execute_core_compute
+    for step_output in _yield_compute_results(step_context, inputs, compute_fn, compute_context):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute.py", line 157, in _yield_compute_results
+    for event in iterate_with_context(
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
+    next_output = next(iterator)
+                  ^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
+    result = invoke_compute_fn(
+             ^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
+    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/start_price.py", line 125, in Start_Basic_Prices
+    time.sleep(0.2)
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/interrupts.py", line 81, in _new_signal_handler
+    raise error_cls()
+[0m

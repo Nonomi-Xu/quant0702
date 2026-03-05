@@ -1,0 +1,73 @@
+[32m2026-02-20 22:04:31 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - LOGS_CAPTURED - Started capturing logs in process (pid: 35028).
+[32m2026-02-20 22:04:31 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_New_Stocks - STEP_START - Started execution of step "Daily_New_Stocks".
+[32m2026-02-20 22:04:31 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - Daily_New_Stocks - 开始检测新上市的股票...
+  0%|          | 0/15 [00:00<?, ?it/s]  7%|▋         | 1/15 [00:00<00:03,  4.23it/s] 13%|█▎        | 2/15 [00:00<00:03,  4.08it/s] 20%|██        | 3/15 [00:00<00:03,  3.88it/s] 27%|██▋       | 4/15 [00:00<00:02,  4.06it/s] 33%|███▎      | 5/15 [00:01<00:02,  4.22it/s] 40%|████      | 6/15 [00:01<00:02,  4.15it/s] 47%|████▋     | 7/15 [00:01<00:01,  4.15it/s] 53%|█████▎    | 8/15 [00:01<00:01,  4.27it/s] 60%|██████    | 9/15 [00:02<00:01,  4.32it/s] 67%|██████▋   | 10/15 [00:02<00:01,  4.29it/s] 73%|███████▎  | 11/15 [00:02<00:01,  3.89it/s] 80%|████████  | 12/15 [00:02<00:00,  4.01it/s] 87%|████████▋ | 13/15 [00:03<00:00,  3.98it/s] 93%|█████████▎| 14/15 [00:03<00:00,  3.98it/s]100%|██████████| 15/15 [00:03<00:00,  3.76it/s]                                               [32m2026-02-20 22:04:38 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - Daily_New_Stocks - 今日没有新上市的股票
+[32m2026-02-20 22:04:38 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_New_Stocks - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
+[32m2026-02-20 22:04:38 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - Daily_New_Stocks - Writing file at: /Users/sheng/Desktop/Quant/a-stock/.tmp_dagster_home_h5bm7zdw/storage/Daily_New_Stocks using PickledObjectFilesystemIOManager...
+[32m2026-02-20 22:04:38 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_New_Stocks - ASSET_MATERIALIZATION - Materialized value Daily_New_Stocks.
+[32m2026-02-20 22:04:38 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_New_Stocks - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
+[32m2026-02-20 22:04:38 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_New_Stocks - STEP_SUCCESS - Finished execution of step "Daily_New_Stocks" in 6.8s.
+[32m2026-02-20 22:04:38 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_Delisted_Stocks - STEP_START - Started execution of step "Daily_Delisted_Stocks".
+[32m2026-02-20 22:04:38 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - Daily_Delisted_Stocks - 开始检测退市的股票...
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - Daily_Delisted_Stocks - ✅ 退市信息更新完成
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_Delisted_Stocks - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - Daily_Delisted_Stocks - Writing file at: /Users/sheng/Desktop/Quant/a-stock/.tmp_dagster_home_h5bm7zdw/storage/Daily_Delisted_Stocks using PickledObjectFilesystemIOManager...
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_Delisted_Stocks - ASSET_MATERIALIZATION - Materialized value Daily_Delisted_Stocks.
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_Delisted_Stocks - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_Delisted_Stocks - STEP_SUCCESS - Finished execution of step "Daily_Delisted_Stocks" in 716ms.
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_Active_Stocks - STEP_START - Started execution of step "Daily_Active_Stocks".
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - Daily_Active_Stocks - 开始筛选活跃的股票...
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_Active_Stocks - STEP_FAILURE - Execution of step "Daily_Active_Stocks" failed.
+
+dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "Daily_Active_Stocks"::
+
+_duckdb.BinderException: Binder Error: Referenced column "stock_id" not found in FROM clause!
+Candidate bindings: "list_date", "last_updated", "is_delisted", "delisted_date", "symbol"
+
+LINE 3:         SELECT stock_id, symbol, name, listing_date
+                       ^
+
+Stack Trace:
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
+    yield
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
+    next_output = next(iterator)
+                  ^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
+    result = invoke_compute_fn(
+             ^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
+    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_daily.py", line 197, in Daily_Active_Stocks
+    df = conn.execute("""
+         ^^^^^^^^^^^^^^^^
+[0m
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_Active_Stocks_Mainboard - STEP_START - Started execution of step "Daily_Active_Stocks_Mainboard".
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - Daily_Active_Stocks_Mainboard - 开始筛选活跃的主板股票...
+[32m2026-02-20 22:04:39 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - ecf17047-0925-4771-a078-aa94f64cff5e - 35028 - Daily_Active_Stocks_Mainboard - STEP_FAILURE - Execution of step "Daily_Active_Stocks_Mainboard" failed.
+
+dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "Daily_Active_Stocks_Mainboard"::
+
+_duckdb.BinderException: Binder Error: Referenced column "stock_id" not found in FROM clause!
+Candidate bindings: "list_date", "last_updated", "is_delisted", "delisted_date", "symbol"
+
+LINE 3:         SELECT stock_id, symbol, name, listing_date
+                       ^
+
+Stack Trace:
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
+    yield
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
+    next_output = next(iterator)
+                  ^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
+    result = invoke_compute_fn(
+             ^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
+    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_daily.py", line 242, in Daily_Active_Stocks_Mainboard
+    df = conn.execute("""
+         ^^^^^^^^^^^^^^^^
+[0m

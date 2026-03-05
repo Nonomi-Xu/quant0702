@@ -1,0 +1,170 @@
+[32m2026-02-21 22:04:12 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - 40496 - LOGS_CAPTURED - Started capturing logs in process (pid: 40496).
+[32m2026-02-21 22:04:12 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - 40496 - Start_Basic_Prices - STEP_START - Started execution of step "Start_Basic_Prices".
+[32m2026-02-21 22:04:12 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 开始创建日线数据
+[32m2026-02-21 22:04:12 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 找到 5495 只股票
+[32m2026-02-21 22:04:12 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 无历史数据，从 2023-01-01 开始获取
+[32m2026-02-21 22:04:12 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 处理批次 1/110
+[32m2026-02-21 22:04:12 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000001 成功，新增 757 条记录
+[32m2026-02-21 22:04:12 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000002 成功，新增 757 条记录
+[32m2026-02-21 22:04:13 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000004 成功，新增 755 条记录
+[32m2026-02-21 22:04:13 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000006 成功，新增 757 条记录
+[32m2026-02-21 22:04:13 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000007 成功，新增 755 条记录
+[32m2026-02-21 22:04:14 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000008 成功，新增 757 条记录
+[32m2026-02-21 22:04:14 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000009 成功，新增 757 条记录
+[32m2026-02-21 22:04:15 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000010 成功，新增 757 条记录
+[32m2026-02-21 22:04:15 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000011 成功，新增 757 条记录
+[32m2026-02-21 22:04:15 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000012 成功，新增 757 条记录
+[32m2026-02-21 22:04:16 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000014 成功，新增 757 条记录
+[32m2026-02-21 22:04:16 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000016 成功，新增 747 条记录
+[32m2026-02-21 22:04:17 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000017 成功，新增 757 条记录
+[32m2026-02-21 22:04:17 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000019 成功，新增 757 条记录
+[32m2026-02-21 22:04:17 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000020 成功，新增 757 条记录
+[32m2026-02-21 22:04:18 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000021 成功，新增 757 条记录
+[32m2026-02-21 22:04:18 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000025 成功，新增 757 条记录
+[32m2026-02-21 22:04:19 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000026 成功，新增 757 条记录
+[32m2026-02-21 22:04:19 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000027 成功，新增 757 条记录
+[32m2026-02-21 22:04:19 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000028 成功，新增 757 条记录
+[32m2026-02-21 22:04:20 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000029 成功，新增 757 条记录
+[32m2026-02-21 22:04:20 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000030 成功，新增 757 条记录
+[32m2026-02-21 22:04:21 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000031 成功，新增 757 条记录
+[32m2026-02-21 22:04:21 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000032 成功，新增 757 条记录
+[32m2026-02-21 22:04:21 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000034 成功，新增 757 条记录
+[32m2026-02-21 22:04:22 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000035 成功，新增 757 条记录
+[32m2026-02-21 22:04:22 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000036 成功，新增 757 条记录
+[32m2026-02-21 22:04:23 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000037 成功，新增 757 条记录
+[32m2026-02-21 22:04:23 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000039 成功，新增 757 条记录
+[32m2026-02-21 22:04:23 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000042 成功，新增 757 条记录
+[32m2026-02-21 22:04:24 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000045 成功，新增 754 条记录
+[32m2026-02-21 22:04:24 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000048 成功，新增 757 条记录
+[32m2026-02-21 22:04:25 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000049 成功，新增 751 条记录
+[32m2026-02-21 22:04:25 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000050 成功，新增 757 条记录
+[32m2026-02-21 22:04:25 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000055 成功，新增 757 条记录
+[32m2026-02-21 22:04:26 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000056 成功，新增 757 条记录
+[32m2026-02-21 22:04:26 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000058 成功，新增 757 条记录
+[32m2026-02-21 22:04:27 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000059 成功，新增 757 条记录
+[32m2026-02-21 22:04:27 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000060 成功，新增 757 条记录
+[32m2026-02-21 22:04:27 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000061 成功，新增 757 条记录
+[32m2026-02-21 22:04:28 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000062 成功，新增 757 条记录
+[32m2026-02-21 22:04:28 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000063 成功，新增 757 条记录
+[32m2026-02-21 22:04:29 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000065 成功，新增 757 条记录
+[32m2026-02-21 22:04:29 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000066 成功，新增 757 条记录
+[32m2026-02-21 22:04:29 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000068 成功，新增 757 条记录
+[32m2026-02-21 22:04:30 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000069 成功，新增 757 条记录
+[32m2026-02-21 22:04:30 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000070 成功，新增 755 条记录
+[32m2026-02-21 22:04:31 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000078 成功，新增 757 条记录
+[32m2026-02-21 22:04:31 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000088 成功，新增 757 条记录
+[32m2026-02-21 22:04:31 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000089 成功，新增 757 条记录
+[32m2026-02-21 22:04:32 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 批次写入完成，新增 37825 行
+[32m2026-02-21 22:04:34 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 处理批次 2/110
+[32m2026-02-21 22:04:34 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000090 成功，新增 757 条记录
+[32m2026-02-21 22:04:34 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000096 成功，新增 757 条记录
+[32m2026-02-21 22:04:35 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000099 成功，新增 757 条记录
+[32m2026-02-21 22:04:35 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000100 成功，新增 757 条记录
+[32m2026-02-21 22:04:35 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000151 成功，新增 749 条记录
+[32m2026-02-21 22:04:36 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000153 成功，新增 756 条记录
+[32m2026-02-21 22:04:36 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000155 成功，新增 757 条记录
+[32m2026-02-21 22:04:37 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000156 成功，新增 757 条记录
+[32m2026-02-21 22:04:37 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000157 成功，新增 757 条记录
+[32m2026-02-21 22:04:37 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000158 成功，新增 757 条记录
+[32m2026-02-21 22:04:38 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000159 成功，新增 757 条记录
+[32m2026-02-21 22:04:38 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000166 成功，新增 757 条记录
+[32m2026-02-21 22:04:39 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000301 成功，新增 757 条记录
+[32m2026-02-21 22:04:39 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000333 成功，新增 757 条记录
+[32m2026-02-21 22:04:40 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000338 成功，新增 757 条记录
+[32m2026-02-21 22:04:40 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000400 成功，新增 757 条记录
+[32m2026-02-21 22:04:40 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000401 成功，新增 757 条记录
+[32m2026-02-21 22:04:41 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000402 成功，新增 757 条记录
+[32m2026-02-21 22:04:41 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000403 成功，新增 755 条记录
+[32m2026-02-21 22:04:42 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000404 成功，新增 757 条记录
+[32m2026-02-21 22:04:42 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000407 成功，新增 747 条记录
+[32m2026-02-21 22:04:42 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000408 成功，新增 752 条记录
+[32m2026-02-21 22:04:43 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000409 成功，新增 757 条记录
+[32m2026-02-21 22:04:43 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000410 成功，新增 746 条记录
+[32m2026-02-21 22:04:43 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000411 成功，新增 756 条记录
+[32m2026-02-21 22:04:44 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000415 成功，新增 757 条记录
+[32m2026-02-21 22:04:44 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000417 成功，新增 757 条记录
+[32m2026-02-21 22:04:45 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000419 成功，新增 757 条记录
+[32m2026-02-21 22:04:45 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000420 成功，新增 757 条记录
+[32m2026-02-21 22:04:45 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000421 成功，新增 747 条记录
+[32m2026-02-21 22:04:46 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000422 成功，新增 757 条记录
+[32m2026-02-21 22:04:46 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000423 成功，新增 757 条记录
+[32m2026-02-21 22:04:47 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000425 成功，新增 757 条记录
+[32m2026-02-21 22:04:47 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000426 成功，新增 757 条记录
+[32m2026-02-21 22:04:47 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000428 成功，新增 757 条记录
+[32m2026-02-21 22:04:48 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000429 成功，新增 757 条记录
+[32m2026-02-21 22:04:48 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000430 成功，新增 753 条记录
+[32m2026-02-21 22:04:49 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000488 成功，新增 756 条记录
+[32m2026-02-21 22:04:49 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000498 成功，新增 757 条记录
+[32m2026-02-21 22:04:50 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000501 成功，新增 757 条记录
+[32m2026-02-21 22:04:50 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000503 成功，新增 757 条记录
+[32m2026-02-21 22:04:50 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - Start_Basic_Prices - 获取 000504 成功，新增 756 条记录
+[32m2026-02-21 22:04:51 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - fa0ecf95-bf2c-4b3a-a716-eaf517886a74 - 40496 - Start_Basic_Prices - STEP_FAILURE - Execution of step "Start_Basic_Prices" failed.
+
+dagster._core.errors.DagsterExecutionInterruptedError
+
+Stack Trace:
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_plan.py", line 247, in dagster_event_sequence_for_step
+    yield from check.generator(step_events)
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 505, in core_dagster_event_sequence_for_step
+    for user_event in _step_output_error_checked_user_event_sequence(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 184, in _step_output_error_checked_user_event_sequence
+    for user_event in user_event_sequence:
+                      ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 88, in _process_asset_results_to_events
+    for user_event in user_event_sequence:
+                      ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute.py", line 188, in execute_core_compute
+    for step_output in _yield_compute_results(step_context, inputs, compute_fn, compute_context):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute.py", line 157, in _yield_compute_results
+    for event in iterate_with_context(
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
+    next_output = next(iterator)
+                  ^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
+    result = invoke_compute_fn(
+             ^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
+    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/start_price.py", line 86, in Start_Basic_Prices
+    df = ak.stock_zh_a_hist(
+         ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/akshare/stock_feature/stock_hist_em.py", line 992, in stock_zh_a_hist
+    r = requests.get(url, params=params, timeout=timeout)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/requests/adapters.py", line 644, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 759, in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 204, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/interrupts.py", line 81, in _new_signal_handler
+    raise error_cls()
+[0m

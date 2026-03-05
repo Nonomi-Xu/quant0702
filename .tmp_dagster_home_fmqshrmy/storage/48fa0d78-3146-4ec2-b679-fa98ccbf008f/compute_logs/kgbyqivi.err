@@ -1,0 +1,63 @@
+[32m2026-02-20 20:09:19 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - 13618 - LOGS_CAPTURED - Started capturing logs in process (pid: 13618).
+[32m2026-02-20 20:09:19 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - 13618 - Daily_New_Stocks - STEP_START - Started execution of step "Daily_New_Stocks".
+[32m2026-02-20 20:09:19 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - Daily_New_Stocks - 开始检测新上市的股票...
+[32m2026-02-20 20:09:20 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - 13618 - Daily_New_Stocks - STEP_FAILURE - Execution of step "Daily_New_Stocks" failed.
+
+dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "Daily_New_Stocks"::
+
+_duckdb.CatalogException: Catalog Error: Table with name a_stocks does not exist!
+Did you mean "a_stocks_all"?
+
+LINE 3:             FROM a_stocks
+                         ^
+
+Stack Trace:
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
+    yield
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
+    next_output = next(iterator)
+                  ^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
+    result = invoke_compute_fn(
+             ^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
+    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_daily.py", line 24, in Daily_New_Stocks
+    with db.get_connection() as conn:
+         ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_daily.py", line 26, in Daily_New_Stocks
+    existing_stocks = conn.execute("""
+                      ^^^^^^^^^^^^^^^^
+[0m
+[32m2026-02-20 20:09:20 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - Daily_Delisted_Stocks - Dependencies for step Daily_Delisted_Stocks failed: ['Daily_New_Stocks']. Not executing.[0m
+[32m2026-02-20 20:09:20 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - Daily_Active_Mainboard_Stocks - Dependencies for step Daily_Active_Mainboard_Stocks failed: ['Daily_New_Stocks'] were not executed: ['Daily_Delisted_Stocks']. Not executing.[0m
+[32m2026-02-20 20:09:20 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - Daily_Active_Stocks - Dependencies for step Daily_Active_Stocks failed: ['Daily_New_Stocks'] were not executed: ['Daily_Delisted_Stocks']. Not executing.[0m
+[32m2026-02-20 20:09:20 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - Daily_Basic_Prices - Dependencies for step Daily_Basic_Prices were not executed: ['Daily_Delisted_Stocks']. Not executing.[0m
+[32m2026-02-20 20:09:20 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - 13618 - First_Stock_List - STEP_START - Started execution of step "First_Stock_List".
+[32m2026-02-20 20:09:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - First_Stock_List - 开始获取A股股票列表...
+  0%|          | 0/58 [00:00<?, ?it/s]  2%|▏         | 1/58 [00:01<01:01,  1.08s/it]  3%|▎         | 2/58 [00:02<01:12,  1.30s/it]  5%|▌         | 3/58 [00:03<01:07,  1.22s/it]  7%|▋         | 4/58 [00:04<00:58,  1.08s/it]  9%|▊         | 5/58 [00:05<00:53,  1.00s/it] 10%|█         | 6/58 [00:06<01:01,  1.19s/it] 12%|█▏        | 7/58 [00:08<01:07,  1.33s/it] 14%|█▍        | 8/58 [00:09<01:03,  1.28s/it] 16%|█▌        | 9/58 [00:11<01:04,  1.31s/it] 17%|█▋        | 10/58 [00:12<00:59,  1.24s/it] 19%|█▉        | 11/58 [00:13<01:03,  1.36s/it] 21%|██        | 12/58 [00:15<01:05,  1.43s/it] 22%|██▏       | 13/58 [00:16<01:00,  1.35s/it] 24%|██▍       | 14/58 [00:17<00:59,  1.35s/it] 26%|██▌       | 15/58 [00:18<00:53,  1.25s/it] 28%|██▊       | 16/58 [00:20<00:55,  1.31s/it] 29%|██▉       | 17/58 [00:21<00:52,  1.29s/it] 31%|███       | 18/58 [00:22<00:50,  1.27s/it] 33%|███▎      | 19/58 [00:23<00:44,  1.14s/it] 34%|███▍      | 20/58 [00:24<00:39,  1.05s/it] 36%|███▌      | 21/58 [00:25<00:37,  1.02s/it] 38%|███▊      | 22/58 [00:27<00:42,  1.18s/it] 40%|███▉      | 23/58 [00:28<00:39,  1.14s/it] 41%|████▏     | 24/58 [00:28<00:36,  1.07s/it] 43%|████▎     | 25/58 [00:29<00:33,  1.03s/it] 45%|████▍     | 26/58 [00:30<00:31,  1.01it/s] 47%|████▋     | 27/58 [00:31<00:30,  1.02it/s] 48%|████▊     | 28/58 [00:32<00:31,  1.04s/it] 50%|█████     | 29/58 [00:33<00:27,  1.07it/s] 52%|█████▏    | 30/58 [00:34<00:26,  1.07it/s] 53%|█████▎    | 31/58 [00:35<00:25,  1.06it/s] 55%|█████▌    | 32/58 [00:36<00:24,  1.08it/s] 57%|█████▋    | 33/58 [00:37<00:25,  1.03s/it] 59%|█████▊    | 34/58 [00:39<00:28,  1.20s/it] 60%|██████    | 35/58 [00:40<00:27,  1.21s/it] 62%|██████▏   | 36/58 [00:41<00:26,  1.21s/it] 64%|██████▍   | 37/58 [00:43<00:26,  1.26s/it] 66%|██████▌   | 38/58 [00:44<00:24,  1.21s/it] 67%|██████▋   | 39/58 [00:45<00:21,  1.15s/it] 69%|██████▉   | 40/58 [00:46<00:20,  1.16s/it] 71%|███████   | 41/58 [00:48<00:22,  1.30s/it] 72%|███████▏  | 42/58 [00:48<00:18,  1.15s/it] 74%|███████▍  | 43/58 [00:49<00:17,  1.16s/it] 76%|███████▌  | 44/58 [00:50<00:15,  1.10s/it] 78%|███████▊  | 45/58 [00:52<00:15,  1.16s/it] 79%|███████▉  | 46/58 [00:52<00:12,  1.04s/it] 81%|████████  | 47/58 [00:54<00:12,  1.10s/it] 83%|████████▎ | 48/58 [00:55<00:12,  1.20s/it] 84%|████████▍ | 49/58 [00:56<00:10,  1.22s/it] 86%|████████▌ | 50/58 [00:58<00:09,  1.18s/it] 88%|████████▊ | 51/58 [00:59<00:08,  1.19s/it] 90%|████████▉ | 52/58 [01:00<00:07,  1.32s/it] 91%|█████████▏| 53/58 [01:02<00:07,  1.40s/it] 93%|█████████▎| 54/58 [01:03<00:05,  1.32s/it] 95%|█████████▍| 55/58 [01:04<00:03,  1.16s/it] 97%|█████████▋| 56/58 [01:05<00:02,  1.29s/it] 98%|█████████▊| 57/58 [01:07<00:01,  1.23s/it]100%|██████████| 58/58 [01:08<00:00,  1.15s/it]                                               [32m2026-02-20 20:10:28 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - First_Stock_List - 创建并插入A股活跃股票失败: Connection Error: Connection already closed!
+[32m2026-02-20 20:10:28 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - 48fa0d78-3146-4ec2-b679-fa98ccbf008f - 13618 - First_Stock_List - STEP_FAILURE - Execution of step "First_Stock_List" failed.
+
+dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "First_Stock_List"::
+
+_duckdb.ConnectionException: Connection Error: Connection already closed!
+
+Stack Trace:
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
+    yield
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
+    next_output = next(iterator)
+                  ^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
+    result = invoke_compute_fn(
+             ^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
+    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 47, in First_Stock_List
+    with db.get_connection() as conn:
+         ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 49, in First_Stock_List
+    conn.execute("""
+[0m

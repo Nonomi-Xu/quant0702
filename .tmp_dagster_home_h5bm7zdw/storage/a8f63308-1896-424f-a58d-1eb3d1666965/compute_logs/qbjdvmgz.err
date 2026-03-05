@@ -1,0 +1,10 @@
+[32m2026-02-21 00:51:38 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - a8f63308-1896-424f-a58d-1eb3d1666965 - 65710 - LOGS_CAPTURED - Started capturing logs in process (pid: 65710).
+[32m2026-02-21 00:51:38 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - a8f63308-1896-424f-a58d-1eb3d1666965 - 65710 - Add_Details_Xq - STEP_START - Started execution of step "Add_Details_Xq".
+[32m2026-02-21 00:51:38 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - a8f63308-1896-424f-a58d-1eb3d1666965 - Add_Details_Xq - 开始逐个查询补齐A股基础信息...
+/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py:380: DataOrientationWarning: Row orientation inferred during DataFrame construction. Explicitly specify the orientation by passing `orient="row"` to silence this warning.
+  if start_date >= end_date:
+[32m2026-02-21 00:55:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - a8f63308-1896-424f-a58d-1eb3d1666965 - 65710 - Add_Details_Xq - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
+[32m2026-02-21 00:55:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - a8f63308-1896-424f-a58d-1eb3d1666965 - Add_Details_Xq - Writing file at: /Users/sheng/Desktop/Quant/a-stock/.tmp_dagster_home_h5bm7zdw/storage/Add_Details_Xq using PickledObjectFilesystemIOManager...
+[32m2026-02-21 00:55:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - a8f63308-1896-424f-a58d-1eb3d1666965 - 65710 - Add_Details_Xq - ASSET_MATERIALIZATION - Materialized value Add_Details_Xq.
+[32m2026-02-21 00:55:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - a8f63308-1896-424f-a58d-1eb3d1666965 - 65710 - Add_Details_Xq - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
+[32m2026-02-21 00:55:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - a8f63308-1896-424f-a58d-1eb3d1666965 - 65710 - Add_Details_Xq - STEP_SUCCESS - Finished execution of step "Add_Details_Xq" in 3m55s.

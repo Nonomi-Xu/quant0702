@@ -1,0 +1,54 @@
+[32m2026-02-21 00:27:12 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - c9ae01d5-c595-4fcb-885b-dd2e5e8c8cc7 - 61194 - LOGS_CAPTURED - Started capturing logs in process (pid: 61194).
+[32m2026-02-21 00:27:12 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - c9ae01d5-c595-4fcb-885b-dd2e5e8c8cc7 - 61194 - First_Stock_List - STEP_START - Started execution of step "First_Stock_List".
+[32m2026-02-21 00:27:12 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - c9ae01d5-c595-4fcb-885b-dd2e5e8c8cc7 - First_Stock_List - 开始获取A股股票列表...
+  0%|          | 0/58 [00:00<?, ?it/s]  2%|▏         | 1/58 [00:00<00:55,  1.02it/s]  3%|▎         | 2/58 [00:02<01:15,  1.34s/it]  5%|▌         | 3/58 [00:03<01:10,  1.28s/it]  7%|▋         | 4/58 [00:05<01:08,  1.28s/it]  9%|▊         | 5/58 [00:06<01:06,  1.25s/it] 10%|█         | 6/58 [00:07<00:59,  1.14s/it] 12%|█▏        | 7/58 [00:08<01:00,  1.18s/it] 14%|█▍        | 8/58 [00:09<00:54,  1.08s/it] 16%|█▌        | 9/58 [00:10<01:01,  1.25s/it] 17%|█▋        | 10/58 [00:12<01:00,  1.26s/it] 19%|█▉        | 11/58 [00:13<01:00,  1.29s/it] 21%|██        | 12/58 [00:14<00:53,  1.17s/it] 22%|██▏       | 13/58 [00:15<00:52,  1.17s/it] 24%|██▍       | 14/58 [00:17<00:56,  1.28s/it] 26%|██▌       | 15/58 [00:18<00:49,  1.15s/it] 28%|██▊       | 16/58 [00:18<00:43,  1.03s/it] 29%|██▉       | 17/58 [00:19<00:39,  1.03it/s] 31%|███       | 18/58 [00:20<00:38,  1.03it/s] 33%|███▎      | 19/58 [00:21<00:34,  1.14it/s] 34%|███▍      | 20/58 [00:22<00:41,  1.10s/it] 36%|███▌      | 21/58 [00:24<00:41,  1.11s/it] 38%|███▊      | 22/58 [00:25<00:46,  1.28s/it] 40%|███▉      | 23/58 [00:27<00:46,  1.33s/it] 41%|████▏     | 24/58 [00:27<00:38,  1.15s/it] 43%|████▎     | 25/58 [00:28<00:37,  1.13s/it] 45%|████▍     | 26/58 [00:30<00:40,  1.26s/it] 47%|████▋     | 27/58 [00:31<00:34,  1.11s/it] 48%|████▊     | 28/58 [00:32<00:34,  1.17s/it] 50%|█████     | 29/58 [00:33<00:35,  1.22s/it] 52%|█████▏    | 30/58 [00:35<00:36,  1.32s/it] 53%|█████▎    | 31/58 [00:36<00:34,  1.29s/it] 55%|█████▌    | 32/58 [00:37<00:32,  1.24s/it] 57%|█████▋    | 33/58 [00:39<00:34,  1.39s/it] 59%|█████▊    | 34/58 [00:40<00:31,  1.33s/it] 60%|██████    | 35/58 [00:41<00:28,  1.22s/it] 62%|██████▏   | 36/58 [00:43<00:28,  1.30s/it] 64%|██████▍   | 37/58 [00:44<00:25,  1.23s/it] 66%|██████▌   | 38/58 [00:45<00:22,  1.15s/it] 67%|██████▋   | 39/58 [00:46<00:25,  1.32s/it] 69%|██████▉   | 40/58 [00:47<00:21,  1.18s/it] 71%|███████   | 41/58 [00:49<00:20,  1.23s/it] 72%|███████▏  | 42/58 [00:49<00:17,  1.11s/it] 74%|███████▍  | 43/58 [00:50<00:16,  1.08s/it] 76%|███████▌  | 44/58 [00:52<00:15,  1.14s/it] 78%|███████▊  | 45/58 [00:53<00:14,  1.15s/it] 79%|███████▉  | 46/58 [00:54<00:13,  1.10s/it] 81%|████████  | 47/58 [00:55<00:11,  1.05s/it] 83%|████████▎ | 48/58 [00:56<00:12,  1.23s/it] 84%|████████▍ | 49/58 [00:57<00:10,  1.13s/it] 86%|████████▌ | 50/58 [00:58<00:09,  1.13s/it] 88%|████████▊ | 51/58 [01:00<00:08,  1.21s/it] 90%|████████▉ | 52/58 [01:01<00:06,  1.14s/it] 91%|█████████▏| 53/58 [01:02<00:06,  1.28s/it] 93%|█████████▎| 54/58 [01:03<00:04,  1.20s/it] 95%|█████████▍| 55/58 [01:05<00:03,  1.17s/it] 97%|█████████▋| 56/58 [01:06<00:02,  1.14s/it] 98%|█████████▊| 57/58 [01:07<00:01,  1.19s/it]100%|██████████| 58/58 [01:08<00:00,  1.19s/it]                                               [32m2026-02-21 00:28:21 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - c9ae01d5-c595-4fcb-885b-dd2e5e8c8cc7 - 61194 - First_Stock_List - STEP_FAILURE - Execution of step "First_Stock_List" failed.
+
+dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "First_Stock_List"::
+
+TypeError: slice indices must be integers or None or have an __index__ method
+
+Stack Trace:
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
+    yield
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
+    next_output = next(iterator)
+                  ^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
+    result = invoke_compute_fn(
+             ^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
+    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 97, in First_Stock_List
+    .with_columns([
+     ^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/polars/dataframe/frame.py", line 10473, in with_columns
+    .collect(optimizations=QueryOptFlags._eager())
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/polars/_utils/deprecation.py", line 97, in wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/polars/lazyframe/opt_flags.py", line 326, in wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/polars/lazyframe/frame.py", line 2440, in collect
+    return wrap_df(ldf.collect(engine, callback))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/polars/functions/lazy.py", line 1088, in __call__
+    rv = self.function(slp, *args, **kwargs)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/polars/expr/expr.py", line 4897, in _wrap
+    return function(sl[0], *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/polars/expr/expr.py", line 5121, in wrap_f
+    return x.map_elements(
+           ^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/polars/series/series.py", line 6084, in map_elements
+    self._s.map_elements(
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 73, in get_exchange
+    if symbol.startswith('6', '688', '689'):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[0m
+[32m2026-02-21 00:28:21 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - c9ae01d5-c595-4fcb-885b-dd2e5e8c8cc7 - Add_Listing_Stocks - Dependencies for step Add_Listing_Stocks failed: ['First_Stock_List']. Not executing.[0m
+[32m2026-02-21 00:28:21 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - c9ae01d5-c595-4fcb-885b-dd2e5e8c8cc7 - Add_Delisting_Stocks - Dependencies for step Add_Delisting_Stocks were not executed: ['Add_Listing_Stocks']. Not executing.[0m
+[32m2026-02-21 00:28:21 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - c9ae01d5-c595-4fcb-885b-dd2e5e8c8cc7 - Add_Details_Xq - Dependencies for step Add_Details_Xq were not executed: ['Add_Delisting_Stocks']. Not executing.[0m

@@ -1,0 +1,9 @@
+[32m2026-02-20 20:56:14 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - da118213-6b8d-4ab1-a5bc-94def5fda440 - 22293 - LOGS_CAPTURED - Started capturing logs in process (pid: 22293).
+[32m2026-02-20 20:56:14 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - da118213-6b8d-4ab1-a5bc-94def5fda440 - 22293 - Add_Delisting_Stocks - STEP_START - Started execution of step "Add_Delisting_Stocks".
+[32m2026-02-20 20:56:14 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - da118213-6b8d-4ab1-a5bc-94def5fda440 - Add_Delisting_Stocks - 开始逐个查询A股退市股票上市退市时间...
+[32m2026-02-20 20:56:15 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - da118213-6b8d-4ab1-a5bc-94def5fda440 - Add_Delisting_Stocks - ✅ 退市信息更新完成：退市 343 只；表总计 5838 行；有上市日期 5806 行
+[32m2026-02-20 20:56:15 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - da118213-6b8d-4ab1-a5bc-94def5fda440 - 22293 - Add_Delisting_Stocks - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
+[32m2026-02-20 20:56:15 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - da118213-6b8d-4ab1-a5bc-94def5fda440 - Add_Delisting_Stocks - Writing file at: /Users/sheng/Desktop/Quant/a-stock/.tmp_dagster_home_fmqshrmy/storage/Add_Delisting_Stocks using PickledObjectFilesystemIOManager...
+[32m2026-02-20 20:56:15 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - da118213-6b8d-4ab1-a5bc-94def5fda440 - 22293 - Add_Delisting_Stocks - ASSET_MATERIALIZATION - Materialized value Add_Delisting_Stocks.
+[32m2026-02-20 20:56:15 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - da118213-6b8d-4ab1-a5bc-94def5fda440 - 22293 - Add_Delisting_Stocks - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
+[32m2026-02-20 20:56:15 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - da118213-6b8d-4ab1-a5bc-94def5fda440 - 22293 - Add_Delisting_Stocks - STEP_SUCCESS - Finished execution of step "Add_Delisting_Stocks" in 773ms.

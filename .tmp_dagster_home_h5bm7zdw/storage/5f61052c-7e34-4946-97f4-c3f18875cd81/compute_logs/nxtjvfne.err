@@ -1,0 +1,34 @@
+[32m2026-02-21 00:42:07 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 5f61052c-7e34-4946-97f4-c3f18875cd81 - 63929 - LOGS_CAPTURED - Started capturing logs in process (pid: 63929).
+[32m2026-02-21 00:42:07 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 5f61052c-7e34-4946-97f4-c3f18875cd81 - 63929 - Add_Details_Xq - STEP_START - Started execution of step "Add_Details_Xq".
+[32m2026-02-21 00:42:07 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - 5f61052c-7e34-4946-97f4-c3f18875cd81 - Add_Details_Xq - 开始逐个查询补齐A股上市时间...
+[32m2026-02-21 00:42:07 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - 5f61052c-7e34-4946-97f4-c3f18875cd81 - Add_Details_Xq - 使用逐个查询补齐A股股票其他信息失败: Add_Details_Xq.<locals>._get_stock_detail() missing 1 required positional argument: 'exchange'
+[32m2026-02-21 00:42:07 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - 5f61052c-7e34-4946-97f4-c3f18875cd81 - 63929 - Add_Details_Xq - STEP_FAILURE - Execution of step "Add_Details_Xq" failed.
+
+dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "Add_Details_Xq"::
+
+TypeError: Add_Details_Xq.<locals>._get_stock_detail() missing 1 required positional argument: 'exchange'
+
+Stack Trace:
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
+    yield
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
+    next_output = next(iterator)
+                  ^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
+    result = invoke_compute_fn(
+             ^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
+    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 456, in Add_Details_Xq
+    result = f.result()
+             ^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/opt/anaconda3/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[0m

@@ -1,6 +1,0 @@
-✅ 数据库表初始化完成
-✅ DuckDB连接已创建: /Users/sheng/Desktop/Quant/a-stock/data/a-stock.duckdb
-正在删除现有表并重建 basic_daily_prices
-表已删除
-✅ 数据库表初始化完成
-表结构重置完成

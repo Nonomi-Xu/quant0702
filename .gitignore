@@ -17,6 +17,7 @@ pip-delete-this-directory.txt
 *.swo
 .DS_Store
 
+
 # 项目特定（股票分析常用）
 *.csv
 *.xlsx
@@ -31,3 +32,11 @@ logs/
 # Jupyter Notebook 临时文件
 .ipynb_checkpoints/
 *.ipynb
+
+# Dagster 临时文件
+.tmp_dagster_home_*/
+.tmp_dagster_home_*
+*.tmp_dagster_home_*
+tmp_dagster_home_*
+**/.tmp_dagster_home_*/
+**/.tmp_dagster_home_*

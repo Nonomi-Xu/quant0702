@@ -1,76 +1,0 @@
-[32m2026-02-21 00:26:16 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - e897c05c-ae74-4172-b979-1e76d811ee60 - 61016 - LOGS_CAPTURED - Started capturing logs in process (pid: 61016).
-[32m2026-02-21 00:26:16 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - e897c05c-ae74-4172-b979-1e76d811ee60 - 61016 - First_Stock_List - STEP_START - Started execution of step "First_Stock_List".
-[32m2026-02-21 00:26:16 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - e897c05c-ae74-4172-b979-1e76d811ee60 - First_Stock_List - 开始获取A股股票列表...
-  0%|          | 0/58 [00:00<?, ?it/s]  2%|▏         | 1/58 [00:01<01:04,  1.13s/it]  3%|▎         | 2/58 [00:02<00:58,  1.04s/it]  5%|▌         | 3/58 [00:03<01:04,  1.18s/it]  7%|▋         | 4/58 [00:04<00:58,  1.09s/it]  9%|▊         | 5/58 [00:05<01:03,  1.19s/it] 10%|█         | 6/58 [00:07<01:10,  1.36s/it] 12%|█▏        | 7/58 [00:08<01:10,  1.37s/it] 14%|█▍        | 8/58 [00:09<01:01,  1.23s/it] 16%|█▌        | 9/58 [00:11<01:03,  1.29s/it] 17%|█▋        | 10/58 [00:12<01:06,  1.39s/it] 19%|█▉        | 11/58 [00:13<00:58,  1.25s/it] 21%|██        | 12/58 [00:15<00:59,  1.29s/it] 22%|██▏       | 13/58 [00:16<00:54,  1.21s/it] 24%|██▍       | 14/58 [00:17<00:56,  1.28s/it] 26%|██▌       | 15/58 [00:18<00:51,  1.20s/it] 28%|██▊       | 16/58 [00:19<00:44,  1.06s/it] 29%|██▉       | 17/58 [00:20<00:48,  1.19s/it] 31%|███       | 18/58 [00:21<00:46,  1.17s/it] 33%|███▎      | 19/58 [00:23<00:46,  1.19s/it] 34%|███▍      | 20/58 [00:24<00:41,  1.09s/it] 36%|███▌      | 21/58 [00:25<00:41,  1.13s/it] 38%|███▊      | 22/58 [00:26<00:39,  1.09s/it] 40%|███▉      | 23/58 [00:27<00:39,  1.11s/it] 41%|████▏     | 24/58 [00:29<00:43,  1.27s/it]                                               [32m2026-02-21 00:26:47 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - e897c05c-ae74-4172-b979-1e76d811ee60 - 61016 - First_Stock_List - STEP_FAILURE - Execution of step "First_Stock_List" failed.
-
-dagster._core.errors.DagsterExecutionInterruptedError
-
-Stack Trace:
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_plan.py", line 247, in dagster_event_sequence_for_step
-    yield from check.generator(step_events)
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 505, in core_dagster_event_sequence_for_step
-    for user_event in _step_output_error_checked_user_event_sequence(
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 184, in _step_output_error_checked_user_event_sequence
-    for user_event in user_event_sequence:
-                      ^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 88, in _process_asset_results_to_events
-    for user_event in user_event_sequence:
-                      ^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute.py", line 188, in execute_core_compute
-    for step_output in _yield_compute_results(step_context, inputs, compute_fn, compute_context):
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute.py", line 157, in _yield_compute_results
-    for event in iterate_with_context(
-                 ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
-    next_output = next(iterator)
-                  ^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
-    result = invoke_compute_fn(
-             ^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
-    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 85, in First_Stock_List
-    spot_ak = ak.stock_zh_a_spot_em()  # pandas
-              ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/akshare/stock_feature/stock_hist_em.py", line 36, in stock_zh_a_spot_em
-    temp_df = fetch_paginated_data(url, params)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/akshare/utils/func.py", line 50, in fetch_paginated_data
-    r = request_with_retry(url, params=params, timeout=timeout)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/akshare/utils/request.py", line 52, in request_with_retry
-    response = session.get(url, params=params, timeout=timeout)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/requests/sessions.py", line 602, in get
-    return self.request("GET", url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/requests/sessions.py", line 589, in request
-    resp = self.send(prep, **send_kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/requests/sessions.py", line 703, in send
-    r = adapter.send(request, **kwargs)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/requests/adapters.py", line 644, in send
-    resp = conn.urlopen(
-           ^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 787, in urlopen
-    response = self._make_request(
-               ^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 464, in _make_request
-    self._validate_conn(conn)
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 1093, in _validate_conn
-    conn.connect()
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 759, in connect
-    self.sock = sock = self._new_conn()
-                       ^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 204, in _new_conn
-    sock = connection.create_connection(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/urllib3/util/connection.py", line 73, in create_connection
-    sock.connect(sa)
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/interrupts.py", line 81, in _new_signal_handler
-    raise error_cls()
-[0m

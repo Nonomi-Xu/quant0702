@@ -1,38 +1,0 @@
-[32m2026-02-20 20:59:46 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - 22961 - LOGS_CAPTURED - Started capturing logs in process (pid: 22961).
-[32m2026-02-20 20:59:46 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - 22961 - First_Stock_List - STEP_START - Started execution of step "First_Stock_List".
-[32m2026-02-20 20:59:47 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - First_Stock_List - 开始获取A股股票列表...
-  0%|          | 0/58 [00:00<?, ?it/s]  2%|▏         | 1/58 [00:01<01:01,  1.07s/it]  3%|▎         | 2/58 [00:01<00:53,  1.05it/s]  5%|▌         | 3/58 [00:03<01:08,  1.25s/it]  7%|▋         | 4/58 [00:04<01:00,  1.12s/it]  9%|▊         | 5/58 [00:05<00:56,  1.07s/it] 10%|█         | 6/58 [00:06<00:51,  1.00it/s] 12%|█▏        | 7/58 [00:07<00:56,  1.10s/it] 14%|█▍        | 8/58 [00:08<00:50,  1.01s/it] 16%|█▌        | 9/58 [00:09<00:56,  1.16s/it] 17%|█▋        | 10/58 [00:10<00:53,  1.12s/it] 19%|█▉        | 11/58 [00:12<00:57,  1.22s/it] 21%|██        | 12/58 [00:13<00:49,  1.07s/it] 22%|██▏       | 13/58 [00:14<00:53,  1.18s/it] 24%|██▍       | 14/58 [00:16<00:55,  1.26s/it] 26%|██▌       | 15/58 [00:16<00:47,  1.10s/it] 28%|██▊       | 16/58 [00:17<00:44,  1.05s/it] 29%|██▉       | 17/58 [00:18<00:38,  1.05it/s] 31%|███       | 18/58 [00:19<00:44,  1.11s/it] 33%|███▎      | 19/58 [00:20<00:39,  1.00s/it] 34%|███▍      | 20/58 [00:22<00:43,  1.14s/it] 36%|███▌      | 21/58 [00:22<00:37,  1.03s/it] 38%|███▊      | 22/58 [00:23<00:37,  1.05s/it] 40%|███▉      | 23/58 [00:24<00:35,  1.02s/it] 41%|████▏     | 24/58 [00:25<00:32,  1.06it/s] 43%|████▎     | 25/58 [00:26<00:28,  1.14it/s] 45%|████▍     | 26/58 [00:27<00:30,  1.03it/s] 47%|████▋     | 27/58 [00:28<00:32,  1.04s/it] 48%|████▊     | 28/58 [00:29<00:32,  1.08s/it] 50%|█████     | 29/58 [00:30<00:30,  1.06s/it] 52%|█████▏    | 30/58 [00:32<00:34,  1.24s/it] 53%|█████▎    | 31/58 [00:33<00:33,  1.26s/it] 55%|█████▌    | 32/58 [00:35<00:33,  1.28s/it] 57%|█████▋    | 33/58 [00:36<00:28,  1.14s/it] 59%|█████▊    | 34/58 [00:37<00:26,  1.09s/it] 60%|██████    | 35/58 [00:37<00:23,  1.02s/it] 62%|██████▏   | 36/58 [00:39<00:27,  1.23s/it] 64%|██████▍   | 37/58 [00:40<00:24,  1.17s/it] 66%|██████▌   | 38/58 [00:41<00:21,  1.06s/it] 67%|██████▋   | 39/58 [00:42<00:22,  1.16s/it] 69%|██████▉   | 40/58 [00:43<00:18,  1.04s/it] 71%|███████   | 41/58 [00:44<00:16,  1.02it/s] 72%|███████▏  | 42/58 [00:45<00:15,  1.01it/s] 74%|███████▍  | 43/58 [00:46<00:14,  1.02it/s] 76%|███████▌  | 44/58 [00:47<00:14,  1.03s/it] 78%|███████▊  | 45/58 [00:49<00:15,  1.18s/it] 79%|███████▉  | 46/58 [00:50<00:15,  1.31s/it] 81%|████████  | 47/58 [00:51<00:13,  1.22s/it] 83%|████████▎ | 48/58 [00:52<00:11,  1.20s/it] 84%|████████▍ | 49/58 [00:53<00:10,  1.15s/it] 86%|████████▌ | 50/58 [00:55<00:09,  1.13s/it] 88%|████████▊ | 51/58 [00:56<00:08,  1.23s/it] 90%|████████▉ | 52/58 [00:58<00:08,  1.36s/it] 91%|█████████▏| 53/58 [00:59<00:07,  1.40s/it] 93%|█████████▎| 54/58 [01:01<00:05,  1.47s/it] 95%|█████████▍| 55/58 [01:02<00:04,  1.53s/it] 97%|█████████▋| 56/58 [01:04<00:02,  1.47s/it] 98%|█████████▊| 57/58 [01:05<00:01,  1.37s/it]100%|██████████| 58/58 [01:06<00:00,  1.18s/it]                                               [32m2026-02-20 21:00:53 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - First_Stock_List - ✅ 成功获取 5810 只A股
-[32m2026-02-20 21:00:53 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - 22961 - First_Stock_List - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
-[32m2026-02-20 21:00:53 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - First_Stock_List - Writing file at: /Users/sheng/Desktop/Quant/a-stock/.tmp_dagster_home_fmqshrmy/storage/First_Stock_List using PickledObjectFilesystemIOManager...
-[32m2026-02-20 21:00:53 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - 22961 - First_Stock_List - ASSET_MATERIALIZATION - Materialized value First_Stock_List.
-[32m2026-02-20 21:00:53 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - 22961 - First_Stock_List - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
-[32m2026-02-20 21:00:53 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - 22961 - First_Stock_List - STEP_SUCCESS - Finished execution of step "First_Stock_List" in 1m6s.
-[32m2026-02-20 21:00:53 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - 22961 - Add_Listing_Stocks - STEP_START - Started execution of step "Add_Listing_Stocks".
-[32m2026-02-20 21:00:53 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - Add_Listing_Stocks - 开始逐个查询补齐A股上市时间...
-[32m2026-02-20 21:00:53 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - Add_Listing_Stocks - 使用逐个查询补齐A股活跃股票上市时间失败: Connection Error: Connection already closed!
-[32m2026-02-20 21:00:53 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - 22961 - Add_Listing_Stocks - STEP_FAILURE - Execution of step "Add_Listing_Stocks" failed.
-
-dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "Add_Listing_Stocks"::
-
-_duckdb.ConnectionException: Connection Error: Connection already closed!
-
-Stack Trace:
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
-    yield
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
-    next_output = next(iterator)
-                  ^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
-    result = invoke_compute_fn(
-             ^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
-    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 131, in Add_Listing_Stocks
-    with db.get_connection() as conn:
-         ^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 132, in Add_Listing_Stocks
-    need = conn.execute("""
-           ^^^^^^^^^^^^^^^^
-[0m
-[32m2026-02-20 21:00:53 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - 2a4b587b-38d4-469a-9962-f3fcb4994a6b - Add_Delisting_Stocks - Dependencies for step Add_Delisting_Stocks failed: ['Add_Listing_Stocks']. Not executing.[0m

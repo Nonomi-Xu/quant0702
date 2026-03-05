@@ -1,30 +1,0 @@
-[32m2026-02-20 19:54:04 +0800[0m - dagster - [34mDEBUG[0m - First_Stock_List_Job - 323f8fbd-5bd5-44df-b312-a050e6206f4d - 10821 - LOGS_CAPTURED - Started capturing logs in process (pid: 10821).
-[32m2026-02-20 19:54:04 +0800[0m - dagster - [34mDEBUG[0m - First_Stock_List_Job - 323f8fbd-5bd5-44df-b312-a050e6206f4d - 10821 - First_Stock_List - STEP_START - Started execution of step "First_Stock_List".
-[32m2026-02-20 19:54:04 +0800[0m - dagster - [34mINFO[0m - First_Stock_List_Job - 323f8fbd-5bd5-44df-b312-a050e6206f4d - First_Stock_List - 开始获取A股股票列表...
-  0%|          | 0/58 [00:00<?, ?it/s]  2%|▏         | 1/58 [00:01<01:33,  1.63s/it]  3%|▎         | 2/58 [00:03<01:31,  1.64s/it]  5%|▌         | 3/58 [00:04<01:11,  1.30s/it]  7%|▋         | 4/58 [00:04<00:58,  1.08s/it]  9%|▊         | 5/58 [00:05<00:51,  1.02it/s] 10%|█         | 6/58 [00:07<01:01,  1.18s/it] 12%|█▏        | 7/58 [00:08<01:07,  1.32s/it] 14%|█▍        | 8/58 [00:10<01:11,  1.42s/it] 16%|█▌        | 9/58 [00:11<01:05,  1.34s/it] 17%|█▋        | 10/58 [00:12<00:58,  1.23s/it] 19%|█▉        | 11/58 [00:13<00:58,  1.25s/it] 21%|██        | 12/58 [00:15<00:55,  1.22s/it] 22%|██▏       | 13/58 [00:16<00:58,  1.31s/it] 24%|██▍       | 14/58 [00:17<00:50,  1.15s/it] 26%|██▌       | 15/58 [00:18<00:53,  1.24s/it] 28%|██▊       | 16/58 [00:20<00:50,  1.21s/it] 29%|██▉       | 17/58 [00:21<00:53,  1.32s/it] 31%|███       | 18/58 [00:22<00:50,  1.27s/it] 33%|███▎      | 19/58 [00:24<00:49,  1.28s/it] 34%|███▍      | 20/58 [00:24<00:42,  1.12s/it] 36%|███▌      | 21/58 [00:26<00:43,  1.19s/it] 38%|███▊      | 22/58 [00:27<00:39,  1.10s/it] 40%|███▉      | 23/58 [00:28<00:37,  1.07s/it] 41%|████▏     | 24/58 [00:29<00:35,  1.05s/it] 43%|████▎     | 25/58 [00:30<00:34,  1.05s/it] 45%|████▍     | 26/58 [00:31<00:33,  1.05s/it] 47%|████▋     | 27/58 [00:32<00:32,  1.03s/it] 48%|████▊     | 28/58 [00:33<00:31,  1.06s/it] 50%|█████     | 29/58 [00:34<00:31,  1.09s/it] 52%|█████▏    | 30/58 [00:35<00:30,  1.08s/it] 53%|█████▎    | 31/58 [00:36<00:30,  1.14s/it] 55%|█████▌    | 32/58 [00:38<00:32,  1.27s/it] 57%|█████▋    | 33/58 [00:39<00:29,  1.18s/it] 59%|█████▊    | 34/58 [00:40<00:29,  1.21s/it] 60%|██████    | 35/58 [00:42<00:30,  1.31s/it] 62%|██████▏   | 36/58 [00:43<00:29,  1.32s/it] 64%|██████▍   | 37/58 [00:44<00:24,  1.17s/it] 66%|██████▌   | 38/58 [00:45<00:24,  1.21s/it] 67%|██████▋   | 39/58 [00:46<00:23,  1.26s/it] 69%|██████▉   | 40/58 [00:48<00:22,  1.27s/it] 71%|███████   | 41/58 [00:49<00:19,  1.12s/it] 72%|███████▏  | 42/58 [00:50<00:18,  1.13s/it] 74%|███████▍  | 43/58 [00:51<00:16,  1.09s/it] 76%|███████▌  | 44/58 [00:52<00:17,  1.24s/it] 78%|███████▊  | 45/58 [00:53<00:14,  1.14s/it] 79%|███████▉  | 46/58 [00:55<00:14,  1.24s/it] 81%|████████  | 47/58 [00:56<00:12,  1.13s/it] 83%|████████▎ | 48/58 [00:56<00:10,  1.04s/it] 84%|████████▍ | 49/58 [00:58<00:10,  1.17s/it] 86%|████████▌ | 50/58 [00:58<00:08,  1.02s/it] 88%|████████▊ | 51/58 [01:00<00:07,  1.11s/it] 90%|████████▉ | 52/58 [01:01<00:06,  1.16s/it] 91%|█████████▏| 53/58 [01:02<00:05,  1.19s/it] 93%|█████████▎| 54/58 [01:04<00:05,  1.31s/it] 95%|█████████▍| 55/58 [01:06<00:04,  1.41s/it] 97%|█████████▋| 56/58 [01:07<00:02,  1.32s/it] 98%|█████████▊| 57/58 [01:07<00:01,  1.15s/it]100%|██████████| 58/58 [01:09<00:00,  1.24s/it]                                               [32m2026-02-20 19:55:14 +0800[0m - dagster - [34mINFO[0m - First_Stock_List_Job - 323f8fbd-5bd5-44df-b312-a050e6206f4d - First_Stock_List - ✅ 成功获取 5810 只A股
-[32m2026-02-20 19:55:14 +0800[0m - dagster - [34mINFO[0m - First_Stock_List_Job - 323f8fbd-5bd5-44df-b312-a050e6206f4d - First_Stock_List - 使用逐个查询补齐A股活跃股票上市时间失败: Connection Error: Connection already closed!
-[32m2026-02-20 19:55:14 +0800[0m - dagster - [34mERROR[0m - [31mFirst_Stock_List_Job - 323f8fbd-5bd5-44df-b312-a050e6206f4d - 10821 - First_Stock_List - STEP_FAILURE - Execution of step "First_Stock_List" failed.
-
-dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "First_Stock_List"::
-
-_duckdb.ConnectionException: Connection Error: Connection already closed!
-
-Stack Trace:
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
-    yield
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
-    next_output = next(iterator)
-                  ^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
-    result = invoke_compute_fn(
-             ^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
-    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 160, in First_Stock_List
-    with db.get_connection() as conn:
-         ^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/data_ingestion_first_time.py", line 161, in First_Stock_List
-    need = conn.execute("""
-           ^^^^^^^^^^^^^^^^
-[0m

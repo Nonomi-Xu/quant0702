@@ -1,210 +1,0 @@
-[32m2026-02-21 20:19:52 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - LOGS_CAPTURED - Started capturing logs in process (pid: 21578).
-[32m2026-02-21 20:19:52 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Daily_New_Stocks - STEP_START - Started execution of step "Daily_New_Stocks".
-[32m2026-02-21 20:19:52 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Daily_New_Stocks - 开始检测新上市的股票...
-  0%|          | 0/15 [00:00<?, ?it/s]  7%|▋         | 1/15 [00:00<00:02,  4.79it/s] 13%|█▎        | 2/15 [00:00<00:02,  4.59it/s] 20%|██        | 3/15 [00:00<00:02,  4.94it/s] 27%|██▋       | 4/15 [00:00<00:02,  4.97it/s] 33%|███▎      | 5/15 [00:01<00:01,  5.03it/s] 40%|████      | 6/15 [00:01<00:01,  4.97it/s] 47%|████▋     | 7/15 [00:01<00:01,  4.71it/s] 53%|█████▎    | 8/15 [00:01<00:01,  4.79it/s] 60%|██████    | 9/15 [00:01<00:01,  4.80it/s] 67%|██████▋   | 10/15 [00:02<00:01,  4.67it/s] 73%|███████▎  | 11/15 [00:02<00:00,  4.72it/s] 80%|████████  | 12/15 [00:02<00:00,  4.76it/s] 87%|████████▋ | 13/15 [00:02<00:00,  4.88it/s] 93%|█████████▎| 14/15 [00:02<00:00,  4.77it/s]100%|██████████| 15/15 [00:03<00:00,  4.91it/s]                                               [32m2026-02-21 20:19:58 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Daily_New_Stocks - STEP_FAILURE - Execution of step "Daily_New_Stocks" failed.
-
-dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "Daily_New_Stocks"::
-
-KeyError: "None of [Index(['代码', '名称'], dtype='str')] are in the [columns]"
-
-Stack Trace:
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
-    yield
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
-    next_output = next(iterator)
-                  ^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
-    result = invoke_compute_fn(
-             ^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
-    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/daily_org.py", line 73, in Daily_New_Stocks
-    pl.from_pandas(new_stocks_info[["代码", "名称"]])
-                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/pandas/core/frame.py", line 4384, in __getitem__
-    indexer = self.columns._get_indexer_strict(key, "columns")[1]
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 6302, in _get_indexer_strict
-    self._raise_if_missing(keyarr, indexer, axis_name)
-  File "/Users/sheng/Desktop/Quant/a-stock/.venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 6352, in _raise_if_missing
-    raise KeyError(f"None of [{key}] are in the [{axis_name}]")
-[0m
-[32m2026-02-21 20:19:58 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Daily_Delisted_Stocks - Dependencies for step Daily_Delisted_Stocks failed: ['Daily_New_Stocks']. Not executing.[0m
-[32m2026-02-21 20:19:58 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Daily_Active_Stocks - Dependencies for step Daily_Active_Stocks were not executed: ['Daily_Delisted_Stocks']. Not executing.[0m
-[32m2026-02-21 20:19:58 +0800[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Daily_Basic_Prices - Dependencies for step Daily_Basic_Prices were not executed: ['Daily_Delisted_Stocks']. Not executing.[0m
-[32m2026-02-21 20:19:58 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Start_Stock_List - STEP_START - Started execution of step "Start_Stock_List".
-[32m2026-02-21 20:19:58 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Stock_List - 开始获取A股股票列表...
-  0%|          | 0/58 [00:00<?, ?it/s]  2%|▏         | 1/58 [00:01<00:58,  1.02s/it]  3%|▎         | 2/58 [00:01<00:55,  1.01it/s]  5%|▌         | 3/58 [00:03<00:56,  1.02s/it]  7%|▋         | 4/58 [00:03<00:51,  1.05it/s]  9%|▊         | 5/58 [00:05<00:58,  1.10s/it] 10%|█         | 6/58 [00:06<00:57,  1.10s/it] 12%|█▏        | 7/58 [00:07<00:51,  1.01s/it] 14%|█▍        | 8/58 [00:08<00:48,  1.03it/s] 16%|█▌        | 9/58 [00:08<00:46,  1.06it/s] 17%|█▋        | 10/58 [00:10<00:54,  1.13s/it] 19%|█▉        | 11/58 [00:12<01:00,  1.28s/it] 21%|██        | 12/58 [00:13<00:55,  1.20s/it] 22%|██▏       | 13/58 [00:13<00:48,  1.08s/it] 24%|██▍       | 14/58 [00:15<00:53,  1.20s/it] 26%|██▌       | 15/58 [00:16<00:48,  1.12s/it] 28%|██▊       | 16/58 [00:17<00:49,  1.18s/it] 29%|██▉       | 17/58 [00:18<00:46,  1.14s/it] 31%|███       | 18/58 [00:19<00:41,  1.04s/it] 33%|███▎      | 19/58 [00:21<00:47,  1.21s/it] 34%|███▍      | 20/58 [00:21<00:39,  1.05s/it] 36%|███▌      | 21/58 [00:23<00:40,  1.11s/it] 38%|███▊      | 22/58 [00:24<00:38,  1.08s/it] 40%|███▉      | 23/58 [00:25<00:37,  1.06s/it] 41%|████▏     | 24/58 [00:26<00:37,  1.11s/it] 43%|████▎     | 25/58 [00:27<00:39,  1.19s/it] 45%|████▍     | 26/58 [00:28<00:32,  1.03s/it] 47%|████▋     | 27/58 [00:29<00:29,  1.03it/s] 48%|████▊     | 28/58 [00:30<00:30,  1.03s/it] 50%|█████     | 29/58 [00:31<00:32,  1.12s/it] 52%|█████▏    | 30/58 [00:33<00:34,  1.22s/it] 53%|█████▎    | 31/58 [00:34<00:30,  1.13s/it] 55%|█████▌    | 32/58 [00:35<00:29,  1.14s/it] 57%|█████▋    | 33/58 [00:36<00:27,  1.11s/it] 59%|█████▊    | 34/58 [00:37<00:29,  1.24s/it] 60%|██████    | 35/58 [00:38<00:25,  1.12s/it] 62%|██████▏   | 36/58 [00:39<00:24,  1.11s/it] 64%|██████▍   | 37/58 [00:40<00:22,  1.08s/it] 66%|██████▌   | 38/58 [00:41<00:20,  1.01s/it] 67%|██████▋   | 39/58 [00:43<00:22,  1.16s/it] 69%|██████▉   | 40/58 [00:44<00:23,  1.28s/it] 71%|███████   | 41/58 [00:45<00:20,  1.19s/it] 72%|███████▏  | 42/58 [00:47<00:21,  1.32s/it] 74%|███████▍  | 43/58 [00:48<00:17,  1.18s/it] 76%|███████▌  | 44/58 [00:48<00:14,  1.04s/it] 78%|███████▊  | 45/58 [00:50<00:14,  1.13s/it] 79%|███████▉  | 46/58 [00:51<00:13,  1.13s/it] 81%|████████  | 47/58 [00:52<00:13,  1.24s/it] 83%|████████▎ | 48/58 [00:53<00:11,  1.13s/it] 84%|████████▍ | 49/58 [00:54<00:10,  1.11s/it] 86%|████████▌ | 50/58 [00:56<00:10,  1.27s/it] 88%|████████▊ | 51/58 [00:57<00:08,  1.16s/it] 90%|████████▉ | 52/58 [00:58<00:06,  1.05s/it] 91%|█████████▏| 53/58 [00:59<00:05,  1.02s/it] 93%|█████████▎| 54/58 [01:00<00:04,  1.06s/it] 95%|█████████▍| 55/58 [01:01<00:03,  1.17s/it] 97%|█████████▋| 56/58 [01:02<00:02,  1.19s/it] 98%|█████████▊| 57/58 [01:04<00:01,  1.25s/it]100%|██████████| 58/58 [01:05<00:00,  1.27s/it]                                               [32m2026-02-21 20:21:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Stock_List - ✅ 成功获取 5810 只A股
-[32m2026-02-21 20:21:04 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Start_Stock_List - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
-[32m2026-02-21 20:21:04 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Stock_List - Writing file at: /Users/sheng/Desktop/Quant/a-stock/.tmp_dagster_home_mfvan4o_/storage/Start_Stock_List using PickledObjectFilesystemIOManager...
-[32m2026-02-21 20:21:04 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Start_Stock_List - ASSET_MATERIALIZATION - Materialized value Start_Stock_List.
-[32m2026-02-21 20:21:04 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Start_Stock_List - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
-[32m2026-02-21 20:21:04 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Start_Stock_List - STEP_SUCCESS - Finished execution of step "Start_Stock_List" in 1m5s.
-[32m2026-02-21 20:21:04 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Listing_Stocks - STEP_START - Started execution of step "Add_Listing_Stocks".
-[32m2026-02-21 20:21:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Add_Listing_Stocks - 开始逐个查询补齐A股上市时间...
-[32m2026-02-21 20:21:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Add_Listing_Stocks - 需要补上市日期的在市股票: 5810 只
-/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/start_org.py:161: DataOrientationWarning: Row orientation inferred during DataFrame construction. Explicitly specify the orientation by passing `orient="row"` to silence this warning.
-  upd = pl.DataFrame(results, schema=["symbol", "list_date"]).with_columns(
-[32m2026-02-21 20:25:32 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Add_Listing_Stocks - ✅ 补上市日期成功: 5810 只
-[32m2026-02-21 20:25:32 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Listing_Stocks - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
-[32m2026-02-21 20:25:32 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Add_Listing_Stocks - Writing file at: /Users/sheng/Desktop/Quant/a-stock/.tmp_dagster_home_mfvan4o_/storage/Add_Listing_Stocks using PickledObjectFilesystemIOManager...
-[32m2026-02-21 20:25:32 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Listing_Stocks - ASSET_MATERIALIZATION - Materialized value Add_Listing_Stocks.
-[32m2026-02-21 20:25:32 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Listing_Stocks - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
-[32m2026-02-21 20:25:32 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Listing_Stocks - STEP_SUCCESS - Finished execution of step "Add_Listing_Stocks" in 4m27s.
-[32m2026-02-21 20:25:32 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Delisting_Stocks - STEP_START - Started execution of step "Add_Delisting_Stocks".
-[32m2026-02-21 20:25:32 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Add_Delisting_Stocks - 开始逐个查询A股退市股票上市退市时间...
-[32m2026-02-21 20:25:33 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Add_Delisting_Stocks - ✅ 退市信息更新完成：退市 343 只；表总计 5838 行；有上市日期 5806 行
-[32m2026-02-21 20:25:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Delisting_Stocks - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
-[32m2026-02-21 20:25:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Add_Delisting_Stocks - Writing file at: /Users/sheng/Desktop/Quant/a-stock/.tmp_dagster_home_mfvan4o_/storage/Add_Delisting_Stocks using PickledObjectFilesystemIOManager...
-[32m2026-02-21 20:25:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Delisting_Stocks - ASSET_MATERIALIZATION - Materialized value Add_Delisting_Stocks.
-[32m2026-02-21 20:25:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Delisting_Stocks - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
-[32m2026-02-21 20:25:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Delisting_Stocks - STEP_SUCCESS - Finished execution of step "Add_Delisting_Stocks" in 732ms.
-[32m2026-02-21 20:25:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Details_Xq - STEP_START - Started execution of step "Add_Details_Xq".
-[32m2026-02-21 20:25:33 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Add_Details_Xq - 开始逐个查询补齐A股基础信息...
-/Users/sheng/Desktop/Quant/a-stock/src/basic/assets/data_ingestion/start_org.py:323: DataOrientationWarning: Row orientation inferred during DataFrame construction. Explicitly specify the orientation by passing `orient="row"` to silence this warning.
-  xq = pl.DataFrame(results, schema=["symbol", "affiliate_industry", "provincial_name", "classi_name"])
-[32m2026-02-21 20:29:30 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Details_Xq - STEP_OUTPUT - Yielded output "result" of type "DataFrame". (Type check passed).
-[32m2026-02-21 20:29:30 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Add_Details_Xq - Writing file at: /Users/sheng/Desktop/Quant/a-stock/.tmp_dagster_home_mfvan4o_/storage/Add_Details_Xq using PickledObjectFilesystemIOManager...
-[32m2026-02-21 20:29:30 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Details_Xq - ASSET_MATERIALIZATION - Materialized value Add_Details_Xq.
-[32m2026-02-21 20:29:30 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Details_Xq - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
-[32m2026-02-21 20:29:30 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Add_Details_Xq - STEP_SUCCESS - Finished execution of step "Add_Details_Xq" in 3m56s.
-[32m2026-02-21 20:29:30 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Start_Basic_Prices - STEP_START - Started execution of step "Start_Basic_Prices".
-[32m2026-02-21 20:29:30 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 开始创建日线数据
-[32m2026-02-21 20:29:30 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 找到 5838 只股票
-[32m2026-02-21 20:29:30 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 无历史数据，从 20200101 开始获取
-[32m2026-02-21 20:29:30 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 1/117
-[32m2026-02-21 20:29:50 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 2/117
-[32m2026-02-21 20:30:09 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 3/117
-[32m2026-02-21 20:30:28 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 4/117
-[32m2026-02-21 20:30:46 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 5/117
-[32m2026-02-21 20:31:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 6/117
-[32m2026-02-21 20:31:22 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 7/117
-[32m2026-02-21 20:31:42 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 8/117
-[32m2026-02-21 20:32:02 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 9/117
-[32m2026-02-21 20:32:25 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 10/117
-[32m2026-02-21 20:32:52 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 11/117
-[32m2026-02-21 20:33:17 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 12/117
-[32m2026-02-21 20:33:41 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 13/117
-[32m2026-02-21 20:34:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 14/117
-[32m2026-02-21 20:34:37 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 15/117
-[32m2026-02-21 20:35:13 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 16/117
-[32m2026-02-21 20:35:33 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 17/117
-[32m2026-02-21 20:35:53 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 18/117
-[32m2026-02-21 20:36:13 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 19/117
-[32m2026-02-21 20:36:32 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 20/117
-[32m2026-02-21 20:36:52 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 21/117
-[32m2026-02-21 20:37:11 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 22/117
-[32m2026-02-21 20:37:31 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 23/117
-[32m2026-02-21 20:38:03 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 24/117
-[32m2026-02-21 20:38:39 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 25/117
-[32m2026-02-21 20:39:13 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 26/117
-[32m2026-02-21 20:39:44 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 27/117
-[32m2026-02-21 20:40:07 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 28/117
-[32m2026-02-21 20:40:30 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 29/117
-[32m2026-02-21 20:40:53 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 30/117
-[32m2026-02-21 20:41:21 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 31/117
-[32m2026-02-21 20:41:44 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 32/117
-[32m2026-02-21 20:42:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 33/117
-[32m2026-02-21 20:42:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 34/117
-[32m2026-02-21 20:42:43 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 35/117
-[32m2026-02-21 20:43:02 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 36/117
-[32m2026-02-21 20:43:22 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 37/117
-[32m2026-02-21 20:43:41 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 38/117
-[32m2026-02-21 20:44:01 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 39/117
-[32m2026-02-21 20:44:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 40/117
-[32m2026-02-21 20:44:39 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 41/117
-[32m2026-02-21 20:44:58 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 42/117
-[32m2026-02-21 20:45:17 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 43/117
-[32m2026-02-21 20:45:37 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 44/117
-[32m2026-02-21 20:46:01 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 45/117
-[32m2026-02-21 20:46:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 46/117
-[32m2026-02-21 20:46:42 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 47/117
-[32m2026-02-21 20:47:01 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 48/117
-[32m2026-02-21 20:47:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 49/117
-[32m2026-02-21 20:47:40 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 50/117
-[32m2026-02-21 20:47:58 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 51/117
-[32m2026-02-21 20:48:17 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 52/117
-[32m2026-02-21 20:48:36 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 53/117
-[32m2026-02-21 20:48:55 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 54/117
-[32m2026-02-21 20:49:14 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 55/117
-[32m2026-02-21 20:49:33 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 56/117
-[32m2026-02-21 20:49:53 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 57/117
-[32m2026-02-21 20:50:12 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 58/117
-[32m2026-02-21 20:50:38 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 59/117
-[32m2026-02-21 20:51:05 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 60/117
-[32m2026-02-21 20:51:29 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 61/117
-[32m2026-02-21 20:51:52 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 62/117
-[32m2026-02-21 20:52:15 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 63/117
-[32m2026-02-21 20:52:40 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 64/117
-[32m2026-02-21 20:53:14 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 65/117
-[32m2026-02-21 20:53:48 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 66/117
-[32m2026-02-21 20:54:10 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 67/117
-[32m2026-02-21 20:57:06 +0800[0m - dagster - [34mWARNING[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 获取 600284 失败: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
-[32m2026-02-21 20:57:12 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 68/117
-[32m2026-02-21 20:57:30 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 69/117
-[32m2026-02-21 20:57:48 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 70/117
-[32m2026-02-21 20:58:06 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 71/117
-[32m2026-02-21 20:58:24 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 72/117
-[32m2026-02-21 20:58:43 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 73/117
-[32m2026-02-21 20:59:03 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 74/117
-[32m2026-02-21 20:59:22 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 75/117
-[32m2026-02-21 20:59:42 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 76/117
-[32m2026-02-21 21:00:02 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 77/117
-[32m2026-02-21 21:00:22 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 78/117
-[32m2026-02-21 21:00:41 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 79/117
-[32m2026-02-21 21:01:01 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 80/117
-[32m2026-02-21 21:01:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 81/117
-[32m2026-02-21 21:01:43 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 82/117
-[32m2026-02-21 21:02:12 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 83/117
-[32m2026-02-21 21:02:43 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 84/117
-[32m2026-02-21 21:03:06 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 85/117
-[32m2026-02-21 21:03:25 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 86/117
-[32m2026-02-21 21:03:44 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 87/117
-[32m2026-02-21 21:04:04 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 88/117
-[32m2026-02-21 21:04:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 89/117
-[32m2026-02-21 21:04:43 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 90/117
-[32m2026-02-21 21:05:03 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 91/117
-[32m2026-02-21 21:05:22 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 92/117
-[32m2026-02-21 21:05:42 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 93/117
-[32m2026-02-21 21:06:01 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 94/117
-[32m2026-02-21 21:06:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 95/117
-[32m2026-02-21 21:06:40 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 96/117
-[32m2026-02-21 21:07:00 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 97/117
-[32m2026-02-21 21:07:25 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 98/117
-[32m2026-02-21 21:07:49 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 99/117
-[32m2026-02-21 21:08:17 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 100/117
-[32m2026-02-21 21:09:00 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 101/117
-[32m2026-02-21 21:09:48 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 102/117
-[32m2026-02-21 21:10:31 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 103/117
-[32m2026-02-21 21:11:03 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 104/117
-[32m2026-02-21 21:11:23 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 105/117
-[32m2026-02-21 21:11:42 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 106/117
-[32m2026-02-21 21:12:02 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 107/117
-[32m2026-02-21 21:12:22 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 108/117
-[32m2026-02-21 21:12:41 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 109/117
-[32m2026-02-21 21:13:13 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 110/117
-[32m2026-02-21 21:13:50 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 111/117
-[32m2026-02-21 21:14:31 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 112/117
-[32m2026-02-21 21:15:21 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 113/117
-[32m2026-02-21 21:15:55 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 114/117
-[32m2026-02-21 21:16:20 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 115/117
-[32m2026-02-21 21:16:49 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 116/117
-[32m2026-02-21 21:17:15 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 处理批次 117/117
-[32m2026-02-21 21:17:33 +0800[0m - dagster - [34mINFO[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - Start_Basic_Prices - 
-    ========== 日线数据更新完成 ==========
-    本次更新:
-        - 成功获取股票数: 0
-        - 新增数据行数: 0
-        - 失败股票数: 1
-    
-    总体统计:
-        - 总数据行数: 0
-        - 日期范围: None 至 None
-    
-    失败股票列表: ['600284']
-    ======================================
-    
-[32m2026-02-21 21:17:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Start_Basic_Prices - STEP_OUTPUT - Yielded output "result" of type "Any". (Type check passed).
-[32m2026-02-21 21:17:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Start_Basic_Prices - ASSET_MATERIALIZATION - Materialized value Start_Basic_Prices.
-[32m2026-02-21 21:17:33 +0800[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - b892ba5a-3227-4734-a182-0f51acc8a281 - 21578 - Start_Basic_Prices - STEP_SUCCESS - Finished execution of step "Start_Basic_Prices" in 46m10s.

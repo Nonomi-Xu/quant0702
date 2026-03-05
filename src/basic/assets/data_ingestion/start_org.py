@@ -28,25 +28,25 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
     pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
     
     try:
-        spot_ts_L = pro.stock_basic(exchange='',list_status ='L',fields='ts_code,symbol,name,area,industry,market,exchange,list_status,list_date,delist_date,fullname,enname,cnspell,curr_type,act_name,act_ent_type,is_hs,curr_type')
+        spot_ts_L = pro.stock_basic(exchange='',list_status ='L',fields='ts_code,symbol,name,area,industry,market,exchange,list_status,list_date,delist_date,fullname,enname,cnspell,curr_type,act_name,act_ent_type,is_hs')
     except Exception as e:
         context.log.error(f"接口 pro.stock_basic 获取失败: {e}")
         raise
 
     try:
-        spot_ts_D = pro.stock_basic(exchange='',list_status ='D',fields='ts_code,symbol,name,area,industry,market,exchange,list_status,list_date,delist_date,fullname,enname,cnspell,curr_type,act_name,act_ent_type,is_hs,curr_type')
+        spot_ts_D = pro.stock_basic(exchange='',list_status ='D',fields='ts_code,symbol,name,area,industry,market,exchange,list_status,list_date,delist_date,fullname,enname,cnspell,curr_type,act_name,act_ent_type,is_hs')
     except Exception as e:
         context.log.error(f"接口 pro.stock_basic 获取失败: {e}")
         raise
 
     try:
-        spot_ts_G = pro.stock_basic(exchange='',list_status ='G',fields='ts_code,symbol,name,area,industry,market,exchange,list_status,list_date,delist_date,fullname,enname,cnspell,curr_type,act_name,act_ent_type,is_hs,curr_type')
+        spot_ts_G = pro.stock_basic(exchange='',list_status ='G',fields='ts_code,symbol,name,area,industry,market,exchange,list_status,list_date,delist_date,fullname,enname,cnspell,curr_type,act_name,act_ent_type,is_hs')
     except Exception as e:
         context.log.error(f"接口 pro.stock_basic 获取失败: {e}")
         raise
 
     try:
-        spot_ts_P = pro.stock_basic(exchange='',list_status ='P',fields='ts_code,symbol,name,area,industry,market,exchange,list_status,list_date,delist_date,fullname,enname,cnspell,curr_type,act_name,act_ent_type,is_hs,curr_type')
+        spot_ts_P = pro.stock_basic(exchange='',list_status ='P',fields='ts_code,symbol,name,area,industry,market,exchange,list_status,list_date,delist_date,fullname,enname,cnspell,curr_type,act_name,act_ent_type,is_hs')
     except Exception as e:
         context.log.error(f"接口 pro.stock_basic 获取失败: {e}")
         raise

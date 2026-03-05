@@ -40,3 +40,6 @@ logs/
 tmp_dagster_home_*
 **/.tmp_dagster_home_*/
 **/.tmp_dagster_home_*
+
+# R
+.Rhistory

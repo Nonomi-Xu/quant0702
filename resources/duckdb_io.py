@@ -294,19 +294,25 @@ class DuckDBResource:
         """创建必要的表"""
         self._conn.execute("""
             -- 股票基本信息表
-            CREATE TABLE IF NOT EXISTS a_stocks_all (
-                symbol VARCHAR(20) NOT NULL,
-                name VARCHAR(50),
-                exchange VARCHAR(20),
-                market_cn VARCHAR(20),
-                market_en VARCHAR(50),
-                provincial_name VARCHAR(50),
-                affiliate_industry VARCHAR(50),
-                classi_name VARCHAR(50),
-                list_date DATE,
-                last_updated TIMESTAMP,
-                delisted_date DATE,
-                is_delisted BOOLEAN DEFAULT FALSE,
+            CREATE TABLE IF NOT EXISTS a_stocks_basic (
+                ts_code VARCHAR(20),                    -- TS代码
+                symbol VARCHAR(20) NOT NULL,             -- 股票代码
+                name VARCHAR(100),                        -- 股票名称
+                area VARCHAR(100),                         -- 地域
+                industry VARCHAR(100),                      -- 所属行业
+                market VARCHAR(50),                         -- 市场类型
+                exchange VARCHAR(20),                       -- 交易所代码
+                list_status VARCHAR(2),                      -- 上市状态
+                list_date VARCHAR(20),                       -- 上市日期（保持原始格式）
+                delist_date VARCHAR(20),                     -- 退市日期（保持原始格式）
+                fullname VARCHAR(200),                       -- 股票全称
+                enname VARCHAR(200),                          -- 英文全称
+                cnspell VARCHAR(10),                          -- 拼音缩写
+                curr_type VARCHAR(10),                        -- 交易货币
+                act_name VARCHAR(200),                        -- 实控人名称
+                act_ent_type VARCHAR(100),                    -- 实控人企业性质
+                is_hs VARCHAR(2),                             -- 是否沪深港通标的
+                last_updated TIMESTAMP,                       -- 最后更新时间
                 UNIQUE(symbol)
             );
             

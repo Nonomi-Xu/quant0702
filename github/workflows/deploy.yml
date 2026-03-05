@@ -1,0 +1,47 @@
+name: 部署应用到云服务器
+
+# 触发条件：当代码推送到 main 分支时
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    # 在GitHub提供的最新Ubuntu虚拟环境中运行
+    runs-on: ubuntu-latest
+    steps:
+      # 第一步：将你的仓库代码检出到虚拟环境中
+      - name: 检出新代码
+        uses: actions/checkout@v4
+
+      # 第二步：将代码复制到云服务器
+      # 使用 SCP (Secure Copy Protocol) 通过 SSH 传输文件
+      - name: 复制文件到服务器
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "."  # 复制当前工作目录下的所有文件
+          target: "/quant" # 复制到服务器的目标路径（请确保路径正确）
+          rm: true # 可选：在复制前先清空目标目录
+
+      # 第三步：在服务器上执行部署命令
+      # 例如，安装依赖、重启服务等
+      - name: 在服务器上执行远程命令
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # 进入你的应用目录
+            cd /var/www/myapp
+            # 如果是Node.js项目，可以执行：
+            # npm install
+            # pm2 restart all
+            # 或者重启Nginx服务：
+            # sudo systemctl reload nginx
+            echo "部署完成！"

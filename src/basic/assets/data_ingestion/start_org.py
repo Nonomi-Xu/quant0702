@@ -54,7 +54,7 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
     spot_ts = pd.concat([spot_ts_L, spot_ts_D, spot_ts_G, spot_ts_P], axis=0, ignore_index=True)
 
     pl_stocks_ts = (
-        pl.from_pandas(spot_ts[["ts_code","symbol","name","area","industry","market","exchange","list_status","list_date","delist_date","fullname","enname","cnspell","curr_type","act_name","act_ent_type","is_hs","curr_type"]])
+        pl.from_pandas(spot_ts[["ts_code","symbol","name","area","industry","market","exchange","list_status","list_date","delist_date","fullname","enname","cnspell","curr_type","act_name","act_ent_type","is_hs"]])
         .unique(subset=["symbol"])
     )
         

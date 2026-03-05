@@ -24,7 +24,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           source: "."  # 复制当前工作目录下的所有文件
-          target: "/quant" # 复制到服务器的目标路径（请确保路径正确）
+          target: "/home/ubuntu/quant
+
+" # 复制到服务器的目标路径（请确保路径正确）
           rm: true # 可选：在复制前先清空目标目录
 
       # 第三步：在服务器上执行部署命令

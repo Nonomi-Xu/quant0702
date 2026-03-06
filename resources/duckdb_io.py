@@ -374,49 +374,35 @@ class DuckDBResource:
         print("表结构重置完成")
     
     def reset_database(self, delete_file: bool = False, sync_to_cos: bool = True):
-        """
-        完全重置数据库（关闭连接，可选删除文件）
-        
-        Args:
-            delete_file: 如果为True，会删除数据库文件
-            sync_to_cos: 是否同步到COS（当delete_file为True时）
-        """
-        # 关闭当前连接
-        self.close()
-        
-        # 获取数据库路径
+        """完全重置数据库"""
         db_path = self._cos_manager.local_path if self._cos_manager else None
-        
+        cos_manager = self._cos_manager
+
+        self.close()
+
         if delete_file and db_path and db_path.exists():
-            # 如果是云端环境，先从COS删除
-            if sync_to_cos and CloudConfig.IS_CLOUD and self._cos_manager:
+            if sync_to_cos and CloudConfig.IS_CLOUD and cos_manager:
                 try:
-                    self._cos_manager.cos_client.delete_object(
-                        Bucket=self._cos_manager.bucket,
-                        Key=self._cos_manager.remote_path
+                    cos_manager.cos_client.delete_object(
+                        Bucket=cos_manager.bucket,
+                        Key=cos_manager.remote_path
                     )
-                    print(f"🗑️ COS文件已删除: {self._cos_manager.remote_path}")
+                    print(f"🗑️ COS文件已删除: {cos_manager.remote_path}")
                 except Exception as e:
                     print(f"⚠️ COS文件删除失败: {e}")
-            
-            # 删除本地文件
+
             db_path.unlink()
             print(f"🗑️ 本地数据库文件已删除: {db_path}")
-            
-            # 删除缓存元数据
+
             cache_meta = db_path.with_suffix('.meta')
             if cache_meta.exists():
                 cache_meta.unlink()
-        
-        # 重置单例实例
+
         DuckDBResource._instance = None
         DuckDBResource._conn = None
         DuckDBResource._cos_manager = None
-        
-        # 重新初始化
-        new_instance = DuckDBResource.__new__(DuckDBResource)
-        new_instance._init_connection()
-        
+
+        new_instance = DuckDBResource()
         print("✅ 数据库完全重置完成")
         return new_instance
     

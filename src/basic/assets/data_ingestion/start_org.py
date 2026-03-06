@@ -4,6 +4,7 @@ import dagster as dg
 import polars as pl
 import tushare as ts
 import pandas as pd
+import os
 from resources.duckdb_io import DuckDBResource
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -124,12 +125,16 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
         
         # 获取统计信息
 
+        conn.execute("CHECKPOINT")
+        db.close(upload=True)
+
         db_path = db._cos_manager.local_path if db._cos_manager else "duckdb_database"
         if os.path.exists(str(db_path)):
             context.log.info(f"✅ 新数据库文件已创建，大小: {os.path.getsize(str(db_path))} 字节")
         
         active_count = conn.execute("SELECT COUNT(*) FROM a_stocks_basic").fetchone()[0]
         context.log.info(f"✅ 成功获取 {active_count} 只A股")
+
         
     except Exception as e:
         context.log.error(f"创建并插入A股股票失败: {e}")

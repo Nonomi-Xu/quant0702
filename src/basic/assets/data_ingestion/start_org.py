@@ -22,9 +22,7 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
     使用tushare的实时行情接口获取股票列表
     """
     context.log.info("开始获取A股股票列表...")
-    db = DuckDBResource()
 
-    db = db.reset_database(delete_file=True)
     pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
     
     try:
@@ -60,6 +58,9 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
         
     try:
         # 写入DuckDB
+        db = DuckDBResource()
+        db = db.reset_database(delete_file=True)
+        context.log.info("数据库已重置")
         conn = db.get_connection()
         conn.execute("""
             CREATE TABLE IF NOT EXISTS a_stocks_basic (
@@ -122,14 +123,17 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
             """)
         
         # 获取统计信息
-        active_count = conn.execute("SELECT COUNT(*) FROM pl_stocks_ts").fetchone()[0]
-    
+
+        db_path = db._cos_manager.local_path if db._cos_manager else "duckdb_database"
+        if os.path.exists(str(db_path)):
+            context.log.info(f"✅ 新数据库文件已创建，大小: {os.path.getsize(str(db_path))} 字节")
+        
+        active_count = conn.execute("SELECT COUNT(*) FROM a_stocks_basic").fetchone()[0]
         context.log.info(f"✅ 成功获取 {active_count} 只A股")
-
+        
     except Exception as e:
-        context.log.info(f"创建并插入A股股票失败: {e}")
+        context.log.error(f"创建并插入A股股票失败: {e}")
         raise
-
 
     context.add_output_metadata({
         "active_count": dg.MetadataValue.int(active_count),

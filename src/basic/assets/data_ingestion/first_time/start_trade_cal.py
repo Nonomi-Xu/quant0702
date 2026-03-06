@@ -4,6 +4,7 @@ from datetime import datetime
 
 import dagster as dg
 import polars as pl
+import pandas as pd
 import tushare as ts
 from resources.parquet_io import ParquetResource
 
@@ -20,26 +21,30 @@ def Start_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
 
     context.log.info("开始获取历史交易日历")
 
-    start_date = "2020-01-01"
-    end_date = datetime.now().strftime("%Y-%m-%d")
+    start_date = "20200101" 
+    end_date = datetime.now().strftime("%Y%m%d")  
 
     context.log.info(f"时间范围: {start_date} -> {end_date}")
-
-    start_dt = datetime.strptime(start_date, "%Y%m%d")
-    end_dt = datetime.strptime(end_date, "%Y%m%d")
 
     pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
 
     
     try:
-        df = pro.trade_cal(exchange='', start_date=start_dt, end_date=end_dt)
+        df_sse = pro.trade_cal(exchange='SSE', start_date=start_date, end_date=end_date)
             
     except Exception as e:
         context.log.error(f"接口 pro.rade_cal 获取失败: {e}")
         raise
 
+    try:
+        df_szse = pro.trade_cal(exchange='SZSE', start_date=start_date, end_date=end_date)
+            
+    except Exception as e:
+        context.log.error(f"接口 pro.rade_cal 获取失败: {e}")
+        raise
 
-    df = pl.from_pandas(df)
+    df_combined = pd.concat([df_sse, df_szse], ignore_index=True)
+    df = pl.from_pandas(df_combined)
 
     total_rows = df.height
 

@@ -23,7 +23,7 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
     """
     context.log.info("开始获取A股股票列表...")
 
-    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
+    pro = ts.pro_api(os.environ.get("TUSHARE_TOKEN"))
     
     try:
         spot_ts_L = pro.stock_basic(exchange='',list_status ='L',fields='ts_code,symbol,name,area,industry,market,exchange,list_status,list_date,delist_date,fullname,enname,cnspell,curr_type,act_name,act_ent_type,is_hs')
@@ -147,56 +147,32 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
 
     return pl_stocks_ts
 
-
 @dg.asset(
     group_name="data_ingestion_first_time_org",
-    description="第一次创建A股历史日线数据库",
+    description="第一次创建A股历史ST股票数据库",
     deps = [Start_Stock_List]
 )
-def Start_Basic_Prices(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Start_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
     第一次创建历史日线数据库
     """
-    context.log.info("开始创建日线数据")
+    context.log.info("开始创建ST股票数据库")
     db = DuckDBResource()
 
-    db.reset_tables(table_name = 'a_stocks_basic_daily_prices', drop_data=True)
+    db.reset_tables(table_name = 'a_stocks_basic_st', drop_data=True)
     
     conn = db.get_connection()
     conn.execute("""
-        CREATE TABLE IF NOT EXISTS a_stocks_basic_daily_price (
-            -- 复合主键
+        CREATE TABLE IF NOT EXISTS a_stocks_basic_st (
             ts_code VARCHAR(20) NOT NULL,  -- 股票代码
+            name VARCHAR(100),    -- 股票名称
             trade_date DATE NOT NULL,  -- 交易日期
-            
-            -- 价格数据
-            open DECIMAL(10, 2),  -- 开盘价
-            high DECIMAL(10, 2),  -- 最高价
-            low DECIMAL(10, 2),  -- 最低价
-            close DECIMAL(10, 2),  -- 收盘价
-            pre_close DECIMAL(10, 2),  -- 昨收价
-            change DECIMAL(10, 2),  -- 涨跌额
-            pct_chg DECIMAL(10, 2),  -- 涨跌幅（百分比）
-            
-            -- 成交量数据
-            vol BIGINT,  -- 成交量（手）
-            amount DECIMAL(16, 2),  -- 成交额（千元）
-            
-            -- 复合主键
-            PRIMARY KEY (ts_code, trade_date)
+            type VARCHAR(20),   --ST类型
+            type_name VARCHAR(100),    -- ST名称
+            PRIMARY KEY (ts_code)
         );
         """)
-    conn.execute("DELETE FROM a_stocks_basic_daily_price")
-
-    stocks_df = conn.execute("""
-        SELECT ts_code
-        FROM a_stocks_basic
-        ORDER BY ts_code
-    """).fetchdf()
-    
-    ts_codes = stocks_df['ts_code'].tolist()
-    
-    context.log.info(f"找到 {len(ts_codes)} 只股票")
+    conn.execute("DELETE FROM a_stocks_basic_st")
     
     start_date = '2020-01-01'
     context.log.info(f"无历史数据，从 {start_date} 开始获取")
@@ -362,4 +338,3 @@ def Start_Basic_Prices(context: dg.AssetExecutionContext) -> dg.MaterializeResul
             "date_range": dg.MetadataValue.text(f"{final_stats[0]} 至 {final_stats[1]}")
         }
     )
-

@@ -339,6 +339,16 @@ class DuckDBResource:
                 PRIMARY KEY (ts_code, trade_date)
             );
             
+            -- 历史ST股票数据库
+            CREATE TABLE IF NOT EXISTS a_stocks_basic_st (
+                ts_code VARCHAR(20) NOT NULL,  -- 股票代码
+                name VARCHAR(100),    -- 股票名称
+                trade_date DATE NOT NULL,  -- 交易日期
+                type VARCHAR(20),   --ST类型
+                type_name VARCHAR(100),    -- ST名称
+                PRIMARY KEY (ts_code)
+            );
+            
             -- 添加同步记录表
             CREATE TABLE IF NOT EXISTS sync_metadata (
                 key VARCHAR(50) PRIMARY KEY,

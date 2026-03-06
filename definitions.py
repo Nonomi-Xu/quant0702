@@ -4,7 +4,7 @@ from dagster import in_process_executor
 
 from resources.duckdb_io import DuckDBResource
 from src.basic import (
-    get_Data_Ingestion_Start_Org_defs,
+    get_Data_Ingestion_Start_INFO_assets_defs,
     get_Data_Ingestion_Daily_defs,
     get_Data_Ingestion_Single_Operation_defs
 )
@@ -12,7 +12,7 @@ from src.basic import (
 @dg.definitions
 def defs():
     """使用装饰器懒加载定义"""
-    Data_Ingestion_Start_Org_defs = get_Data_Ingestion_Start_Org_defs()
+    Data_Ingestion_Start_INFO_assets_defs = get_Data_Ingestion_Start_INFO_assets_defs()
     Data_Ingestion_Daily_defs = get_Data_Ingestion_Daily_defs()
     Data_Ingestion_Single_Operation_defs = get_Data_Ingestion_Single_Operation_defs()
     
@@ -22,7 +22,7 @@ def defs():
     )
     
     return dg.Definitions.merge(
-        Data_Ingestion_Start_Org_defs,
+        Data_Ingestion_Start_INFO_assets_defs,
         Data_Ingestion_Daily_defs,
         Data_Ingestion_Single_Operation_defs,
         global_defs

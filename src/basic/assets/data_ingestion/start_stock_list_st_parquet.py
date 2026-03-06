@@ -1,5 +1,5 @@
 # assets/start_stock_list_st_DB.py
-from start_stock_list_duckdb import Start_Stock_List
+from .start_stock_list_duckdb import Start_Stock_List
 import os
 import time
 from datetime import datetime, timedelta
@@ -40,7 +40,7 @@ def Start_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
     context.log.info(f"需要处理 {len(date_list)} 个交易日")
 
-    pro = ts.pro_api(os.environ.get("TUSHARE_TOKEN"))
+    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
 
     st_records = []
 
@@ -69,21 +69,16 @@ def Start_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     if sort_cols:
         df = df.sort(sort_cols)
 
-    unique_cols = [col for col in ["ts_code", "trade_date"] if col in df.columns]
-    if unique_cols:
-        df = df.unique(subset=unique_cols, maintain_order=True)
-
     total_rows = df.height
-    unique_stocks = df["ts_code"].n_unique() if "ts_code" in df.columns else 0
 
     context.log.info(f"总记录数: {total_rows}")
-    context.log.info(f"唯一ST股票数: {unique_stocks}")
     context.log.info(f"字段列表: {df.columns}")
 
     # 写入 COS parquet
-    parquet_io.write_parquet(
+    parquet_resource = ParquetResource()
+    parquet_resource.write(
         df=df,
-        file_name="stock_list_st.parquet"
+        path_extension="stock_list/stock_list_st.parquet"
     )
 
     context.log.info("ST股票数据已写入 COS: a-stock/data/stock_list/stock_list_ST.parquet")
@@ -91,7 +86,6 @@ def Start_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     return dg.MaterializeResult(
         metadata={
             "records": dg.MetadataValue.int(total_rows),
-            "unique_stocks": dg.MetadataValue.int(unique_stocks),
             "file_path": dg.MetadataValue.text(
                 "a-stock/data/stock_list/stock_list_ST.parquet"
             ),

@@ -3,6 +3,7 @@ import dagster as dg
 from dagster import in_process_executor
 
 from resources.duckdb_io import DuckDBResource
+from resources.parquet_io import ParquetResource
 from src.basic import (
     get_Data_Ingestion_Start_INFO_assets_defs,
     get_Data_Ingestion_Daily_defs,
@@ -17,7 +18,10 @@ def defs():
     Data_Ingestion_Single_Operation_defs = get_Data_Ingestion_Single_Operation_defs()
     
     global_defs = dg.Definitions(
-        resources={"duckdb": DuckDBResource},
+        resources={
+            "duckdb": DuckDBResource,
+            "parquet_io": ParquetResource
+            },
         executor=in_process_executor,
     )
     

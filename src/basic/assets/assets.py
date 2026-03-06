@@ -1,7 +1,7 @@
 # src/basic/assets.py
 from .data_ingestion.start_stock_list_duckdb import Start_Stock_List
 from .data_ingestion.start_stock_list_st_parquet import Start_Stock_List_ST
-from .data_ingestion.start_price import *
+from .data_ingestion.start_daily_price_parquet import Start_Daily_Prices
 from .data_ingestion.daily_org import *
 from .data_ingestion.daily_price import *
 from .data_ingestion.single_operation_price import *
@@ -10,7 +10,7 @@ from .data_ingestion.single_operation_price import *
 Data_Ingestion_Start_INFO_assets = [
     Start_Stock_List,
     Start_Stock_List_ST,
-    Start_Basic_Prices
+    Start_Daily_Prices
 ]
 
 

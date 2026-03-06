@@ -55,7 +55,7 @@ def Start_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     parquet_resource = ParquetResource()
     parquet_resource.write(
         df=df,
-        path_extension="trade_cal/trade_cal.parquet"
+        path_extension="trade_cal/trade_cal.parquet" 
     )
 
     context.log.info("日历数据已写入 COS: a-stock/data/trade_cal/trade_cal.parquet")

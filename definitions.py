@@ -23,7 +23,6 @@ def defs():
     
     return dg.Definitions.merge(
         Data_Ingestion_Start_Org_defs,
-        Data_Ingestion_Start_Price_defs,
         Data_Ingestion_Daily_defs,
         Data_Ingestion_Single_Operation_defs,
         global_defs

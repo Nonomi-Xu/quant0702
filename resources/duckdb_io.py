@@ -332,11 +332,11 @@ class DuckDBResource:
                 pct_chg DECIMAL(10, 2),  -- 涨跌幅（百分比）
                 
                 -- 成交量数据
-                volume BIGINT,  -- 成交量（手）
+                vol BIGINT,  -- 成交量（手）
                 amount DECIMAL(16, 2),  -- 成交额（千元）
                 
                 -- 复合主键
-                PRIMARY KEY (ts_code, date)
+                PRIMARY KEY (ts_code, trade_date)
             );
             
             -- 添加同步记录表

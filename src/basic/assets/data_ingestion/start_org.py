@@ -5,7 +5,8 @@ import polars as pl
 import tushare as ts
 import pandas as pd
 import os
-import time, datetime
+import time
+from datetime import datetime
 from resources.duckdb_io import DuckDBResource
 
 
@@ -178,7 +179,7 @@ def Start_Basic_Prices(context: dg.AssetExecutionContext) -> dg.MaterializeResul
             pct_chg DECIMAL(10, 2),  -- 涨跌幅（百分比）
             
             -- 成交量数据
-            volume BIGINT,  -- 成交量（手）
+            vol BIGINT,  -- 成交量（手）
             amount DECIMAL(16, 2),  -- 成交额（千元）
             
             -- 复合主键
@@ -295,12 +296,12 @@ def Start_Basic_Prices(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                     INSERT INTO a_stocks_basic_daily_price (
                         ts_code, trade_date, open, high, low, 
                         close, pre_close, change, pct_chg, 
-                        volume, amount
+                        vol, amount
                     )
                     SELECT 
                         ts_code, trade_date, open, high, low, 
                         close, pre_close, change, pct_chg, 
-                        volume, amount
+                        vol, amount
                     FROM temp_daily_batch
                     ON CONFLICT (ts_code, trade_date) DO UPDATE SET
                         open = EXCLUDED.open,
@@ -310,7 +311,7 @@ def Start_Basic_Prices(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                         pre_close = EXCLUDED.pre_close,
                         change = EXCLUDED.change,
                         pct_chg = EXCLUDED.pct_chg,
-                        volume = EXCLUDED.volume,
+                        vol = EXCLUDED.vol,
                         amount = EXCLUDED.amount
                 """)
                 

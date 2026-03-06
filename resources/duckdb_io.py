@@ -317,22 +317,26 @@ class DuckDBResource:
             );
             
             -- 日线数据表
-            CREATE TABLE IF NOT EXISTS basic_daily_prices (
-                symbol VARCHAR(20) NOT NULL,
-                date DATE NOT NULL,
-                open FLOAT,
-                high FLOAT,
-                low FLOAT,
-                close FLOAT,
-                volume BIGINT,
-                amount FLOAT,
-                PRIMARY KEY (symbol, date)
-            );
-            
-            CREATE TABLE IF NOT EXISTS basic_daily_prices_error_record (
-                date DATE NOT NULL,
-                symbol VARCHAR(20) NOT NULL,
-                PRIMARY KEY (symbol, date)
+            CREATE TABLE IF NOT EXISTS a_stocks_basic_daily_price (
+                -- 复合主键
+                ts_code VARCHAR(20) NOT NULL,  -- 股票代码
+                trade_date DATE NOT NULL,  -- 交易日期
+                
+                -- 价格数据
+                open DECIMAL(10, 2),  -- 开盘价
+                high DECIMAL(10, 2),  -- 最高价
+                low DECIMAL(10, 2),  -- 最低价
+                close DECIMAL(10, 2),  -- 收盘价
+                pre_close DECIMAL(10, 2),  -- 昨收价
+                change DECIMAL(10, 2),  -- 涨跌额
+                pct_chg DECIMAL(10, 2),  -- 涨跌幅（百分比）
+                
+                -- 成交量数据
+                volume BIGINT,  -- 成交量（手）
+                amount DECIMAL(16, 2),  -- 成交额（千元）
+                
+                -- 复合主键
+                PRIMARY KEY (ts_code, date)
             );
             
             -- 添加同步记录表

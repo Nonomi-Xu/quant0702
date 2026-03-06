@@ -1,0 +1,65 @@
+# assets/start_stock_list_st_DB.py
+from .start_stock_list_duckdb import Start_Stock_List
+from datetime import datetime
+
+import dagster as dg
+import polars as pl
+import tushare as ts
+from resources.parquet_io import ParquetResource
+
+@dg.asset(
+    group_name="data_ingestion_first_time_org",
+    description="获取A股历史交易日历（全量）并写入COS Parquet",
+    deps=[Start_Stock_List]
+)
+def Start_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+    """
+    获取A股历史交易日历
+    并写入 COS
+    """
+
+    context.log.info("开始获取历史交易日历")
+
+    start_date = "2020-01-01"
+    end_date = datetime.now().strftime("%Y-%m-%d")
+
+    context.log.info(f"时间范围: {start_date} -> {end_date}")
+
+    start_dt = datetime.strptime(start_date, "%Y%m%d")
+    end_dt = datetime.strptime(end_date, "%Y%m%d")
+
+    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
+
+    
+    try:
+        df = pro.trade_cal(exchange='', start_date=start_dt, end_date=end_dt)
+            
+    except Exception as e:
+        context.log.error(f"接口 pro.rade_cal 获取失败: {e}")
+        raise
+
+
+    df = pl.from_pandas(df)
+
+    total_rows = df.height
+
+    context.log.info(f"总记录数: {total_rows}")
+    context.log.info(f"字段列表: {df.columns}")
+
+    # 写入 COS parquet
+    parquet_resource = ParquetResource()
+    parquet_resource.write(
+        df=df,
+        path_extension="trade_cal/trade_cal.parquet"
+    )
+
+    context.log.info("日历数据已写入 COS: a-stock/data/trade_cal/trade_cal.parquet")
+
+    return dg.MaterializeResult(
+        metadata={
+            "records": dg.MetadataValue.int(total_rows),
+            "file_path": dg.MetadataValue.text(
+                "a-stock/data/stock_list/stock_list_ST.parquet"
+            ),
+        }
+    )

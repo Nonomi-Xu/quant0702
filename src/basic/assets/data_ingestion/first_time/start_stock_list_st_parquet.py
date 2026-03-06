@@ -64,7 +64,7 @@ def Start_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
     df = pl.from_pandas(full_df)
 
-    # 排序 + 去重
+    # 排序
     sort_cols = [col for col in ["trade_date", "ts_code"] if col in df.columns]
     if sort_cols:
         df = df.sort(sort_cols)

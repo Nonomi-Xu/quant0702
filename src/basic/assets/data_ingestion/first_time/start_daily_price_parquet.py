@@ -113,7 +113,7 @@ def Start_Daily_Prices(context: dg.AssetExecutionContext) -> dg.MaterializeResul
 
 
 
-            file_path = f"a-stock/data/daily_price/daily_price_{year}.parquet"
+            file_path = f"daily_price/daily_price_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.write(

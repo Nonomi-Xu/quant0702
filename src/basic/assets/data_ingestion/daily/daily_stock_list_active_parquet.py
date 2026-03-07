@@ -11,10 +11,10 @@ from .daily_trade_cal_parquet import Daily_Trade_Cal
 
 @dg.asset(
     group_name="data_ingestion_daily",
-    description="每日获取A股ST股票列表并增量写入COS Parquet",
+    description="每日获取A股股票 筛选后增量写入COS Parquet 得到当日活跃股票",
     deps=[Daily_Trade_Cal]
 )
-def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> pl.DataFrame:
+def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
     每日通过条件筛选A股股票列表
     删除 科创板、创业板、北交所、ST股
@@ -26,19 +26,6 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> pl.DataFrame:
     pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
 
     current_date = datetime.now().strftime("%Y%m%d")
-
-    df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
-    df_szse = pro.trade_cal(exchange='SZSE', start_date=current_date, end_date=current_date)
-
-    if df_sse['is_open'].iloc[0] == 1 and df_szse['is_open'].iloc[0] == 1:
-        context.log.info(f"开盘日: {current_date}")
-    else:
-        context.log.info(f"今日不开盘: {current_date}")
-        context.add_output_metadata({
-            "status": dg.MetadataValue.text("Not_open"),
-            "current_date": dg.MetadataValue.text(f'{current_date}')
-            })
-        return pl.DataFrame()
     
     current_year = datetime.now().year
     
@@ -81,6 +68,19 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> pl.DataFrame:
     start_date = datetime.strptime(start_date, "%Y%m%d")
     end_date = datetime.strptime(current_date, "%Y%m%d")
 
+    try:
+        df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
+    except Exception as e:
+        context.log.warning(f"接口 pro.trade_cal 获取失败: {e}")
+        raise
+
+    if df_sse['is_open'].iloc[0] == 1:
+        context.log.info(f"开盘日: {current_date}")
+    else:
+        context.log.info(f"今日不开盘: {current_date}")
+        pretrade_date = df_sse['pretrade_date'].iloc[0]
+        end_date = datetime.strptime(pretrade_date, "%Y%m%d")
+
     # 如果起始日期大于结束日期，说明没有新数据需要更新
     if start_date > end_date:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
@@ -103,52 +103,121 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> pl.DataFrame:
 
     context.log.info(f"需要处理 {len(date_list)} 个交易日")
     
-    st_records = []
+    total_rows = 0
+    total_days_success = 0
+    failed_days = []
 
-    for trade_date in date_list:
+    # 按年份缓存
+    yearly_data = {}
+
+    for idx, trade_date in enumerate(date_list, start=1):
         try:
-            df = pro.stock_st(
+            df = pro.stock_basic(
                 trade_date=trade_date
             )
-            context.log.info(f'已获取交易日: {trade_date}')
+            context.log.info(f'已获取交易日日线信息: {trade_date}')
             time.sleep(0.3)
+        except Exception as e:
+            context.log.error(f"接口 pro.stock_basic 获取失败: {e}")
+            raise
+
+        try:
+            df_st = pro.stock_st(
+                trade_date=trade_date
+            )
+            time.sleep(0.3)
+            context.log.info(f'已获取交易日ST股信息: {trade_date}')
         except Exception as e:
             context.log.error(f"接口 pro.stock_st 获取失败: {e}")
             raise
+        
+        df_not_st = df[~df['ts_code'].isin(df_st['ts_code'])] # 去除ST股票
 
-        if df is not None and not df.empty:
-            st_records.append(df)
-    
+        df = df_not_st[
+                ~df_not_st['ts_code'].str.endswith('.BJ') &  # 去除北交所
+                ~df_not_st['ts_code'].str.startswith('688') &  # 去除科创板
+                ~df_not_st['ts_code'].str.startswith('300')    # 去除创业板
+            ]
+        
+        try:
+            context.log.info(f"处理交易日 {idx}/{len(date_list)}: {trade_date}")
 
-    full_df = pd.concat(st_records, ignore_index=True)
+            if df is None or df.empty:
+                context.log.warning(f"{trade_date} 无数据，跳过")
+                continue
 
-    df = pl.from_pandas(full_df)
+            pd_df = pd.DataFrame({
+                "ts_code": df["ts_code"],
+                "trade_date": pd.to_datetime(df["trade_date"], format="%Y%m%d"),
+            })
 
-    # 排序
-    sort_cols = [col for col in ["trade_date", "ts_code"] if col in df.columns]
-    if sort_cols:
-        df = df.sort(sort_cols)
+            pl_df = (
+                pl.from_pandas(pd_df)
+                .with_columns(pl.col("trade_date").cast(pl.Date))
+            )
 
-    total_rows = df.height
+            year = pd.to_datetime(trade_date, format="%Y%m%d").year
 
-    context.log.info(f"新增记录数: {total_rows}")
-    context.log.info(f"字段列表: {df.columns}")
+            if year not in yearly_data:
+                yearly_data[year] = []
 
-    # 写入 COS parquet
-    parquet_resource = ParquetResource()
-    parquet_resource.append_file(
-            df=df,
-            path_extension=file_path,
-            compression="zstd"
-        )
+            yearly_data[year].append(pl_df)
 
-    context.log.info("新增ST股票数据已写入 COS: a-stock/data/stock_list/stock_list_ST.parquet")
+            total_rows += len(pl_df)
+            total_days_success += 1
+
+        except Exception as e:
+            context.log.warning(f"处理交易日 {trade_date} 失败: {e}")
+            failed_days.append(trade_date)
+
+    # 最后按年份写入 parquet
+    year_file_stats = {}
+
+    for year, dfs in yearly_data.items():
+        if not dfs:
+            continue
+        try:
+            year_df = (
+                pl.concat(dfs, how="vertical")
+                .sort(["trade_date", "ts_code"])
+            )
+
+            file_path = f"stock_list/stock_list_active/stock_list_active_{year}.parquet"
+
+            parquet_resource = ParquetResource()
+            parquet_resource.append_file(
+                df=year_df,
+                path_extension=file_path,
+                compression='ztsd'
+            )
+
+            year_file_stats[str(year)] = len(year_df)
+            context.log.info(f"年份 {year} 写入完成: {file_path}, 共 {len(year_df)} 行")
+
+        except Exception as e:
+            context.log.error(f"年份 {year} 写入失败: {e}")
+            failed_days.append(f"YEAR_WRITE_{year}")
+
+    context.log.info(f"""
+    ========== 历史日线数据写入完成 ==========
+    本次处理:
+        - 成功交易日数: {total_days_success}
+        - 总数据行数: {total_rows}
+        - 失败天数: {len(failed_days)}
+
+    各年份文件行数:
+        {year_file_stats}
+
+    失败列表:
+        {failed_days if failed_days else '无'}
+    ======================================
+    """)
 
     return dg.MaterializeResult(
         metadata={
-            "new_records": dg.MetadataValue.int(total_rows),
-            "file_path": dg.MetadataValue.text(
-                "a-stock/data/stock_list/stock_list_ST.parquet"
-            ),
+            "success_days": dg.MetadataValue.int(total_days_success),
+            "total_rows": dg.MetadataValue.int(total_rows),
+            "failed_days": dg.MetadataValue.int(len(failed_days)),
+            "year_files": dg.MetadataValue.json(year_file_stats),
         }
     )

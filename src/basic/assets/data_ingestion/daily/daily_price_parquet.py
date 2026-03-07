@@ -106,17 +106,6 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             "file_path": dg.MetadataValue.text(full_cos_path),
             }
         )
-
-    # 如果起始日期大于结束日期，说明没有新数据需要更新
-    if start_date > end_date:
-        context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
-        return dg.MaterializeResult(
-            metadata={
-                "status": dg.MetadataValue.text("up_to_date"),
-                "latest_date": dg.MetadataValue.text(latest_date_in_cos),
-                "file_path": dg.MetadataValue.text(full_cos_path),
-            }
-        )
     
     context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
 

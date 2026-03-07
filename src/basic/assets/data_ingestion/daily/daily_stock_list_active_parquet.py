@@ -1,5 +1,4 @@
 """A股数据获取资产"""
-
 import time
 import dagster as dg
 import polars as pl
@@ -15,12 +14,14 @@ from .daily_trade_cal_parquet import Daily_Trade_Cal
     description="每日获取A股ST股票列表并增量写入COS Parquet",
     deps=[Daily_Trade_Cal]
 )
-def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> pl.DataFrame:
     """
-    每日获取A股ST股票列表并增量写入COS Parquet
+    每日通过条件筛选A股股票列表
+    删除 科创板、创业板、北交所、ST股
+    并增量写入COS Parquet
     """
 
-    context.log.info("开始获取近期ST股票数据")
+    context.log.info("开始筛选A股股票数据")
 
     pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
 
@@ -33,16 +34,16 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
         context.log.info(f"开盘日: {current_date}")
     else:
         context.log.info(f"今日不开盘: {current_date}")
-        return dg.MaterializeResult(
-            metadata={
+        context.add_output_metadata({
             "status": dg.MetadataValue.text("Not_open"),
             "current_date": dg.MetadataValue.text(f'{current_date}')
-            }
-        )
+            })
+        return pl.DataFrame()
     
-    # 初始化参数
+    current_year = datetime.now().year
+    
     parquet_resource = ParquetResource()
-    file_path = "stock_list/stock_list_st.parquet"
+    file_path = f"stock_list/stock_list_active/stock_list_active_{current_year}.parquet"
     full_cos_path = f"a-stock/data/{file_path}"
     
     # 尝试读取已存在的日历数据
@@ -85,9 +86,9 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
         context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
         return dg.MaterializeResult(
             metadata={
-            "status": dg.MetadataValue.text("up_to_date"),
-            "latest_date": dg.MetadataValue.text(latest_date_in_cos),
-            "file_path": dg.MetadataValue.text(full_cos_path),
+                "status": dg.MetadataValue.text("up_to_date"),
+                "latest_date": dg.MetadataValue.text(latest_date_in_cos),
+                "file_path": dg.MetadataValue.text(full_cos_path),
             }
         )
     
@@ -143,18 +144,11 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
     context.log.info("新增ST股票数据已写入 COS: a-stock/data/stock_list/stock_list_ST.parquet")
 
-    context.add_output_metadata({
-            "new_records": dg.MetadataValue.int(total_rows),
-            "file_path": dg.MetadataValue.text(
-                "a-stock/data/stock_list/stock_list_ST.parquet"
-            ),
-            })
-
     return dg.MaterializeResult(
-            metadata={
+        metadata={
             "new_records": dg.MetadataValue.int(total_rows),
             "file_path": dg.MetadataValue.text(
                 "a-stock/data/stock_list/stock_list_ST.parquet"
             ),
-            }
-        )
+        }
+    )

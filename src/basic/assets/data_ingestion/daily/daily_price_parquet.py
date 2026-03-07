@@ -32,11 +32,12 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         context.log.info(f"开盘日: {current_date}")
     else:
         context.log.info(f"今日不开盘: {current_date}")
-        context.add_output_metadata({
-            "status": dg.MetadataValue.text("Not_open"),
+        return dg.MaterializeResult(
+            metadata={
+                "status": dg.MetadataValue.text("Not_open"),
             "current_date": dg.MetadataValue.text(f'{current_date}')
-            })
-        return pl.DataFrame()
+            }
+        )
     
     current_year = datetime.now().year
     

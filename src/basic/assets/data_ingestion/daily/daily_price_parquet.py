@@ -3,199 +3,229 @@
 import time
 import dagster as dg
 import polars as pl
-import akshare as ak
+import tushare as ts
 import pandas as pd
 from datetime import datetime, timedelta
-from resources.duckdb_io import DuckDBResource
+from resources.parquet_io import ParquetResource
 
-from .daily_org import Daily_Delisted_Stocks
-
-test = True # 测试按钮
+from .daily_trade_cal_parquet import Daily_Trade_Cal
 
 @dg.asset(
     group_name="data_ingestion_daily",
-    description="增量更新A股日线数",
-    deps=[Daily_Delisted_Stocks]
+    description="增量更新每日股票日线数据",
+    deps=[Daily_Trade_Cal]
 )
-def Daily_Basic_Prices(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
-    增量更新股票日线数据
+    增量更新每日股票日线数据，注意该函数仅能增加当年的数据，去年数据会出现失败
     """
-    context.log.info("开始更新日线数据")
-    db = DuckDBResource()
+    context.log.info("开始增量更新每日股票日线数据")
+
+    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
     
-    conn = db.get_connection()
-    stocks_df = conn.execute("""
-        SELECT symbol
-        FROM a_stocks_all
-        WHERE is_delisted = 'false'
-        ORDER BY symbol
-    """).fetchdf()
-    
-    symbols = stocks_df['symbol'].tolist()
-    
-    context.log.info(f"找到 {len(symbols)} 只股票")
-    
-    # 获取数据库中已有的最新日期（基于所有股票）
-    last_date = conn.execute("SELECT MAX(date) FROM daily_prices").fetchone()[0]
-    
-    if last_date:
-        start_date = (last_date + timedelta(days=1)).strftime('%Y-%m-%d')
-        context.log.info(f"已有数据截止: {last_date}, 从 {start_date} 开始更新")
+    current_date = datetime.now().strftime("%Y%m%d")
+
+    df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
+    df_szse = pro.trade_cal(exchange='SZSE', start_date=current_date, end_date=current_date)
+
+    if df_sse['is_open'].iloc[0] == 1 and df_szse['is_open'].iloc[0] == 1:
+        context.log.info(f"开盘日: {current_date}")
     else:
-        start_date = '20200101'
-        context.log.info(f"无历史数据，从 {start_date} 开始获取")
+        context.log.info(f"今日不开盘: {current_date}")
+        context.add_output_metadata({
+            "status": dg.MetadataValue.text("Not_open"),
+            "current_date": dg.MetadataValue.text(f'{current_date}')
+            })
+        return pl.DataFrame()
     
-    end_date = datetime.now().strftime('%Y-%m-%d')
+    current_year = datetime.now().year
     
-    if start_date >= end_date:
-        context.log.info("数据已是最新，无需更新")
-        return dg.MaterializeResult(metadata={"message": "数据已是最新"})
+    parquet_resource = ParquetResource()
+    file_path = f"daily_price/daily_price_{current_year}.parquet"
+    full_cos_path = f"a-stock/data/{file_path}"
     
-    # 批处理参数
-    batch_size = 50  # 减小批次大小以避免请求过快
-    total_updated = 0
-    total_rows = 0
-    failed_symbols = []
+    # 尝试读取已存在的日历数据
+    existing_df = None
+    latest_date_in_cos = None
+
     
-    for i in range(0, len(symbols), batch_size):
-        batch_symbols = symbols[i:i+batch_size]
-        batch_dfs = []
+    try:
+        # 从当前年份开始向前查找数据文件
+        current_year_for_search = current_year
+        found_data = False
         
-        context.log.info(f"处理批次 {i//batch_size + 1}/{(len(symbols)-1)//batch_size + 1}")
-        
-        for symbol in batch_symbols:
+        while current_year_for_search >= 2020 and not found_data:
+            # 构建向前查找的文件路径
+            search_file_path = f"daily_price/daily_price_{current_year_for_search}.parquet"
+            
             try:
-                
-                # 检查该股票是否已经有这部分数据
-                existing_dates = conn.execute("""
-                    SELECT date FROM daily_prices 
-                    WHERE symbol = ? AND date >= ?::DATE AND date <= ?::DATE
-                """, [start_date, end_date]).fetchdf()
-                
-                existing_date_set = set(pd.to_datetime(existing_dates['date']).dt.strftime('%Y-%m-%d'))
-                
-                # 获取历史数据
-                df = ak.stock_zh_a_hist(
-                    symbol=symbol,
-                    period="daily",
-                    start_date=start_date,
-                    end_date=end_date,
-                    adjust="qfq"
+                existing_df = parquet_resource.read(
+                    path_extension=search_file_path
                 )
                 
-                if not df.empty:
-                    # 处理日期
-                    dates = pd.to_datetime(df['日期']).dt.strftime('%Y-%m-%d')
+                if existing_df is not None and existing_df.height > 0:
+                    found_data = True
+                    file_path = search_file_path  # 更新实际使用的文件路径
+                    context.log.info(f"在 {search_file_path} 中找到历史数据，年份: {current_year_for_search}")
                     
-                    # 过滤掉已经存在的数据
-                    new_data_mask = [d not in existing_date_set for d in dates]
-                    if not any(new_data_mask):
-                        continue
-                        
-                    filtered_df = df.iloc[new_data_mask]
+                    # 获取已存在数据中的最大日期
+                    latest_date_in_cos = existing_df['trade_date'].max()
+                    context.log.info(f"COS中已存在数据，最新日期: {latest_date_in_cos}")
                     
-                    # 创建Polars DataFrame
-                    pl_df = pl.DataFrame({
-                        'symbol': [symbol] * len(filtered_df),
-                        'date': pl.Series(pd.to_datetime(filtered_df['日期'])).cast(pl.Date),
-                        'open': filtered_df['开盘'].to_list(),
-                        'high': filtered_df['最高'].to_list(),
-                        'low': filtered_df['最低'].to_list(),
-                        'close': filtered_df['收盘'].to_list(),
-                        'volume': filtered_df['成交量'].to_list(),
-                        'amount': filtered_df['成交额'].to_list() if '成交额' in filtered_df.columns else [0] * len(filtered_df)
-                    })
-                    
-                    batch_dfs.append(pl_df)
-                    total_updated += 1
-                    context.log.debug(f"获取 {symbol} 成功，新增 {len(filtered_df)} 条记录")
+                    # 计算需要获取的起始日期（最新日期的下一天）
+                    if latest_date_in_cos:
+                        latest_dt = datetime.strptime(latest_date_in_cos, "%Y%m%d")
+                        start_date = (latest_dt + timedelta(days=1)).strftime("%Y%m%d")
+                        break
+                else:
+                    context.log.info(f"{search_file_path} 中无数据，向前查找年份: {current_year_for_search - 1}")
+                    current_year_for_search -= 1
                     
             except Exception as e:
-                context.log.warning(f"获取 {symbol} 失败: {e}")
-                failed_symbols.append(symbol)
-                continue
+                context.log.warning(f"读取 {search_file_path} 失败: {e}，继续向前查找")
+                current_year_for_search -= 1
+        
+        # 如果没有找到任何历史数据
+        if not found_data:
+            context.log.info("COS中不存在任何历史数据，从头开始新建")
+            start_date ='20200101'
             
-            # 控制请求频率
-            time.sleep(0.2)
+    except Exception as e:
+        context.log.warning(f"读取COS现有数据失败: {e}")
+        raise
+
+    end_date = current_date
+
+    # 如果起始日期大于结束日期，说明没有新数据需要更新
+    if start_date > end_date:
+        context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
+        return dg.MaterializeResult(
+            metadata={
+                "status": dg.MetadataValue.text("up_to_date"),
+                "latest_date": dg.MetadataValue.text(latest_date_in_cos),
+                "file_path": dg.MetadataValue.text(full_cos_path),
+            }
+        )
+    
+    context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
+
+    current = datetime.strptime(start_date, "%Y-%m-%d")
+    end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+
+    date_list = []
+
+    while current <= end_dt:
+        date_list.append(current.strftime("%Y%m%d"))
+        current += timedelta(days=1)
+    
+    context.log.info(f"共需处理 {len(date_list)} 个交易日")
+
+    total_rows = 0
+    total_days_success = 0
+    failed_days = []
+
+    # 按年份缓存
+    yearly_data = {}
+
+    for idx, trade_date in enumerate(date_list, start=1):
+        try:
+            df = pro.daily(trade_date=trade_date)
         
-        # 批量写入数据库
-        if batch_dfs:
-            try:
-                batch_df = pl.concat(batch_dfs)
-                batch_size_rows = len(batch_df)
-                total_rows += batch_size_rows
-                
-                # 转换为pandas DataFrame
-                batch_pd = batch_df.to_pandas()
-                
-                # 添加更新时间
-                batch_pd['updated_at'] = datetime.now()
-                
-                # 注册临时表并插入
-                conn.register("temp_daily_batch", batch_pd)
-                
-                # 插入数据，忽略冲突（如果同一stock_id和date已存在则跳过）
-                conn.execute("""
-                    INSERT INTO daily_prices (
-                        symbol, date, open, high, low, 
-                        close, volume, amount
-                    )
-                    SELECT 
-                        symbol, date, open, high, low, 
-                        close, volume, amount
-                    FROM temp_daily_batch
-                    ON CONFLICT (symbol, date) DO UPDATE SET
-                        open = EXCLUDED.open,
-                        high = EXCLUDED.high,
-                        low = EXCLUDED.low,
-                        close = EXCLUDED.close,
-                        volume = EXCLUDED.volume,
-                        amount = EXCLUDED.amount
-                """)
-                
-                context.log.info(f"批次写入完成，新增 {batch_size_rows} 行")
-                
-            except Exception as e:
-                context.log.error(f"批量写入失败: {e}")
-                # 可以在这里实现单个写入的回退策略
-        
-        # 批次间休息
-        time.sleep(2)
-    
-    # 获取最终统计信息
-    final_stats = conn.execute("""
-        SELECT 
-            MIN(date) as min_date,
-            MAX(date) as max_date,
-            COUNT(*) as total_rows,
-            COUNT(DISTINCT symbol) as symbol_count
-        FROM daily_prices
-    """).fetchone()
-    
-    
+        except Exception as e:
+            context.log.error(f"接口 pro.daily 获取失败: {e}")
+            raise
+
+        try:
+            context.log.info(f"处理交易日 {idx}/{len(date_list)}: {trade_date}")
+
+            if df is None or df.empty:
+                context.log.warning(f"{trade_date} 无数据，跳过")
+                continue
+
+            pd_df = pd.DataFrame({
+                "ts_code": df["ts_code"],
+                "trade_date": pd.to_datetime(df["trade_date"], format="%Y%m%d"),
+                "open": df["open"],
+                "high": df["high"],
+                "low": df["low"],
+                "close": df["close"],
+                "pre_close": df["pre_close"],
+                "change": df["change"],
+                "pct_chg": df["pct_chg"],
+                "vol": df["vol"],
+                "amount": df["amount"] if "amount" in df.columns else 0,
+            })
+
+            pl_df = (
+                pl.from_pandas(pd_df)
+                .with_columns(pl.col("trade_date").cast(pl.Date))
+            )
+
+            year = pd.to_datetime(trade_date, format="%Y%m%d").year
+
+            if year not in yearly_data:
+                yearly_data[year] = []
+
+            yearly_data[year].append(pl_df)
+
+            total_rows += len(pl_df)
+            total_days_success += 1
+
+        except Exception as e:
+            context.log.warning(f"处理交易日 {trade_date} 失败: {e}")
+            failed_days.append(trade_date)
+
+        # 控制请求频率，避免过快
+        time.sleep(0.3)
+
+    # 最后按年份写入 parquet
+    year_file_stats = {}
+
+    for year, dfs in yearly_data.items():
+        if not dfs:
+            continue
+        try:
+            year_df = (
+                pl.concat(dfs, how="vertical")
+                .sort(["trade_date", "ts_code"])
+            )
+
+            file_path = f"daily_price/daily_price_{year}.parquet"
+
+            parquet_resource = ParquetResource()
+            parquet_resource.append_file(
+                df=year_df,
+                path_extension=file_path,
+                compression='ztsd'
+            )
+
+            year_file_stats[str(year)] = len(year_df)
+            context.log.info(f"年份 {year} 写入完成: {file_path}, 共 {len(year_df)} 行")
+
+        except Exception as e:
+            context.log.error(f"年份 {year} 写入失败: {e}")
+            failed_days.append(f"YEAR_WRITE_{year}")
+
     context.log.info(f"""
-    ========== 日线数据更新完成 ==========
-    本次更新:
-        - 成功获取股票数: {total_updated}
-        - 新增数据行数: {total_rows}
-        - 失败股票数: {len(failed_symbols)}
-    
-    总体统计:
-        - 总数据行数: {final_stats[2]}
-        - 日期范围: {final_stats[0]} 至 {final_stats[1]}
-    
-    失败股票列表: {failed_symbols if failed_symbols else '无'}
+    ========== 历史日线数据写入完成 ==========
+    本次处理:
+        - 成功交易日数: {total_days_success}
+        - 总数据行数: {total_rows}
+        - 失败天数: {len(failed_days)}
+
+    各年份文件行数:
+        {year_file_stats}
+
+    失败列表:
+        {failed_days if failed_days else '无'}
     ======================================
     """)
 
     return dg.MaterializeResult(
         metadata={
-            "updated_stocks": dg.MetadataValue.int(total_updated),
-            "new_rows": dg.MetadataValue.int(total_rows),
-            "failed_stocks": dg.MetadataValue.int(len(failed_symbols)),
-            "total_rows_in_db": dg.MetadataValue.int(final_stats[2]),
-            "date_range": dg.MetadataValue.text(f"{final_stats[0]} 至 {final_stats[1]}")
+            "success_days": dg.MetadataValue.int(total_days_success),
+            "total_rows": dg.MetadataValue.int(total_rows),
+            "failed_days": dg.MetadataValue.int(len(failed_days)),
+            "year_files": dg.MetadataValue.json(year_file_stats),
         }
     )
-

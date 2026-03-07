@@ -49,13 +49,14 @@ def Start_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
             df = pro.stock_st(
                 trade_date=trade_date
             )
+            context.log.info(f'已获取交易日: {trade_date}')
+            time.sleep(0.3)
         except Exception as e:
             context.log.error(f"接口 pro.stock_st 获取失败: {e}")
             raise
 
         if df is not None and not df.empty:
             st_records.append(df)
-        time.sleep(0.1)
     
 
     full_df = pd.concat(st_records, ignore_index=True)

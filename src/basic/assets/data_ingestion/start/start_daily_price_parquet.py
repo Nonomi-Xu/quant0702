@@ -111,8 +111,6 @@ def Start_Daily_Prices(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 .sort(["trade_date", "ts_code"])
             )
 
-
-
             file_path = f"daily_price/daily_price_{year}.parquet"
 
             parquet_resource = ParquetResource()

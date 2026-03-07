@@ -8,7 +8,6 @@ import os
 from resources.duckdb_io import DuckDBResource
 
 
-test = True # 测试按钮
 
 @dg.asset(
     group_name="data_ingestion_first_time",

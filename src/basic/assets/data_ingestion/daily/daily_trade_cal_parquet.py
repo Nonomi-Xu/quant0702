@@ -6,14 +6,11 @@ import pandas as pd
 from datetime import datetime, timedelta
 from resources.parquet_io import ParquetResource
 
-from .daily_stock_list_duckdb import Daily_Stock_List
-
 test = True # 测试按钮
 
 @dg.asset(
     group_name="data_ingestion_daily",
-    description="增量更新交易日历",
-    deps=[Daily_Stock_List]
+    description="每日增量更新交易日历"
 )
 def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """

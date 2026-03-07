@@ -5,13 +5,17 @@ import dagster as dg
 import polars as pl
 import tushare as ts
 import pandas as pd
+from datetime import datetime
 from resources.duckdb_io import DuckDBResource
+
+from .daily_trade_cal_parquet import Daily_Trade_Cal
 
 test = True # 测试按钮
 
 @dg.asset(
     group_name="data_ingestion_daily",
-    description="每日更新A股股票列表（全量刷新）"
+    description="每日更新A股股票列表（全量刷新）",
+    eps=[Daily_Trade_Cal]
 )
 def Daily_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
     """
@@ -24,6 +28,22 @@ def Daily_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
     conn = db.get_connection()
     # 获取当前数据库中的所有股票代码
     pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
+
+    current_date = datetime.now().strftime("%Y%m%d")
+
+    df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
+    df_szse = pro.trade_cal(exchange='SZSE', start_date=current_date, end_date=current_date)
+
+    if df_sse['is_open'].iloc[0] == 1 and df_szse['is_open'].iloc[0] == 1:
+        context.log.info(f"开盘日: {current_date}")
+    else:
+        context.log.info(f"今日不开盘: {current_date}")
+        return dg.MaterializeResult(
+                metadata={
+                    "status": dg.MetadataValue.text("Not_open"),
+                    "current_date": dg.MetadataValue.text(f'{current_date}')
+                }
+            )
     
     # 获取不同状态的股票数据
     status_list = ['L', 'D', 'G', 'P']

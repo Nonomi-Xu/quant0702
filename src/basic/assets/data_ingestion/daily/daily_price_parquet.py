@@ -24,20 +24,6 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
     
     current_date = datetime.now().strftime("%Y%m%d")
-
-    df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
-    df_szse = pro.trade_cal(exchange='SZSE', start_date=current_date, end_date=current_date)
-
-    if df_sse['is_open'].iloc[0] == 1 and df_szse['is_open'].iloc[0] == 1:
-        context.log.info(f"开盘日: {current_date}")
-    else:
-        context.log.info(f"今日不开盘: {current_date}")
-        return dg.MaterializeResult(
-            metadata={
-                "status": dg.MetadataValue.text("Not_open"),
-            "current_date": dg.MetadataValue.text(f'{current_date}')
-            }
-        )
     
     current_year = datetime.now().year
     
@@ -95,7 +81,31 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         context.log.warning(f"读取COS现有数据失败: {e}")
         raise
 
-    end_date = current_date
+    end_date = datetime.strptime(current_date, "%Y%m%d")
+
+    try:
+        df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
+    except Exception as e:
+        context.log.warning(f"接口 pro.trade_cal 获取失败: {e}")
+        raise
+
+    if df_sse['is_open'].iloc[0] == 1:
+        context.log.info(f"开盘日: {current_date}")
+    else:
+        context.log.info(f"今日不开盘: {current_date}")
+        pretrade_date = df_sse['pretrade_date'].iloc[0]
+        end_date = datetime.strptime(pretrade_date, "%Y%m%d")
+
+    # 如果起始日期大于结束日期，说明没有新数据需要更新
+    if start_date > end_date:
+        context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
+        return dg.MaterializeResult(
+            metadata={
+            "status": dg.MetadataValue.text("up_to_date"),
+            "latest_date": dg.MetadataValue.text(latest_date_in_cos),
+            "file_path": dg.MetadataValue.text(full_cos_path),
+            }
+        )
 
     # 如果起始日期大于结束日期，说明没有新数据需要更新
     if start_date > end_date:

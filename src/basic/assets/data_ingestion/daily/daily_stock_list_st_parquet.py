@@ -25,20 +25,6 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
 
     current_date = datetime.now().strftime("%Y%m%d")
-
-    df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
-    df_szse = pro.trade_cal(exchange='SZSE', start_date=current_date, end_date=current_date)
-
-    if df_sse['is_open'].iloc[0] == 1 and df_szse['is_open'].iloc[0] == 1:
-        context.log.info(f"开盘日: {current_date}")
-    else:
-        context.log.info(f"今日不开盘: {current_date}")
-        return dg.MaterializeResult(
-            metadata={
-            "status": dg.MetadataValue.text("Not_open"),
-            "current_date": dg.MetadataValue.text(f'{current_date}')
-            }
-        )
     
     # 初始化参数
     parquet_resource = ParquetResource()
@@ -80,6 +66,19 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     start_date = datetime.strptime(start_date, "%Y%m%d")
     end_date = datetime.strptime(current_date, "%Y%m%d")
 
+    try:
+        df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
+    except Exception as e:
+        context.log.warning(f"接口 pro.trade_cal 获取失败: {e}")
+        raise
+
+    if df_sse['is_open'].iloc[0] == 1:
+        context.log.info(f"开盘日: {current_date}")
+    else:
+        context.log.info(f"今日不开盘: {current_date}")
+        pretrade_date = df_sse['pretrade_date'].iloc[0]
+        end_date = datetime.strptime(pretrade_date, "%Y%m%d")
+
     # 如果起始日期大于结束日期，说明没有新数据需要更新
     if start_date > end_date:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
@@ -90,6 +89,7 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
             "file_path": dg.MetadataValue.text(full_cos_path),
             }
         )
+    
     
     context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
 

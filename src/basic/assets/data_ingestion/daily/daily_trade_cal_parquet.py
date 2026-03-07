@@ -6,8 +6,6 @@ import pandas as pd
 from datetime import datetime, timedelta
 from resources.parquet_io import ParquetResource
 
-test = True # 测试按钮
-
 @dg.asset(
     group_name="data_ingestion_daily",
     description="每日增量更新交易日历"
@@ -110,10 +108,9 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
 
     # 准备元数据
     metadata = {
-        "total_records": dg.MetadataValue.int(df_final.height),
         "new_records": dg.MetadataValue.int(df_new.height),
-        "date_range_start": dg.MetadataValue.text(df_final['cal_date'].min()),
-        "date_range_end": dg.MetadataValue.text(df_final['cal_date'].max()),
+        "date_range_start": dg.MetadataValue.text(df_new['cal_date'].min()),
+        "date_range_end": dg.MetadataValue.text(df_new['cal_date'].max()),
         "file_path": dg.MetadataValue.text(full_cos_path),
         "status": dg.MetadataValue.text("updated"),
     }

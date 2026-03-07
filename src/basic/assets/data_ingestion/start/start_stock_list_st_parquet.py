@@ -49,8 +49,6 @@ def Start_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
             df = pro.stock_st(
                 trade_date=trade_date
             )
-            
-            
         except Exception as e:
             context.log.error(f"接口 pro.stock_st 获取失败: {e}")
             raise

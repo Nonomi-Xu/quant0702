@@ -10,12 +10,10 @@ from resources.duckdb_io import DuckDBResource
 
 from .daily_trade_cal_parquet import Daily_Trade_Cal
 
-test = True # 测试按钮
-
 @dg.asset(
     group_name="data_ingestion_daily",
     description="每日更新A股股票列表（全量刷新）",
-    eps=[Daily_Trade_Cal]
+    deps=[Daily_Trade_Cal]
 )
 def Daily_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
     """
@@ -38,12 +36,11 @@ def Daily_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
         context.log.info(f"开盘日: {current_date}")
     else:
         context.log.info(f"今日不开盘: {current_date}")
-        return dg.MaterializeResult(
-                metadata={
-                    "status": dg.MetadataValue.text("Not_open"),
-                    "current_date": dg.MetadataValue.text(f'{current_date}')
-                }
-            )
+        context.add_output_metadata({
+            "status": dg.MetadataValue.text("Not_open"),
+            "current_date": dg.MetadataValue.text(f'{current_date}')
+            })
+        return pl.DataFrame()
     
     # 获取不同状态的股票数据
     status_list = ['L', 'D', 'G', 'P']

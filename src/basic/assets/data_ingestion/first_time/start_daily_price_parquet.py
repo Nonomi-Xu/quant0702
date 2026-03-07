@@ -12,7 +12,7 @@ from .start_stock_list_duckdb import Start_Stock_List
 
 
 @dg.asset(
-    group_name="data_ingestion_first_time_org",
+    group_name="data_ingestion_first_time",
     description="第一次创建A股历史日线数据库",
     deps = [Start_Stock_List]
 )

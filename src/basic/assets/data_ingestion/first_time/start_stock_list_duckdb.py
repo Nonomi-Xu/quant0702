@@ -11,7 +11,7 @@ from resources.duckdb_io import DuckDBResource
 test = True # 测试按钮
 
 @dg.asset(
-    group_name="data_ingestion_first_time_org",
+    group_name="data_ingestion_first_time",
     description="第一次获取A股股票基础信息"
 )
 def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:

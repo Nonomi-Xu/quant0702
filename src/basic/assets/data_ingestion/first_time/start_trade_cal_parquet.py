@@ -9,7 +9,7 @@ import tushare as ts
 from resources.parquet_io import ParquetResource
 
 @dg.asset(
-    group_name="data_ingestion_first_time_org",
+    group_name="data_ingestion_first_time",
     description="获取A股历史交易日历（全量）并写入COS Parquet",
     deps=[Start_Stock_List]
 )

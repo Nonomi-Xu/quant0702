@@ -4,7 +4,7 @@ import dagster as dg
 Data_Ingestion_Daily_Job = dg.define_asset_job(
     name="Data_Ingestion_Daily_Job",
     selection=dg.AssetSelection.groups("data_ingestion_daily"), 
-    description="刷新所有A股基础公司信息"
+    description="每日刷新A股基础股票信息 增量更新交易日历、ST股票列表、日线数据"
 )
 
 

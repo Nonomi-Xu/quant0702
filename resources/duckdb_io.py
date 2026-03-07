@@ -312,42 +312,10 @@ class DuckDBResource:
                 act_name VARCHAR(200),                        -- 实控人名称
                 act_ent_type VARCHAR(100),                    -- 实控人企业性质
                 is_hs VARCHAR(2),                             -- 是否沪深港通标的
-                last_updated TIMESTAMP,                       -- 最后更新时间
+                update_date DATE,        -- 添加更新日期字段
                 UNIQUE(symbol)
             );
-            
-            -- 日线数据表
-            CREATE TABLE IF NOT EXISTS a_stocks_basic_daily_price (
-                -- 复合主键
-                ts_code VARCHAR(20) NOT NULL,  -- 股票代码
-                trade_date DATE NOT NULL,  -- 交易日期
-                
-                -- 价格数据
-                open DECIMAL(10, 2),  -- 开盘价
-                high DECIMAL(10, 2),  -- 最高价
-                low DECIMAL(10, 2),  -- 最低价
-                close DECIMAL(10, 2),  -- 收盘价
-                pre_close DECIMAL(10, 2),  -- 昨收价
-                change DECIMAL(10, 2),  -- 涨跌额
-                pct_chg DECIMAL(10, 2),  -- 涨跌幅（百分比）
-                
-                -- 成交量数据
-                vol BIGINT,  -- 成交量（手）
-                amount DECIMAL(16, 2),  -- 成交额（千元）
-                
-                -- 复合主键
-                PRIMARY KEY (ts_code, trade_date)
-            );
-            
-            -- 历史ST股票数据库
-            CREATE TABLE IF NOT EXISTS a_stocks_basic_st (
-                ts_code VARCHAR(20) NOT NULL,  -- 股票代码
-                name VARCHAR(100),    -- 股票名称
-                trade_date DATE NOT NULL,  -- 交易日期
-                type VARCHAR(20),   --ST类型
-                type_name VARCHAR(100),    -- ST名称
-                PRIMARY KEY (ts_code)
-            );
+        
             
             -- 添加同步记录表
             CREATE TABLE IF NOT EXISTS sync_metadata (

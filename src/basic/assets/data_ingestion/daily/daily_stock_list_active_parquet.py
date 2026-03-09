@@ -158,6 +158,7 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
         df = df_not_st[
                 ~df_not_st['ts_code'].str.endswith('.BJ') &  # 去除北交所
                 ~df_not_st['ts_code'].str.startswith('688') &  # 去除科创板
+                ~df_not_st['ts_code'].str.startswith('689') &  # 去除科创板存托凭证
                 ~df_not_st['ts_code'].str.startswith('300')    # 去除创业板
             ]
         

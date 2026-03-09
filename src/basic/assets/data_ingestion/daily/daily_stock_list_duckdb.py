@@ -6,6 +6,7 @@ import polars as pl
 import tushare as ts
 import pandas as pd
 from datetime import datetime
+import os
 from resources.duckdb_io import DuckDBResource
 
 from .daily_trade_cal_parquet import Daily_Trade_Cal
@@ -25,7 +26,7 @@ def Daily_Stock_List_Duckdb(context: dg.AssetExecutionContext) -> pl.DataFrame:
     
     conn = db.get_connection()
     # 获取当前数据库中的所有股票代码
-    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
+    pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
 
     current_date = datetime.now().strftime("%Y%m%d")
 

@@ -20,7 +20,7 @@ def Start_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
     """
     context.log.info("开始获取A股股票列表...")
 
-    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
+    pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
     
     status_list = ['L', 'D', 'G', 'P']
     spot_dfs = []

@@ -6,6 +6,7 @@ import dagster as dg
 import polars as pl
 import pandas as pd
 import tushare as ts
+import os 
 from resources.parquet_io import ParquetResource
 
 @dg.asset(
@@ -26,7 +27,7 @@ def Start_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
 
     context.log.info(f"时间范围: {start_date} -> {end_date}")
 
-    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
+    pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
 
     
     try:

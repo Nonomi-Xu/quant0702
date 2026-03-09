@@ -3,6 +3,7 @@ import dagster as dg
 import polars as pl
 import tushare as ts
 import pandas as pd
+import os
 from datetime import datetime, timedelta
 from resources.parquet_io import ParquetResource
 
@@ -65,7 +66,7 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
 
     # 初始化Tushare
-    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
+    pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
     
     # 获取新增数据
     try:

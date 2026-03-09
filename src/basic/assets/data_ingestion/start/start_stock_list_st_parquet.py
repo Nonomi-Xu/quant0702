@@ -40,7 +40,7 @@ def Start_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
     context.log.info(f"需要处理 {len(date_list)} 个交易日")
 
-    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
+    pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
 
     st_records = []
 

@@ -4,6 +4,7 @@ import dagster as dg
 import polars as pl
 import tushare as ts
 import pandas as pd
+import os
 from resources.parquet_io import ParquetResource
 import time
 from datetime import datetime, timedelta
@@ -22,7 +23,7 @@ def Start_Daily_Prices(context: dg.AssetExecutionContext) -> dg.MaterializeResul
     """
     context.log.info("开始创建日线数据")
 
-    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
+    pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
     
     start_date = "2020-01-01"
     end_date = datetime.now().strftime("%Y-%m-%d")

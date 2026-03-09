@@ -5,6 +5,7 @@ import dagster as dg
 import polars as pl
 import tushare as ts
 import pandas as pd
+import os
 from datetime import datetime, timedelta
 from resources.parquet_io import ParquetResource
 
@@ -22,7 +23,7 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
     context.log.info("开始获取近期ST股票数据")
 
-    pro = ts.pro_api('f1a9a8bc7db18c9b3778cc95301541d2fc38a3836ba24387338e241f')
+    pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
 
     current_date = datetime.now().strftime("%Y%m%d")
     

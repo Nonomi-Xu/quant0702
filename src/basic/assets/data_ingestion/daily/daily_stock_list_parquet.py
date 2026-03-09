@@ -115,18 +115,17 @@ def Daily_Stock_List(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         .unique(subset=["symbol"])
     )
 
-    total_rows = spot_ts.height
+    total_rows = pl_stocks_ts.height
 
     context.log.info(f"记录数: {total_rows}")
-    context.log.info(f"字段列表: {spot_ts.columns}")
+    context.log.info(f"字段列表: {pl_stocks_ts.columns}")
 
     # 写入 COS parquet
     parquet_resource = ParquetResource()
-    parquet_resource.writeparquet(
-            df=spot_ts,
+    parquet_resource.write(
+            df=pl_stocks_ts,
             path_extension=file_path,
-            compression=compression,
-            upload=True,
+            compression='zstd'
         )
 
     context.log.info("股票数据已写入 COS: a-stock/data/stock_list/stock_list.parquet")

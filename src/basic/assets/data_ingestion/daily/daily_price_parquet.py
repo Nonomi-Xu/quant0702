@@ -57,13 +57,14 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
                     
                     # 获取已存在数据中的最大日期
                     latest_date_in_cos = existing_df['trade_date'].max()
+                    latest_date_str = latest_date_in_cos.strftime("%Y-%m-%d")
                     context.log.info(f"COS中已存在数据，最新日期: {latest_date_in_cos}")
                     
                     # 计算需要获取的起始日期（最新日期的下一天）
                     if latest_date_in_cos:
-                        latest_dt = datetime.strptime(latest_date_in_cos, "%Y%m%d")
-                        start_date = (latest_dt + timedelta(days=1)).strftime("%Y%m%d")
+                        start_date = (latest_date_in_cos + timedelta(days=1)).strftime("%Y%m%d")
                         break
+                
                 else:
                     context.log.info(f"{search_file_path} 中无数据，向前查找年份: {current_year_for_search - 1}")
                     current_year_for_search -= 1
@@ -81,6 +82,7 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         context.log.warning(f"读取COS现有数据失败: {e}")
         raise
 
+    start_date = datetime.strptime(start_date, "%Y%m%d")
     end_date = datetime.strptime(current_date, "%Y%m%d")
 
     try:
@@ -96,21 +98,23 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         pretrade_date = df_sse['pretrade_date'].iloc[0]
         end_date = datetime.strptime(pretrade_date, "%Y%m%d")
 
+    
+
     # 如果起始日期大于结束日期，说明没有新数据需要更新
     if start_date > end_date:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
         return dg.MaterializeResult(
             metadata={
             "status": dg.MetadataValue.text("up_to_date"),
-            "latest_date": dg.MetadataValue.text(latest_date_in_cos),
+            "latest_date": dg.MetadataValue.text(latest_date_str),
             "file_path": dg.MetadataValue.text(full_cos_path),
             }
         )
     
     context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
 
-    current = datetime.strptime(start_date, "%Y-%m-%d")
-    end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+    current = start_date
+    end_dt = end_date
 
     date_list = []
 

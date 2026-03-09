@@ -15,7 +15,7 @@ from .daily_trade_cal_parquet import Daily_Trade_Cal
     description="每日更新A股股票列表（全量刷新）",
     deps=[Daily_Trade_Cal]
 )
-def Daily_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
+def Daily_Stock_List_Duckdb(context: dg.AssetExecutionContext) -> pl.DataFrame:
     """
     每日更新A股股票列表（全量刷新）
     """
@@ -30,9 +30,8 @@ def Daily_Stock_List(context: dg.AssetExecutionContext) -> pl.DataFrame:
     current_date = datetime.now().strftime("%Y%m%d")
 
     df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
-    df_szse = pro.trade_cal(exchange='SZSE', start_date=current_date, end_date=current_date)
 
-    if df_sse['is_open'].iloc[0] == 1 and df_szse['is_open'].iloc[0] == 1:
+    if df_sse['is_open'].iloc[0] == 1:
         context.log.info(f"开盘日: {current_date}")
     else:
         context.log.info(f"今日不开盘: {current_date}")

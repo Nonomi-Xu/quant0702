@@ -52,7 +52,8 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
             
             try:
                 existing_df = parquet_resource.read(
-                    path_extension=search_file_path
+                    path_extension=search_file_path,
+                    force_download = True
                 )
                 
                 if existing_df is not None and existing_df.height > 0:
@@ -133,51 +134,71 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
     yearly_data = {}
 
     for idx, trade_date in enumerate(date_list, start=1):
+        trade_date_year = pd.to_datetime(trade_date, format="%Y%m%d").year
         try:
-            df = pro.daily(
-                trade_date=trade_date
-            )
-            context.log.info(f'已获取交易日日线信息: {trade_date}')
+            file_path_daily = f"daily_price/daily_price_{trade_date_year}.parquet"
+
+            existing_df = parquet_resource.read(
+                    path_extension=file_path_daily,
+                    force_download = True
+                )
+            
+            # 统一 trade_date 格式后筛选当天
+            df_daily = existing_df.filter(
+                pl.col("trade_date") == pd.to_datetime(trade_date, format="%Y%m%d").date()
+            ).select(["ts_code", "trade_date"])
+
+            context.log.info(f"已从 parquet 获取交易日日线信息: {trade_date}")
             time.sleep(0.3)
+
         except Exception as e:
-            context.log.error(f"接口 pro.stock_basic 获取失败: {e}")
+            context.log.error(f"从 daily_price_{trade_date_year}.parquet 读取日线失败: {e}")
+            failed_days.append(trade_date)
             raise
 
         try:
-            df_st = pro.stock_st(
-                trade_date=trade_date
-            )
+            file_path_stock_list_st = f"stock_list/stock_list_st.parquet"
+
+            existing_df = parquet_resource.read(
+                    path_extension=file_path_stock_list_st,
+                    force_download = True
+                )
+            
+            # 统一 trade_date 格式后筛选当天
+            df_stock_list_st = existing_df.filter(
+                pl.col("trade_date") == trade_date
+            ).select(["ts_code", "trade_date"])
+
+            context.log.info(f"已从 stock_list/stock_list_st.parquet 获取ST股票信息: {trade_date}")
             time.sleep(0.3)
-            context.log.info(f'已获取交易日ST股信息: {trade_date}')
+
         except Exception as e:
-            context.log.error(f"接口 pro.stock_st 获取失败: {e}")
+            context.log.error(f"从 stock_list/stock_list_st.parquet 获取ST股票信息失败: {e}")
+            failed_days.append(trade_date)
             raise
         
-        df_not_st = df[~df['ts_code'].isin(df_st['ts_code'])] # 去除ST股票
+        st_codes = df_stock_list_st["ts_code"].to_list()
 
-        df = df_not_st[
-                ~df_not_st['ts_code'].str.endswith('.BJ') &  # 去除北交所
-                ~df_not_st['ts_code'].str.startswith('688') &  # 去除科创板
-                ~df_not_st['ts_code'].str.startswith('689') &  # 去除科创板存托凭证
-                ~df_not_st['ts_code'].str.startswith('300')    # 去除创业板
-            ]
+        df_not_st = df_daily.filter(  # 去除ST股票
+            ~pl.col("ts_code").is_in(st_codes)
+        )
+        
+
+        df = df_not_st.filter(
+            ~pl.col("ts_code").str.ends_with(".BJ") & # 去除北交所
+            ~pl.col("ts_code").str.starts_with("688") &  # 去除科创板
+            ~pl.col("ts_code").str.starts_with("689") & # 去除科创板存托凭证
+            ~pl.col("ts_code").str.starts_with("300") # 去除创业板
+        )
         
         try:
             context.log.info(f"处理交易日 {idx}/{len(date_list)}: {trade_date}")
 
-            if df is None or df.empty:
+            if df is None or df.is_empty():
                 context.log.warning(f"{trade_date} 无数据，跳过")
                 continue
 
-            pd_df = pd.DataFrame({
-                "ts_code": df["ts_code"],
-                "trade_date": pd.to_datetime(df["trade_date"], format="%Y%m%d"),
-            })
-
-            pl_df = (
-                pl.from_pandas(pd_df)
-                .with_columns(pl.col("trade_date").cast(pl.Date))
-            )
+            pl_df = df.select(["ts_code", "trade_date"])
 
             year = pd.to_datetime(trade_date, format="%Y%m%d").year
 

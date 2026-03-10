@@ -38,7 +38,8 @@ def Daily_Stock_List(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     if parquet_resource.exists(path_extension=file_path):
         try:
             existing_df = parquet_resource.read(
-                path_extension=file_path
+                path_extension=file_path,
+                force_download = True
             )
         except Exception as e:
             context.log.warning(f"读取COS现有数据失败: {e}")

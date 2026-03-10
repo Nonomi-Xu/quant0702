@@ -30,7 +30,8 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
 
     try:
         existing_df = parquet_resource.read(
-            path_extension=file_path
+            path_extension=file_path,
+            force_download = True
         )
         
         if existing_df is not None and existing_df.height > 0:

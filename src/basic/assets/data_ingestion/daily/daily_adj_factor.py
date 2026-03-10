@@ -13,30 +13,30 @@ from .daily_trade_cal_parquet import Daily_Trade_Cal
 
 @dg.asset(
     group_name="data_ingestion_daily",
-    description="增量更新每日股票日线数据",
+    description="每日获取A股复权因子 计算后复权 增量写入COS Parquet",
     deps=[Daily_Trade_Cal]
 )
-def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
-    增量更新每日股票日线数据，注意该函数仅能增加当年的数据，去年数据会出现失败
+    每日获取A股复权因子 增量写入COS Parquet
     """
-    context.log.info("开始增量更新每日股票日线数据")
+
+    context.log.info("开始获取A股复权因子")
 
     pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
-    
+
     current_date = datetime.now().strftime("%Y%m%d")
     
     current_year = datetime.now().year
     
+    # 初始化参数
     parquet_resource = ParquetResource()
-    file_path = f"daily_price/daily_price_{current_year}.parquet"
     full_cos_path = f"a-stock/data/{file_path}"
     
-    # 尝试读取已存在的日历数据
+    # 尝试读取已存在的复权数据
     existing_df = None
     latest_date_in_cos = None
 
-    
     try:
         # 从当前年份开始向前查找数据文件
         current_year_for_search = current_year
@@ -44,7 +44,7 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         
         while current_year_for_search >= 2020 and not found_data:
             # 构建向前查找的文件路径
-            search_file_path = f"daily_price/daily_price_{current_year_for_search}.parquet"
+            search_file_path = f"adj_factor/adj_factor/adj_factor_{current_year_for_search}.parquet"
             
             try:
                 existing_df = parquet_resource.read(
@@ -100,32 +100,29 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         pretrade_date = df_sse['pretrade_date'].iloc[0]
         end_date = datetime.strptime(pretrade_date, "%Y%m%d")
 
-    
-
     # 如果起始日期大于结束日期，说明没有新数据需要更新
     if start_date > end_date:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
         return dg.MaterializeResult(
             metadata={
-            "status": dg.MetadataValue.text("up_to_date"),
-            "latest_date": dg.MetadataValue.text(latest_date_str),
-            "file_path": dg.MetadataValue.text(full_cos_path),
+                "status": dg.MetadataValue.text("up_to_date"),
+                "latest_date": dg.MetadataValue.text(latest_date_str),
+                "file_path": dg.MetadataValue.text(full_cos_path),
             }
         )
     
+    
     context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
-
-    current = start_date
-    end_dt = end_date
 
     date_list = []
 
-    while current <= end_dt:
+    current = start_date
+    while current <= end_date:
         date_list.append(current.strftime("%Y%m%d"))
         current += timedelta(days=1)
-    
-    context.log.info(f"共需处理 {len(date_list)} 个交易日")
 
+    context.log.info(f"需要处理 {len(date_list)} 个交易日")
+    
     total_rows = 0
     total_days_success = 0
     failed_days = []
@@ -135,10 +132,10 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
 
     for idx, trade_date in enumerate(date_list, start=1):
         try:
-            df = pro.daily(trade_date=trade_date)
+            df = pro.adj_factor(ts_code='', trade_date=trade_date)
         
         except Exception as e:
-            context.log.error(f"接口 pro.daily 获取失败: {e}")
+            context.log.error(f"接口 pro.adj_factor 获取失败: {e}")
             raise
 
         try:
@@ -151,15 +148,7 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             pd_df = pd.DataFrame({
                 "ts_code": df["ts_code"],
                 "trade_date": pd.to_datetime(df["trade_date"], format="%Y%m%d"),
-                "open": df["open"],
-                "high": df["high"],
-                "low": df["low"],
-                "close": df["close"],
-                "pre_close": df["pre_close"],
-                "change": df["change"],
-                "pct_chg": df["pct_chg"],
-                "vol": df["vol"],
-                "amount": df["amount"] if "amount" in df.columns else 0,
+                "adj_factor": df["adj_factor"]
             })
 
             pl_df = (
@@ -196,7 +185,7 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"daily_price/daily_price_{year}.parquet"
+            file_path = f"adj_factor/adj_factor/adj_factor_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(
@@ -213,9 +202,9 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             failed_days.append(f"YEAR_WRITE_{year}")
 
     context.log.info(f"""
-    ========== 历史日线数据写入完成 ==========
+    ========== 复权因子写入完成 ==========
     本次处理:
-        - 成功交易日数: {total_days_success}
+        - 成功数: {total_days_success}
         - 总数据行数: {total_rows}
         - 失败天数: {len(failed_days)}
 

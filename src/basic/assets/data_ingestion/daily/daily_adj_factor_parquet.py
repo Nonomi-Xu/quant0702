@@ -305,17 +305,36 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
     end_date = datetime.strptime(current_date, "%Y%m%d")
 
     try:
-        df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
+        file_path_trade_cal = f"trade_cal/trade_cal.parquet"
+
+        existing_df = parquet_resource.read(
+            path_extension=file_path_trade_cal,
+            force_download = True
+        )
+
+        # 统一 trade_date 格式后筛选当天
+        df_trade_cal = (
+            existing_df
+            .with_columns(pl.col("cal_date").cast(pl.Date))
+            .filter(pl.col("cal_date") == pl.lit(current_date))
+            .select(["exchange", "cal_date", "is_open", "pretrade_date"])
+        )
+
+        context.log.info(f"从 COS 中读取日历数据: {current_date}")
+
     except Exception as e:
-        context.log.warning(f"接口 pro.trade_cal 获取失败: {e}")
+        context.log.warning(f"读取日历数据失败: {e}")
         raise
 
-    if df_sse['is_open'].iloc[0] == 1:
+    if df_trade_cal['is_open'].iloc[0] == 1 and df_trade_cal['is_open'].iloc[1] == 1:
         context.log.info(f"开盘日: {current_date}")
-    else:
+    elif df_trade_cal['is_open'].iloc[0] == 0 and df_trade_cal['is_open'].iloc[1] == 0:
         context.log.info(f"今日不开盘: {current_date}")
-        pretrade_date = df_sse['pretrade_date'].iloc[0]
+        pretrade_date = df_trade_cal['pretrade_date'].iloc[0]
         end_date = datetime.strptime(pretrade_date, "%Y%m%d")
+    else:
+        context.log.warning(f"出现深交上交所不同时开盘日 {current_date} 请检查数据")
+        raise
 
     # 如果起始日期大于结束日期，说明没有新数据需要更新
     if start_date > end_date:
@@ -327,7 +346,6 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
                 "file_path": dg.MetadataValue.text(full_cos_path),
             }
         )
-    
     
     context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
 
@@ -367,7 +385,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
                 .select(["ts_code", "trade_date", "close"])
             )
 
-            context.log.info(f"已从 parquet 获取交易日日线信息: {trade_date}")
+            context.log.info(f"已从 daily_price_{trade_date_year}.parquet 获取交易日日线信息: {trade_date}")
             time.sleep(0.3)
 
         except Exception as e:
@@ -386,9 +404,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
             # 统一 trade_date 格式后筛选当天
             df_adj_factor = (
                 existing_df
-                .with_columns(
-                    pl.col("trade_date").str.strptime(pl.Date, format="%Y%m%d", strict=False)
-                )
+                .with_columns(pl.col("trade_date").cast(pl.Date))
                 .filter(pl.col("trade_date") == pl.lit(trade_date_date))
                 .select(["ts_code", "trade_date", "adj_factor"])
             )
@@ -401,6 +417,10 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
             failed_days.append(trade_date)
             raise
         
+        if (df_daily.height == 0 and df_adj_factor.height != 0) or (df_daily.height != 0 and df_adj_factor.height == 0):
+            context.log.error(f"{trade_date} 出现 日线股票和复权因子仅有一个存在 请检查")
+            raise
+
         try:
 
             df_hfq = (

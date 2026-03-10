@@ -123,8 +123,10 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
     full_df = pd.concat(st_records, ignore_index=True)
 
-    df = pl.from_pandas(full_df)
-
+    df = (
+        pl.from_pandas(df)
+        .with_columns(pl.col("trade_date").cast(pl.Date))
+    )
     # 排序
     sort_cols = [col for col in ["trade_date", "ts_code"] if col in df.columns]
     if sort_cols:

@@ -202,8 +202,10 @@ class COSParquetManager:
 
     def read_parquet(self, path_extension: str, force_download: bool = False) -> pl.DataFrame:
         local_path = self.download_file(path_extension, force=force_download)
+
+        # 如果COS没有文件，则返回空DataFrame
         if local_path is None or not local_path.exists():
-            raise FileNotFoundError(f"COS 中不存在 parquet 文件: {path_extension}")
+            return pl.DataFrame()
 
         return pl.read_parquet(local_path)
 

@@ -5,7 +5,7 @@ from .data_ingestion.daily.daily_trade_cal_parquet import Daily_Trade_Cal
 from .data_ingestion.daily.daily_stock_list_st_parquet import Daily_Stock_List_ST
 from .data_ingestion.daily.daily_stock_list_active_parquet import Daily_Stock_List_Active
 from .data_ingestion.daily.daily_price_parquet import Daily_Price
-from .data_ingestion.daily.daily_adj_factor import Daily_adj_factor
+from .data_ingestion.daily.daily_adj_factor_parquet import Daily_adj_factor, Daily_adj_factor_hfq
 
 
 '''
@@ -30,7 +30,8 @@ Data_Ingestion_Daily_assets = [
     Daily_Stock_List_ST,
     Daily_Stock_List_Active,
     Daily_Price,
-    Daily_adj_factor
+    Daily_adj_factor,
+    Daily_adj_factor_hfq
 ]
 
     

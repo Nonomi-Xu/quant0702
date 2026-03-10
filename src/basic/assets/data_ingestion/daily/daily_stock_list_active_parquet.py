@@ -16,7 +16,7 @@ from .daily_price_parquet import Daily_Price
 @dg.asset(
     group_name="data_ingestion_daily",
     description="每日获取A股股票 筛选后增量写入COS Parquet 得到当日可用的活跃股票",
-    deps=[Daily_Trade_Cal, Daily_Stock_List_ST, Daily_Price]
+    deps=[Daily_Stock_List_ST, Daily_Price]
 )
 def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """

@@ -16,9 +16,9 @@ from .daily_trade_cal_parquet import Daily_Trade_Cal
     description="增量更新每日基本面指标数据",
     deps=[Daily_Trade_Cal]
 )
-def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
-    增量更新每日股票日线数据，注意该函数仅能增加当年的数据，去年数据会出现失败
+    增量更新每日基本面指标数据
     """
     context.log.info("开始增量更新每日股票日线数据")
 

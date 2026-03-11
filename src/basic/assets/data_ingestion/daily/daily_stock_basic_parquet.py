@@ -24,7 +24,7 @@ def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult
 
     pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
     
-    current_date = datetime.now().strftime("%Y%m%d")
+    current_date = datetime.now().date()
     
     current_year = datetime.now().year
     
@@ -99,7 +99,7 @@ def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult
         df_trade_cal = (
             existing_df
             .with_columns(pl.col("cal_date").cast(pl.Date))
-            .filter(pl.col("cal_date") == pl.lit(current_date))
+            .filter(pl.col("cal_date") == current_date)
             .select(["exchange", "cal_date", "is_open", "pretrade_date"])
         )
 
@@ -109,9 +109,9 @@ def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult
         context.log.warning(f"读取日历数据失败: {e}")
         raise
 
-    if df_trade_cal['is_open'].iloc[0] == 1 and df_trade_cal['is_open'].iloc[1] == 1:
+    if df_trade_cal['is_open'][0] == 1 and df_trade_cal['is_open'][1] == 1:
         context.log.info(f"开盘日: {current_date}")
-    elif df_trade_cal['is_open'].iloc[0] == 0 and df_trade_cal['is_open'].iloc[1] == 0:
+    elif df_trade_cal['is_open'][0] == 0 and df_trade_cal['is_open'][1] == 0:
         context.log.info(f"今日不开盘: {current_date}")
         pretrade_date = df_trade_cal['pretrade_date'].iloc[0]
         end_date = datetime.strptime(pretrade_date, "%Y%m%d")
@@ -120,13 +120,16 @@ def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult
         raise
 
     # 如果起始日期大于结束日期，说明没有新数据需要更新
-    if start_date > end_date:
+    start_date_cmp = start_date.date() if isinstance(start_date, datetime) else start_date
+    end_date_cmp = end_date.date() if isinstance(end_date, datetime) else end_date
+    
+    if start_date_cmp > end_date_cmp:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
         return dg.MaterializeResult(
             metadata={
-            "status": dg.MetadataValue.text("up_to_date"),
-            "latest_date": dg.MetadataValue.text(latest_date_str),
-            "file_path": dg.MetadataValue.text(full_cos_path),
+                "status": dg.MetadataValue.text("up_to_date"),
+                "latest_date": dg.MetadataValue.text(str(latest_date_in_cos)),
+                "file_path": dg.MetadataValue.text(full_cos_path),
             }
         )
     

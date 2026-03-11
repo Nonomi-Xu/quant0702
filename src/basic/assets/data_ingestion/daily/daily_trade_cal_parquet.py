@@ -7,6 +7,8 @@ import os
 from datetime import datetime, timedelta
 from resources.parquet_io import ParquetResource
 
+from .read_date import read_past_date
+
 @dg.asset(
     group_name="data_ingestion_daily",
     description="每日增量更新交易日历"
@@ -20,64 +22,33 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
 
     pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
     
-    current_date = datetime.now().strftime("%Y%m%d")
-    
-    current_year = datetime.now().year
+    current_date = datetime.now().date()
     
     # 初始化参数
     parquet_resource = ParquetResource()
-    file_path = "trade_cal/trade_cal.parquet"
-    full_cos_path = f"a-stock/data/{file_path}"
-    
-    # 尝试读取已存在的日历数据
-    existing_df = None
-    latest_date_in_cos = None
 
-    if parquet_resource.exists(path_extension=file_path):
-        try:
-            existing_df = parquet_resource.read(
-                path_extension=file_path,
-                force_download = True
-            )
-        except Exception as e:
-            context.log.warning(f"读取COS现有数据失败: {e}")
-            raise
-        
-    try:
-        if existing_df is not None and existing_df.height > 0:
-            # 获取已存在数据中的最大日期
-            latest_date_in_cos = existing_df['cal_date'].max()
-            context.log.info(f"COS中已存在数据，最新日期: {latest_date_in_cos}")
-            
-            # 计算需要获取的起始日期（最新日期的下一天）
-            if latest_date_in_cos:
-                latest_dt = datetime.strptime(latest_date_in_cos, "%Y%m%d")
-                start_date = (latest_dt + timedelta(days=1)).strftime("%Y%m%d")
-            else:
-                start_date = "20200101"
-        else:
-            context.log.info("COS中不存在数据，进行全量获取")
-            start_date = "20200101"
-    except Exception as e:
-        context.log.warning(f"读取COS现有数据失败: {e}")
-        raise
+    start_date = read_past_date(context = context, file_path = "trade_cal/trade_cal.parquet")
+    
+    
+    end_date = datetime.strptime(current_date, "%Y%m%d")
 
     
 
     # 统一 trade_date 格式后筛选当天
-    if existing_df.height > 0:
+    if parquet_resource.exists(path_extension=file_path) > 0:
+
         df_trade_cal = (
             existing_df
             .with_columns(pl.col("cal_date").cast(pl.Date))
-            .filter(pl.col("cal_date") == pl.lit(current_date))
+            .filter(pl.col("cal_date") == current_date)
             .select(["exchange", "cal_date", "is_open", "pretrade_date"])
         )
 
         context.log.info(f"从 COS 中读取日历数据: {current_date}")
 
-        if df_trade_cal['is_open'].iloc[0] == 1 and df_trade_cal['is_open'].iloc[1] == 1:
+        if df_trade_cal['is_open'][0] == 1 and df_trade_cal['is_open'][1] == 1:
             context.log.info(f"开盘日: {current_date}")
-        elif df_trade_cal['is_open'].iloc[0] == 0 and df_trade_cal['is_open'].iloc[1] == 0:
+        elif df_trade_cal['is_open'][0] == 0 and df_trade_cal['is_open'][1] == 0:
             context.log.info(f"今日不开盘: {current_date}")
             pretrade_date = df_trade_cal['pretrade_date'].iloc[0]
             end_date = datetime.strptime(pretrade_date, "%Y%m%d")
@@ -86,12 +57,15 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             raise
 
     # 如果起始日期大于结束日期，说明没有新数据需要更新
-    if start_date > end_date:
+    start_date_cmp = start_date.date() if isinstance(start_date, datetime) else start_date
+    end_date_cmp = end_date.date() if isinstance(end_date, datetime) else end_date
+
+    if start_date_cmp > end_date_cmp:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
         return dg.MaterializeResult(
             metadata={
                 "status": dg.MetadataValue.text("up_to_date"),
-                "latest_date": dg.MetadataValue.text(latest_date_in_cos),
+                "latest_date": dg.MetadataValue.text(str(latest_date_in_cos)),
                 "file_path": dg.MetadataValue.text(full_cos_path),
             }
         )
@@ -103,6 +77,8 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     
     # 获取新增数据
     try:
+        start_date = start_date.strftime("%Y%m%d")
+        end_date = end_date.strftime("%Y%m%d")
         df_sse = pro.trade_cal(exchange='SSE', start_date=start_date, end_date=end_date)
         df_szse = pro.trade_cal(exchange='SZSE', start_date=start_date, end_date=end_date)
         
@@ -125,8 +101,10 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     df_new_combined = pd.concat([df_sse, df_szse], ignore_index=True)
     df_new = (
                 pl.from_pandas(df_new_combined)
-                .with_columns(pl.col("cal_date").cast(pl.Date))
-            )
+                .with_columns(
+                pl.col("cal_date").str.strptime(pl.Date, format="%Y%m%d", strict=False)
+                )
+        )
     
     context.log.info(f"新增记录数: {df_new.height}")
     context.log.info(f"新增数据日期范围: {df_new['cal_date'].min()} -> {df_new['cal_date'].max()}")
@@ -146,16 +124,12 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     # 准备元数据
     metadata = {
         "new_records": dg.MetadataValue.int(df_new.height),
-        "date_range_start": dg.MetadataValue.text(df_new['cal_date'].min()),
-        "date_range_end": dg.MetadataValue.text(df_new['cal_date'].max()),
+        "date_range_start": dg.MetadataValue.text(str(df_new["cal_date"].min())),
+        "date_range_end": dg.MetadataValue.text(str(df_new["cal_date"].max())),
         "file_path": dg.MetadataValue.text(full_cos_path),
         "status": dg.MetadataValue.text("updated"),
     }
     
-    # 如果是从特定日期开始更新，添加信息
-    if existing_df is not None:
-        metadata["previous_latest_date"] = dg.MetadataValue.text(latest_date_in_cos or "None")
-
     return dg.MaterializeResult(metadata=metadata)
 
 

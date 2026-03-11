@@ -29,7 +29,7 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
     current_year = datetime.now().year
     
     parquet_resource = ParquetResource()
-    file_path = f"stock_list/stock_list_active/stock_list_active_{current_year}.parquet"
+    file_path = f"stock_list/stock_list_active/stock_list_active.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -72,11 +72,11 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
                 pl.col("trade_date") == pd.to_datetime(trade_date, format="%Y%m%d").date()
             ).select(["ts_code", "trade_date"])
 
-            context.log.info(f"已从 parquet 获取交易日日线信息: {trade_date}, 长度 {df_daily.height}")
+            context.log.info(f"已从 {file_path_daily} 获取交易日日线信息: {trade_date}, 长度 {df_daily.height}")
             time.sleep(0.3)
 
         except Exception as e:
-            context.log.error(f"从 daily_price_{trade_date_year}.parquet 读取日线失败: {e}")
+            context.log.error(f"从 {file_path_daily} 读取日线失败: {e}")
             failed_days.append(trade_date)
             raise
 
@@ -93,16 +93,16 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
                 pl.col("trade_date") == pd.to_datetime(trade_date, format="%Y%m%d").date()
             ).select(["ts_code", "trade_date"])
 
-            context.log.info(f"已从 stock_list/stock_list_st.parquet 获取ST股票信息: {trade_date}, 长度 {df_stock_list_st.height}")
+            context.log.info(f"已从 {file_path_stock_list_st} 获取ST股票信息: {trade_date}, 长度 {df_stock_list_st.height}")
             time.sleep(0.3)
 
         except Exception as e:
-            context.log.error(f"从 stock_list/stock_list_st.parquet 获取ST股票信息失败: {e}")
+            context.log.error(f"从 {file_path_stock_list_st} 获取ST股票信息失败: {e}")
             failed_days.append(trade_date)
             raise
         
         if (df_daily.height == 0 and df_stock_list_st.height != 0) or (df_daily.height != 0 and df_stock_list_st.height == 0):
-            context.log.error(f"{trade_date} 出现 日线股票和ST股票仅有一个存在 请检查")
+            context.log.error(f"{trade_date} 出现 日线和ST股票仅有一个存在 请检查")
             raise
         
         st_codes = df_stock_list_st["ts_code"].to_list()

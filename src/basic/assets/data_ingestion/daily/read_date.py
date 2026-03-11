@@ -18,8 +18,10 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
 
     if file_path == "trade_cal/trade_cal.parquet":
         date_name = "cal_date"
+    elif file_path == "stock_list/stock_list.parquet":
+        date_name = "last_update"
     else:
-        date_name = 'trade_date'
+        date_name = "trade_date"
 
     if current_year is not None:
 

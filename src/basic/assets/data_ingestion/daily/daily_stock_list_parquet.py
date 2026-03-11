@@ -69,13 +69,13 @@ def Daily_Stock_List(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     # 合并所有数据
     spot_ts = pd.concat(spot_dfs, axis=0, ignore_index=True)
 
-    update_time = datetime.now().strftime("%Y%m%d")
+    update_time = datetime.now().date()
 
     pl_stocks_ts = (
         pl.from_pandas(spot_ts[["ts_code","symbol","name","area","industry","market","exchange","list_status","list_date","delist_date","fullname","enname","cnspell","curr_type","act_name","act_ent_type","is_hs"]])
         .unique(subset=["symbol"])
         .with_columns(
-        pl.lit(update_time).alias("last_update")
+        pl.lit(update_time).cast(pl.Date).alias("last_update")
     )
     )
 

@@ -29,7 +29,7 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     current_year = datetime.now().year
     
     parquet_resource = ParquetResource()
-    file_path = f"daily_price/daily_price_{current_year}.parquet"
+    file_path = f"daily_price/daily_price.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -74,22 +74,8 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
                 context.log.warning(f"{trade_date} 无数据，跳过")
                 continue
 
-            pd_df = pd.DataFrame({
-                "ts_code": df["ts_code"],
-                "trade_date": pd.to_datetime(df["trade_date"], format="%Y%m%d"),
-                "open": df["open"],
-                "high": df["high"],
-                "low": df["low"],
-                "close": df["close"],
-                "pre_close": df["pre_close"],
-                "change": df["change"],
-                "pct_chg": df["pct_chg"],
-                "vol": df["vol"],
-                "amount": df["amount"] if "amount" in df.columns else 0,
-            })
-
             pl_df = (
-                pl.from_pandas(pd_df)
+                pl.from_pandas(df)
                 .with_columns(pl.col("trade_date").str.strptime(pl.Date, "%Y%m%d"))
             )
 

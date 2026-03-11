@@ -15,23 +15,21 @@ from .read_date import read_past_date, read_trade_cal, cal_day_length
 
 @dg.asset(
     group_name="data_ingestion_daily",
-    description="每日获取A股复权因子 增量写入COS Parquet",
+    description="增量更新每日股票资金流向数据",
     deps=[Daily_Trade_Cal]
 )
-def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Daily_Money_Flow(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
-    每日获取A股复权因子 增量写入COS Parquet
+    增量更新每日股票资金流向数据
     """
-
-    context.log.info("开始获取A股复权因子")
+    context.log.info("开始增量更新每日股票资金流向数据")
 
     pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
     
     current_year = datetime.now().year
     
-    # 初始化参数
     parquet_resource = ParquetResource()
-    file_path = f"adj_factor/adj_factor/adj_factor.parquet"
+    file_path = f"money_flow/money_flow.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -51,7 +49,7 @@ def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         )
     
     context.log.info(f"需要处理 {len(date_list)} 个交易日")
-    
+
     total_rows = 0
     total_days_success = 0
     failed_days = []
@@ -61,29 +59,24 @@ def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
 
     for idx, trade_date in enumerate(date_list, start=1):
         try:
-            df = pro.adj_factor(ts_code='', trade_date=trade_date)
+            df = pro.moneyflow(trade_date=trade_date)
+            # 控制请求频率，避免过快
             time.sleep(0.3)
         
         except Exception as e:
-            context.log.error(f"接口 pro.adj_factor 获取失败: {e}")
+            context.log.error(f"接口 pro.moneyflow 获取失败: {e}")
             raise
 
         try:
-            context.log.info(f"处理交易日 {idx}/{len(date_list)}: {trade_date}")
+            context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
 
             if df is None or df.empty:
                 context.log.warning(f"{trade_date} 无数据，跳过")
                 continue
 
-            pd_df = pd.DataFrame({
-                "ts_code": df["ts_code"],
-                "trade_date": pd.to_datetime(df["trade_date"], format="%Y%m%d"),
-                "adj_factor": df["adj_factor"]
-            })
-
             pl_df = (
-                pl.from_pandas(pd_df)
-                .with_columns(pl.col("trade_date").cast(pl.Date))
+                pl.from_pandas(df)
+                .with_columns(pl.col("trade_date").str.strptime(pl.Date, "%Y%m%d"))
             )
 
             year = pd.to_datetime(trade_date, format="%Y%m%d").year
@@ -100,9 +93,6 @@ def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             context.log.warning(f"处理交易日 {trade_date} 失败: {e}")
             failed_days.append(trade_date)
 
-        # 控制请求频率，避免过快
-        time.sleep(0.3)
-
     # 最后按年份写入 parquet
     year_file_stats = {}
 
@@ -115,7 +105,7 @@ def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"adj_factor/adj_factor/adj_factor_{year}.parquet"
+            file_path = f"money_flow/money_flow_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(
@@ -132,9 +122,9 @@ def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             failed_days.append(f"YEAR_WRITE_{year}")
 
     context.log.info(f"""
-    ========== 复权因子写入完成 ==========
+    ========== 历史日线数据写入完成 ==========
     本次处理:
-        - 成功数: {total_days_success}
+        - 成功交易日数: {total_days_success}
         - 总数据行数: {total_rows}
         - 失败天数: {len(failed_days)}
 
@@ -154,4 +144,3 @@ def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             "year_files": dg.MetadataValue.json(year_file_stats),
         }
     )
-

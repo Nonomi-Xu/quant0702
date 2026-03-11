@@ -28,7 +28,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
     
     # 初始化参数
     parquet_resource = ParquetResource()
-    file_path = f"adj_factor/hfq/hfq_{current_year}.parquet"
+    file_path = f"adj_factor/hfq/hfq.parquet"
 
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 

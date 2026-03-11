@@ -5,7 +5,7 @@ import dagster as dg
 import polars as pl
 import tushare as ts
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from resources.parquet_io import ParquetResource
 
 from .daily_trade_cal_parquet import Daily_Trade_Cal

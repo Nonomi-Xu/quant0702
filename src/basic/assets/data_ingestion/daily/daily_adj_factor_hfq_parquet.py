@@ -1,39 +1,40 @@
 """A股数据获取资产"""
+
 import time
 import dagster as dg
 import polars as pl
 import pandas as pd
-import os
 from datetime import datetime
 from resources.parquet_io import ParquetResource
 
-from .daily_stock_list_st_parquet import Daily_Stock_List_ST
+from .daily_adj_factor_parquet import Daily_adj_factor
 from .daily_price_parquet import Daily_Price
 
 from .read_date import read_past_date, read_trade_cal, cal_day_length
 
 @dg.asset(
     group_name="data_ingestion_daily",
-    description="每日获取A股股票 筛选后增量写入COS Parquet 得到当日可用的活跃股票",
-    deps=[Daily_Stock_List_ST, Daily_Price]
+    description="每日获取A股复权因子 日线数据-收盘价 计算后复权 增量写入COS Parquet",
+    deps=[Daily_adj_factor, Daily_Price]
 )
-def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
-    每日通过条件筛选A股股票列表
-    删除 科创板、创业板、北交所、ST股
-    并增量写入COS Parquet
+    每日获取A股复权因子 日线数据-收盘价 计算后复权 增量写入COS Parquet
     """
 
-    context.log.info("开始筛选A股股票数据")
+    context.log.info("开始计算后复权")
     
     current_year = datetime.now().year
     
+    # 初始化参数
     parquet_resource = ParquetResource()
-    file_path = f"stock_list/stock_list_active/stock_list_active_{current_year}.parquet"
-    
+    file_path = f"adj_factor/hfq/hfq_{current_year}.parquet"
+
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
     end_date = read_trade_cal(context = context)
+
+    context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
 
     date_list = cal_day_length(context = context, start_date = start_date, end_date = end_date)
 
@@ -57,9 +58,10 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
 
     for idx, trade_date in enumerate(date_list, start=1):
         trade_date_year = pd.to_datetime(trade_date, format="%Y%m%d").year
+        trade_date_dt = pd.to_datetime(trade_date, format="%Y%m%d")
+        trade_date_date = trade_date_dt.date()
         try:
             context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
-            
             file_path_daily = f"daily_price/daily_price_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(
@@ -68,11 +70,14 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
                 )
             
             # 统一 trade_date 格式后筛选当天
-            df_daily = existing_df.filter(
-                pl.col("trade_date") == pd.to_datetime(trade_date, format="%Y%m%d").date()
-            ).select(["ts_code", "trade_date"])
+            df_daily = (
+                existing_df
+                .with_columns(pl.col("trade_date").cast(pl.Date))
+                .filter(pl.col("trade_date") == pl.lit(trade_date_date))
+                .select(["ts_code", "trade_date", "close"])
+            )
 
-            context.log.info(f"已从 parquet 获取交易日日线信息: {trade_date}, 长度 {df_daily.height}")
+            context.log.info(f"已从 daily_price_{trade_date_year}.parquet 获取交易日日线信息: {trade_date}")
             time.sleep(0.3)
 
         except Exception as e:
@@ -81,66 +86,79 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
             raise
 
         try:
-            file_path_stock_list_st = f"stock_list/stock_list_st.parquet"
+            file_path_adj_factor = f"adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(
-                    path_extension=file_path_stock_list_st,
+                    path_extension=file_path_adj_factor,
                     force_download = True
                 )
             
             # 统一 trade_date 格式后筛选当天
-            df_stock_list_st = existing_df.filter(
-                pl.col("trade_date") == pd.to_datetime(trade_date, format="%Y%m%d").date()
-            ).select(["ts_code", "trade_date"])
+            df_adj_factor = (
+                existing_df
+                .with_columns(pl.col("trade_date").cast(pl.Date))
+                .filter(pl.col("trade_date") == pl.lit(trade_date_date))
+                .select(["ts_code", "trade_date", "adj_factor"])
+            )
 
-            context.log.info(f"已从 stock_list/stock_list_st.parquet 获取ST股票信息: {trade_date}, 长度 {df_stock_list_st.height}")
+            context.log.info(f"从 adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet 获取复权因子信息: {trade_date}")
             time.sleep(0.3)
 
         except Exception as e:
-            context.log.error(f"从 stock_list/stock_list_st.parquet 获取ST股票信息失败: {e}")
+            context.log.error(f"从 adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet 获取复权因子信息失败: {e}")
             failed_days.append(trade_date)
             raise
         
-        if (df_daily.height == 0 and df_stock_list_st.height != 0) or (df_daily.height != 0 and df_stock_list_st.height == 0):
-            context.log.error(f"{trade_date} 出现 日线股票和ST股票仅有一个存在 请检查")
+        if (df_daily.height == 0 and df_adj_factor.height != 0) or (df_daily.height != 0 and df_adj_factor.height == 0):
+            context.log.error(f"{trade_date} 出现 日线股票和复权因子仅有一个存在 请检查")
             raise
-        
-        st_codes = df_stock_list_st["ts_code"].to_list()
 
-        df_not_st = df_daily.filter(  # 去除ST股票
-            ~pl.col("ts_code").is_in(st_codes)
-        )
-        
-
-        df = df_not_st.filter(
-            ~pl.col("ts_code").str.ends_with(".BJ") & # 去除北交所
-            ~pl.col("ts_code").str.starts_with("688") &  # 去除科创板
-            ~pl.col("ts_code").str.starts_with("689") & # 去除科创板存托凭证
-            ~pl.col("ts_code").str.starts_with("300") # 去除创业板
-        )
-        
         try:
-            context.log.info(f"处理交易日 {idx}/{len(date_list)}: {trade_date}")
 
-            if df is None or df.is_empty():
-                context.log.warning(f"{trade_date} 无数据，跳过")
+            df_hfq = (
+                df_daily.join(
+                    df_adj_factor,
+                    on=["ts_code", "trade_date"],
+                    how="inner"
+                )
+                .with_columns([
+                    pl.col("trade_date").cast(pl.Date),
+                    pl.col("close").cast(pl.Float64),
+                    pl.col("adj_factor").cast(pl.Float64),
+                ])
+                .with_columns([
+                    (pl.col("close") * pl.col("adj_factor")).alias("hfq_factor"),
+                ])
+                .select([
+                    "ts_code",
+                    "trade_date",
+                    "hfq_factor",
+                ])
+                .sort(["trade_date", "ts_code"])
+            )
+
+            if df_hfq.height == 0:
+                context.log.warning(f"{trade_date} 合并后无数据，跳过")
                 continue
 
-            pl_df = df.select(["ts_code", "trade_date"])
+            if trade_date_year not in yearly_data:
+                yearly_data[trade_date_year] = []
 
-            year = pd.to_datetime(trade_date, format="%Y%m%d").year
+            yearly_data[trade_date_year].append(df_hfq)
 
-            if year not in yearly_data:
-                yearly_data[year] = []
-
-            yearly_data[year].append(pl_df)
-
-            total_rows += len(pl_df)
+            total_rows += df_hfq.height
             total_days_success += 1
 
+            context.log.info(f"交易日 {trade_date} 后复权数据计算完成，共 {df_hfq.height} 行")
+
         except Exception as e:
-            context.log.warning(f"处理交易日 {trade_date} 失败: {e}")
+            context.log.error(f"交易日 {trade_date} 计算后复权数据失败: {e}")
             failed_days.append(trade_date)
+            raise
+
+
+        # 控制请求频率，避免过快
+        time.sleep(0.3)
 
     # 最后按年份写入 parquet
     year_file_stats = {}
@@ -154,7 +172,7 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"stock_list/stock_list_active/stock_list_active_{year}.parquet"
+            file_path = f"adj_factor/hfq/hfq_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(
@@ -171,9 +189,9 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
             failed_days.append(f"YEAR_WRITE_{year}")
 
     context.log.info(f"""
-    ========== 历史日线数据写入完成 ==========
+    ========== 后复权因子写入完成 ==========
     本次处理:
-        - 成功交易日数: {total_days_success}
+        - 成功数: {total_days_success}
         - 总数据行数: {total_rows}
         - 失败天数: {len(failed_days)}
 

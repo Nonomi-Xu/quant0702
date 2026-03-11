@@ -4,7 +4,7 @@ import polars as pl
 import tushare as ts
 import pandas as pd
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from resources.parquet_io import ParquetResource
 
 from .read_date import read_past_date, read_trade_cal
@@ -21,8 +21,6 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     context.log.info("开始增量更新历史交易日历")
 
     pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
-    
-    current_date = datetime.now().date()
 
     file_path = "trade_cal/trade_cal.parquet"
     
@@ -78,9 +76,10 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     df_new_combined = pd.concat([df_sse, df_szse], ignore_index=True)
     df_new = (
                 pl.from_pandas(df_new_combined)
-                .with_columns(
-                pl.col("cal_date").str.strptime(pl.Date, format="%Y%m%d", strict=False)
-                )
+                .with_columns([
+                pl.col("cal_date").str.strptime(pl.Date, format="%Y%m%d", strict=False),
+                pl.col("pretrade_date").str.strptime(pl.Date, format="%Y%m%d", strict=False)
+                ])
         )
     
     context.log.info(f"新增记录数: {df_new.height}")

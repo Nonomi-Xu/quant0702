@@ -1,13 +1,11 @@
 """A股数据获取资产"""
 import dagster as dg
 import polars as pl
-import tushare as ts
-import pandas as pd
 from datetime import datetime, timedelta, date
 from pathlib import Path
 from resources.parquet_io import ParquetResource
 
-def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_year: int | None = None) -> pl.date:
+def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_year: int | None = None) -> date:
     """
     获取旧数据历史 并返回start_date
     """
@@ -27,7 +25,6 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
 
          # 尝试读取已存在的日历数据
         
-            
         try:
             # 从当前年份开始向前查找数据文件
             current_year_for_search = current_year
@@ -57,7 +54,7 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
                         
                         # 计算需要获取的起始日期（最新日期的下一天）
                         if latest_date_in_cos:
-                            start_date = (latest_date_in_cos + timedelta(days=1)).strftime("%Y%m%d")
+                            start_date = latest_date_in_cos + timedelta(days=1)
                             break
                     
                     else:
@@ -71,7 +68,7 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
             # 如果没有找到任何历史数据
             if not found_data:
                 context.log.info("COS中不存在任何历史数据，从头开始新建")
-                start_date ='20200101'
+                start_date = date(2020,1,1)
                 
         except Exception as e:
             context.log.warning(f"读取COS现有数据失败: {e}")
@@ -110,7 +107,7 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
     return start_date
 
 
-def read_trade_cal(context: dg.AssetExecutionContext) -> pl.date:
+def read_trade_cal(context: dg.AssetExecutionContext) -> date:
     """
     获取A股历史交易日历 并返回end_date
     """
@@ -141,7 +138,6 @@ def read_trade_cal(context: dg.AssetExecutionContext) -> pl.date:
         # 统一 trade_date 格式后筛选当天
         df_trade_cal = (
             existing_df
-            .with_columns(pl.col("cal_date").cast(pl.Date))
             .filter(pl.col("cal_date") == current_date)
             .select(["exchange", "cal_date", "is_open", "pretrade_date"])
         )
@@ -156,16 +152,33 @@ def read_trade_cal(context: dg.AssetExecutionContext) -> pl.date:
         context.log.info(f"开盘日: {current_date}")
     elif df_trade_cal['is_open'][0] == 0 and df_trade_cal['is_open'][1] == 0:
         context.log.info(f"今日不开盘: {current_date}")
-        pretrade_date = df_trade_cal['pretrade_date'].iloc[0]
-        end_date = datetime.strptime(pretrade_date, "%Y%m%d")
+        pretrade_date = df_trade_cal['pretrade_date'][0]
+        end_date = pretrade_date
     else:
         context.log.warning(f"出现深交上交所不同时开盘日 {current_date} 请检查数据")
         raise
 
     return end_date
 
-def cal_day_length(context: dg.AssetExecutionContext ,start_date: pl.date, end_date: pl.date) -> list:
-    # 如果起始日期大于结束日期，说明没有新数据需要更新
+
+
+def cal_day_length(context: dg.AssetExecutionContext, start_date: date, end_date: date) -> list:
+    '''
+    如果起始日期大于结束日期，说明没有新数据需要更新
+    '''
+
+    parquet_resource = ParquetResource()
+
+    try:
+        file_path_trade_cal = f"trade_cal/trade_cal.parquet"
+
+        existing_df = parquet_resource.read(
+            path_extension=file_path_trade_cal,
+            force_download = True
+        )
+    except Exception as e:
+        context.log.warning(f"读取日历数据失败: {e}")
+        raise
     
     if start_date > end_date:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
@@ -177,7 +190,14 @@ def cal_day_length(context: dg.AssetExecutionContext ,start_date: pl.date, end_d
 
     current = start_date
     while current <= end_date:
-        date_list.append(current.strftime("%Y%m%d"))
+        df_trade_cal = (
+            existing_df
+            .filter(pl.col("cal_date") == current)
+            .select(["exchange", "cal_date", "is_open", "pretrade_date"])
+        )
+        if df_trade_cal['is_open'][0] == 1 and df_trade_cal['is_open'][1] == 1:
+            context.log.info(f"开盘日: {current}")
+            date_list.append(current.strftime("%Y%m%d"))
         current += timedelta(days=1)
 
     context.log.info(f"需要处理 {len(date_list)} 个交易日")

@@ -6,7 +6,6 @@ import polars as pl
 import tushare as ts
 import pandas as pd
 import os
-from datetime import datetime, timedelta
 from resources.parquet_io import ParquetResource
 
 from .daily_trade_cal_parquet import Daily_Trade_Cal
@@ -46,27 +45,144 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
             }
         )
     
-    st_records = []
+    def fetch_stock_st_with_cache_pl(pro, trade_date: str, cache: dict, context=None) -> pl.DataFrame:
+        """
+        带缓存获取某一天的 stock_st，返回 polars.DataFrame
+        """
+        if trade_date in cache:
+            return cache[trade_date]
 
-    for idx, trade_date in enumerate(date_list, start=1):
         try:
-            df = pro.stock_st(
-                trade_date=trade_date
-            )
-            context.log.info(f'已获取交易日: {trade_date}')
+            df = pro.stock_st(trade_date=trade_date)
+            if context:
+                context.log.info(f"已获取交易日: {trade_date}")
             time.sleep(0.3)
         except Exception as e:
-            context.log.error(f"接口 pro.stock_st 获取失败: {e}")
+            if context:
+                context.log.error(f"接口 pro.stock_st 获取失败，trade_date={trade_date}: {e}")
             raise
 
+        cache[trade_date] = df
+        return df
+    
+    def find_prev_nonempty_pl(date_list, current_idx, pro, cache, context=None):
+        """
+        向前找最近一个非空日
+        """
+        for i in range(current_idx - 1, -1, -1):
+            d = date_list[i]
+            df = fetch_stock_st_with_cache_pl(pro, d, cache, context)
+            if df is not None and not df.empty:
+                return d, df
+        return None, None
+    
+    def find_next_nonempty_pl(date_list, current_idx, pro, cache, context=None):
+        """
+        向后找最近一个非空日
+        """
+        for i in range(current_idx + 1, len(date_list)):
+            d = date_list[i]
+            df = fetch_stock_st_with_cache_pl(pro, d, cache, context)
+            if df is not None and not df.empty:
+                return d, df
+        return None, None
+    
+    def st_set_for_compare_pl(df: pd.DataFrame) -> set:
+        """
+        提取用于比较的 ts_code 集合
+        """
+        if df is None or df.empty or "ts_code" not in df.columns:
+            return set()
+
+        return set(
+            df["ts_code"]
+            .dropna()
+            .astype(str)
+            .tolist()
+        )
+    
+    def set_trade_date_pl(df: pd.DataFrame, trade_date: str) -> pd.DataFrame:
+        """
+        将填充后的数据 trade_date 改为当前缺失日
+        trade_date 格式: YYYYMMDD
+        """
+        if df is None or df.empty:
+            return df
+
+        df = df.copy()
+        df["trade_date"] = trade_date
+
+        return df
+
+    st_records = []
+    cache = {}
+
+    for idx, trade_date in enumerate(date_list, start=1):
+        current_idx = idx - 1
+
+        df = fetch_stock_st_with_cache_pl(pro, trade_date, cache, context)
         context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
 
-        if df is None or df.empty:
-            context.log.warning(f"{trade_date} 无数据，跳过")
-            continue
-
+        # 当前日有数据，直接加入
         if df is not None and not df.empty:
             st_records.append(df)
+            continue
+
+        context.log.warning(f"{trade_date} 无数据，开始向前/向后寻找最近非空日")
+
+        prev_date, prev_df = find_prev_nonempty_pl(date_list, current_idx, pro, cache, context)
+        next_date, next_df = find_next_nonempty_pl(date_list, current_idx, pro, cache, context)
+
+        # 前后都没有
+        if prev_df is None and next_df is None:
+            context.log.warning(f"{trade_date} 前后都找不到非空 ST 数据，跳过")
+            continue
+
+        # 只有前面有
+        elif prev_df is not None and next_df is None:
+            fill_df = set_trade_date_pl(prev_df, trade_date)
+            st_records.append(fill_df)
+            context.log.info(f"{trade_date} 后续无非空日，使用前一日 {prev_date} 的 ST 数据填充")
+
+        # 只有后面有
+        elif prev_df is None and next_df is not None:
+            fill_df = set_trade_date_pl(next_df, trade_date)
+            st_records.append(fill_df)
+            context.log.info(f"{trade_date} 前面无非空日，使用后一日 {next_date} 的 ST 数据填充")
+
+        # 前后都有
+        else:
+            prev_set = st_set_for_compare_pl(prev_df)
+            next_set = st_set_for_compare_pl(next_df)
+
+            if prev_set == next_set:
+                fill_df = set_trade_date_pl(prev_df, trade_date)
+                st_records.append(fill_df)
+                context.log.info(
+                    f"{trade_date} 前后最近非空日 {prev_date} 和 {next_date} 的 ST 集合相同，使用该集合填充"
+                )
+            else:
+                union_set = prev_set | next_set
+
+                fill_df = prev_df[prev_df["ts_code"].isin(union_set)].copy()
+
+                # 如果 next_df 中有 prev_df 里没有的 ts_code，也补进来
+                missing_from_prev = union_set - set(fill_df["ts_code"].dropna().astype(str))
+
+                if missing_from_prev:
+                    next_extra = next_df[next_df["ts_code"].isin(missing_from_prev)].copy()
+                    fill_df = pd.concat([fill_df, next_extra], ignore_index=True)
+
+                # 去重，避免前后两天重复代码
+                fill_df = fill_df.drop_duplicates(subset=["ts_code"]).reset_index(drop=True)
+
+                # 把 trade_date 改成当前缺失日
+                fill_df = set_trade_date_pl(fill_df, trade_date)
+
+                st_records.append(fill_df)
+                context.log.info(
+                    f"{trade_date} 前后最近非空日 {prev_date} 和 {next_date} 均存在且不同，按两日 ST 集合并集填充，共 {len(fill_df)} 条"
+                )
     
 
     full_df = pd.concat(st_records, ignore_index=True)

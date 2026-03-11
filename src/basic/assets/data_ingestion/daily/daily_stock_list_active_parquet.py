@@ -60,7 +60,7 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
         try:
             context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
             
-            file_path_daily = f"daily_price/daily_price_{trade_date_year}.parquet"
+            file_path_daily = f"daily_price/daily_price/daily_price_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(
                     path_extension=file_path_daily,

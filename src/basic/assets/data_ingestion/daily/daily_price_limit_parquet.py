@@ -9,16 +9,16 @@ import os
 from datetime import datetime
 from resources.parquet_io import ParquetResource
 
-from .daily_trade_cal_parquet import Daily_Trade_Cal
+from .daily_price_parquet import Daily_Price
 
 from .read_date import read_past_date, read_trade_cal, cal_day_length
 
 @dg.asset(
     group_name="data_ingestion_daily",
     description="增量更新每日股票日线数据",
-    deps=[Daily_Trade_Cal]
+    deps=[Daily_Price]
 )
-def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Daily_Price_Limit(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
     增量更新每日股票日线数据
     """
@@ -29,7 +29,7 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     current_year = datetime.now().year
     
     parquet_resource = ParquetResource()
-    file_path = f"daily_price/daily_price/daily_price.parquet"
+    file_path = f"daily_price/daily_price_limit/daily_price_limit.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -105,7 +105,7 @@ def Daily_Price(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"daily_price/daily_price/daily_price_{year}.parquet"
+            file_path = f"daily_price/daily_price_limit/daily_price_limit_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(

@@ -62,7 +62,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
         trade_date_date = trade_date_dt.date()
         try:
             context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
-            file_path_daily = f"daily_price/daily_price_{trade_date_year}.parquet"
+            file_path_daily = f"daily_price/daily_price/daily_price_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(
                     path_extension=file_path_daily,

@@ -155,7 +155,7 @@ def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
 
             pl_df = (
                 pl.from_pandas(pd_df)
-                .with_columns(pl.col("trade_date").cast(pl.Date))
+                .with_columns(pl.col("trade_date").str.strptime(pl.Date, "%Y%m%d"))
             )
 
             year = pd.to_datetime(trade_date, format="%Y%m%d").year
@@ -404,7 +404,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
             # 统一 trade_date 格式后筛选当天
             df_adj_factor = (
                 existing_df
-                .with_columns(pl.col("trade_date").cast(pl.Date))
+                .with_columns(pl.col("trade_date").str.strptime(pl.Date, "%Y%m%d"))
                 .filter(pl.col("trade_date") == pl.lit(trade_date_date))
                 .select(["ts_code", "trade_date", "adj_factor"])
             )

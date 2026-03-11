@@ -11,7 +11,7 @@ from resources.parquet_io import ParquetResource
 
 from .daily_trade_cal_parquet import Daily_Trade_Cal
 
-from .read_date import read_past_date, read_trade_cal
+from .read_date import read_past_date, read_trade_cal, cal_day_length
 
 @dg.asset(
     group_name="data_ingestion_daily",
@@ -26,8 +26,6 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     context.log.info("开始获取近期ST股票数据")
 
     pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
-
-    current_date = datetime.now().date()
     
     # 初始化参数
     parquet_resource = ParquetResource()
@@ -37,12 +35,9 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
     end_date = read_trade_cal(context = context)
 
-    # 如果起始日期大于结束日期，说明没有新数据需要更新
-    start_date_cmp = start_date.date() if isinstance(start_date, datetime) else start_date
-    end_date_cmp = end_date.date() if isinstance(end_date, datetime) else end_date
-    
-    if start_date_cmp > end_date_cmp:
-        context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
+    date_list = cal_day_length(context = context, start_date = start_date, end_date = end_date)
+
+    if not date_list:
         return dg.MaterializeResult(
             metadata={
                 "status": dg.MetadataValue.text("up_to_date"),
@@ -51,20 +46,9 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
             }
         )
     
-    context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
-
-    date_list = []
-
-    current = start_date_cmp
-    while current <= end_date_cmp:
-        date_list.append(current.strftime("%Y%m%d"))
-        current += timedelta(days=1)
-
-    context.log.info(f"需要处理 {len(date_list)} 个交易日")
-    
     st_records = []
 
-    for trade_date in date_list:
+    for idx, trade_date in enumerate(date_list, start=1):
         try:
             df = pro.stock_st(
                 trade_date=trade_date
@@ -75,6 +59,12 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
             context.log.error(f"接口 pro.stock_st 获取失败: {e}")
             raise
 
+        context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
+
+        if df is None or df.empty:
+            context.log.warning(f"{trade_date} 无数据，跳过")
+            continue
+
         if df is not None and not df.empty:
             st_records.append(df)
     
@@ -82,8 +72,8 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     full_df = pd.concat(st_records, ignore_index=True)
 
     df = (
-        pl.from_pandas(df)
-        .with_columns(pl.col("trade_date").cast(pl.Date))
+        pl.from_pandas(full_df)
+        .with_columns(pl.col("trade_date").str.strptime(pl.Date, "%Y%m%d"))
     )
     # 排序
     sort_cols = [col for col in ["trade_date", "ts_code"] if col in df.columns]

@@ -8,10 +8,10 @@ import os
 from datetime import datetime, timedelta
 from resources.parquet_io import ParquetResource
 
-from .daily_trade_cal_parquet import Daily_Trade_Cal
-
 from .daily_stock_list_st_parquet import Daily_Stock_List_ST
 from .daily_price_parquet import Daily_Price
+
+from .read_date import read_past_date, read_trade_cal, cal_day_length
 
 @dg.asset(
     group_name="data_ingestion_daily",
@@ -26,104 +26,27 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
     """
 
     context.log.info("开始筛选A股股票数据")
-
-    pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
-
-    current_date = datetime.now().strftime("%Y%m%d")
     
     current_year = datetime.now().year
     
     parquet_resource = ParquetResource()
     file_path = f"stock_list/stock_list_active/stock_list_active_{current_year}.parquet"
-    full_cos_path = f"a-stock/data/{file_path}"
     
-    # 尝试读取已存在的日历数据
-    existing_df = None
-    latest_date_in_cos = None
-        
-    try:
-        # 从当前年份开始向前查找数据文件
-        current_year_for_search = current_year
-        found_data = False
-        
-        while current_year_for_search >= 2020 and not found_data:
-            # 构建向前查找的文件路径
-            search_file_path = f"stock_list/stock_list_active/stock_list_active_{current_year_for_search}.parquet"
-            
-            try:
-                existing_df = parquet_resource.read(
-                    path_extension=search_file_path,
-                    force_download = True
-                )
-                
-                if existing_df is not None and existing_df.height > 0:
-                    found_data = True
-                    file_path = search_file_path  # 更新实际使用的文件路径
-                    context.log.info(f"在 {search_file_path} 中找到历史数据，年份: {current_year_for_search}")
-                    
-                    # 获取已存在数据中的最大日期
-                    latest_date_in_cos = existing_df['trade_date'].max()
-                    latest_date_str = latest_date_in_cos.strftime("%Y-%m-%d")
-                    context.log.info(f"COS中已存在数据，最新日期: {latest_date_in_cos}")
-                    
-                    # 计算需要获取的起始日期（最新日期的下一天）
-                    if latest_date_in_cos:
-                        start_date = (latest_date_in_cos + timedelta(days=1)).strftime("%Y%m%d")
-                        break
-                
-                else:
-                    context.log.info(f"{search_file_path} 中无数据，向前查找年份: {current_year_for_search - 1}")
-                    current_year_for_search -= 1
-                    
-            except Exception as e:
-                context.log.warning(f"读取 {search_file_path} 失败: {e}，继续向前查找")
-                current_year_for_search -= 1
-        
-        # 如果没有找到任何历史数据
-        if not found_data:
-            context.log.info("COS中不存在任何历史数据，从头开始新建")
-            start_date ='20200101'
-            
-    except Exception as e:
-        context.log.warning(f"读取COS现有数据失败: {e}")
-        raise
+    start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
-    start_date = datetime.strptime(start_date, "%Y%m%d")
-    end_date = datetime.strptime(current_date, "%Y%m%d")
+    end_date = read_trade_cal(context = context)
 
-    try:
-        df_sse = pro.trade_cal(exchange='SSE', start_date=current_date, end_date=current_date)
-    except Exception as e:
-        context.log.warning(f"接口 pro.trade_cal 获取失败: {e}")
-        raise
+    date_list = cal_day_length(context = context, start_date = start_date, end_date = end_date)
 
-    if df_sse['is_open'].iloc[0] == 1:
-        context.log.info(f"开盘日: {current_date}")
-    else:
-        context.log.info(f"今日不开盘: {current_date}")
-        pretrade_date = df_sse['pretrade_date'].iloc[0]
-        end_date = datetime.strptime(pretrade_date, "%Y%m%d")
-
-    # 如果起始日期大于结束日期，说明没有新数据需要更新
-    if start_date > end_date:
-        context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
+    if not date_list:
         return dg.MaterializeResult(
             metadata={
                 "status": dg.MetadataValue.text("up_to_date"),
-                "latest_date": dg.MetadataValue.text(latest_date_str),
-                "file_path": dg.MetadataValue.text(full_cos_path),
+                "latest_date": dg.MetadataValue.text(str(end_date)),
+                "file_path": dg.MetadataValue.text(file_path),
             }
         )
     
-    context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
-
-    date_list = []
-
-    current = start_date
-    while current <= end_date:
-        date_list.append(current.strftime("%Y%m%d"))
-        current += timedelta(days=1)
-
     context.log.info(f"需要处理 {len(date_list)} 个交易日")
     
     total_rows = 0
@@ -136,6 +59,8 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
     for idx, trade_date in enumerate(date_list, start=1):
         trade_date_year = pd.to_datetime(trade_date, format="%Y%m%d").year
         try:
+            context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
+            
             file_path_daily = f"daily_price/daily_price_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(

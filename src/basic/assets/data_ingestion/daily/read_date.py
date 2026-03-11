@@ -163,3 +163,23 @@ def read_trade_cal(context: dg.AssetExecutionContext) -> pl.date:
         raise
 
     return end_date
+
+def cal_day_length(context: dg.AssetExecutionContext ,start_date: pl.date, end_date: pl.date) -> list:
+    # 如果起始日期大于结束日期，说明没有新数据需要更新
+    
+    if start_date > end_date:
+        context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
+        return []
+    
+    context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
+
+    date_list = []
+
+    current = start_date
+    while current <= end_date:
+        date_list.append(current.strftime("%Y%m%d"))
+        current += timedelta(days=1)
+
+    context.log.info(f"需要处理 {len(date_list)} 个交易日")
+
+    return date_list

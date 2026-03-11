@@ -5,6 +5,8 @@ from datetime import datetime, timedelta, date
 from pathlib import Path
 from resources.parquet_io import ParquetResource
 
+from .env_api import _get_default_start_date_
+
 def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_year: int | None = None) -> date:
     """
     获取旧数据历史 并返回start_date
@@ -32,7 +34,7 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
             current_year_for_search = current_year
             found_data = False
             
-            while current_year_for_search >= 2020 and not found_data:
+            while current_year_for_search >= _get_default_start_date_().year and not found_data:
                 # 构建向前查找的文件路径
                 p = Path(file_path)
 
@@ -70,7 +72,7 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
             # 如果没有找到任何历史数据
             if not found_data:
                 context.log.info("COS中不存在任何历史数据，从头开始新建")
-                start_date = date(2020,1,1)
+                start_date = _get_default_start_date_()
                 
         except Exception as e:
             context.log.warning(f"读取COS现有数据失败: {e}")
@@ -98,10 +100,10 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
                 if latest_date_in_cos:
                     start_date = latest_date_in_cos + timedelta(days=1)
                 else:
-                    start_date = date(2020,1,1)
+                    start_date = _get_default_start_date_()
             else:
                 context.log.info("COS中不存在数据，进行全量获取")
-                start_date = date(2020,1,1)
+                start_date = _get_default_start_date_()
         except Exception as e:
             context.log.warning(f"读取COS现有数据失败: {e}")
             raise

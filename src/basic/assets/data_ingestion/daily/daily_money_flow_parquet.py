@@ -59,12 +59,12 @@ def Daily_Money_Flow(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
 
     for idx, trade_date in enumerate(date_list, start=1):
         try:
-            df = pro.moneyflow(trade_date=trade_date)
+            df = pro.stk_limit(trade_date=trade_date)
             # 控制请求频率，避免过快
             time.sleep(0.3)
         
         except Exception as e:
-            context.log.error(f"接口 pro.moneyflow 获取失败: {e}")
+            context.log.error(f"接口 pro.stk_limit 获取失败: {e}")
             raise
 
         try:

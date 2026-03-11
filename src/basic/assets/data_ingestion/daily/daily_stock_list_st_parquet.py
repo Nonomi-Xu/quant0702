@@ -11,6 +11,8 @@ from resources.parquet_io import ParquetResource
 
 from .daily_trade_cal_parquet import Daily_Trade_Cal
 
+from .read_date import read_past_date, read_trade_cal
+
 @dg.asset(
     group_name="data_ingestion_daily",
     description="每日获取A股ST股票列表并增量写入COS Parquet",
@@ -30,92 +32,24 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     # 初始化参数
     parquet_resource = ParquetResource()
     file_path = "stock_list/stock_list_st.parquet"
-    full_cos_path = f"a-stock/data/{file_path}"
     
-    # 尝试读取已存在的数据
-    existing_df = None
-    latest_date_in_cos = None
+    start_date = read_past_date(context = context, file_path = file_path)
 
-    if parquet_resource.exists(path_extension=file_path):
-        try:
-            existing_df = parquet_resource.read(
-                path_extension=file_path,
-                force_download = True
-            )
-        except Exception as e:
-            context.log.warning(f"读取COS现有数据失败: {e}")
-            raise
-        
-    try:
-        if existing_df is not None and existing_df.height > 0:
-            # 获取已存在数据中的最大日期
-            latest_date_in_cos = existing_df['trade_date'].max()
-            context.log.info(f"COS中已存在数据，最新日期: {latest_date_in_cos}")
-            
-            # 计算需要获取的起始日期（最新日期的下一天）
-            if latest_date_in_cos:
-                latest_dt = datetime.strptime(latest_date_in_cos, "%Y%m%d")
-                start_date = (latest_dt + timedelta(days=1)).strftime("%Y%m%d")
-            else:
-                start_date = "20200101"
-        else:
-            context.log.info("COS中不存在数据，进行全量获取")
-            start_date = "20200101"
-    except Exception as e:
-        context.log.warning(f"读取COS现有数据失败: {e}")
-        raise
-
-    
-
-    start_date = datetime.strptime(start_date, "%Y%m%d")
-    end_date = current_date
-
-    try:
-        file_path_trade_cal = f"trade_cal/trade_cal.parquet"
-
-        existing_df = parquet_resource.read(
-            path_extension=file_path_trade_cal,
-            force_download = True
-        )
-
-        # 统一 trade_date 格式后筛选当天
-        df_trade_cal = (
-            existing_df
-            .with_columns(pl.col("cal_date").cast(pl.Date))
-            .filter(pl.col("cal_date") == current_date)
-            .select(["exchange", "cal_date", "is_open", "pretrade_date"])
-        )
-
-        context.log.info(f"从 COS 中读取日历数据: {current_date}")
-
-    except Exception as e:
-        context.log.warning(f"读取日历数据失败: {e}")
-        raise
-
-    if df_trade_cal['is_open'][0] == 1 and df_trade_cal['is_open'][1] == 1:
-        context.log.info(f"开盘日: {current_date}")
-    elif df_trade_cal['is_open'][0] == 0 and df_trade_cal['is_open'][1] == 0:
-        context.log.info(f"今日不开盘: {current_date}")
-        pretrade_date = df_trade_cal['pretrade_date'].iloc[0]
-        end_date = datetime.strptime(pretrade_date, "%Y%m%d")
-    else:
-        context.log.warning(f"出现深交上交所不同时开盘日 {current_date} 请检查数据")
-        raise
+    end_date = read_trade_cal(context = context)
 
     # 如果起始日期大于结束日期，说明没有新数据需要更新
     start_date_cmp = start_date.date() if isinstance(start_date, datetime) else start_date
     end_date_cmp = end_date.date() if isinstance(end_date, datetime) else end_date
     
     if start_date_cmp > end_date_cmp:
-        context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
+        context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
         return dg.MaterializeResult(
             metadata={
                 "status": dg.MetadataValue.text("up_to_date"),
-                "latest_date": dg.MetadataValue.text(str(latest_date_in_cos)),
-                "file_path": dg.MetadataValue.text(full_cos_path),
+                "latest_date": dg.MetadataValue.text(str(end_date)),
+                "file_path": dg.MetadataValue.text(file_path),
             }
         )
-    
     
     context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
 
@@ -174,8 +108,6 @@ def Daily_Stock_List_ST(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     return dg.MaterializeResult(
             metadata={
             "new_records": dg.MetadataValue.int(total_rows),
-            "file_path": dg.MetadataValue.text(
-                "a-stock/data/stock_list/stock_list_ST.parquet"
-            ),
+            "file_path": dg.MetadataValue.text(file_path),
             }
         )

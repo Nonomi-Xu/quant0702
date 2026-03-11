@@ -7,7 +7,7 @@ import os
 from datetime import datetime, timedelta
 from resources.parquet_io import ParquetResource
 
-from .read_date import read_past_date
+from .read_date import read_past_date, read_trade_cal
 
 @dg.asset(
     group_name="data_ingestion_daily",
@@ -23,50 +23,27 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
     
     current_date = datetime.now().date()
+
+    file_path = "trade_cal/trade_cal.parquet"
     
     # 初始化参数
     parquet_resource = ParquetResource()
 
-    start_date = read_past_date(context = context, file_path = "trade_cal/trade_cal.parquet")
-    
-    
-    end_date = datetime.strptime(current_date, "%Y%m%d")
+    start_date = read_past_date(context = context, file_path = file_path)
 
-    
-
-    # 统一 trade_date 格式后筛选当天
-    if parquet_resource.exists(path_extension=file_path) > 0:
-
-        df_trade_cal = (
-            existing_df
-            .with_columns(pl.col("cal_date").cast(pl.Date))
-            .filter(pl.col("cal_date") == current_date)
-            .select(["exchange", "cal_date", "is_open", "pretrade_date"])
-        )
-
-        context.log.info(f"从 COS 中读取日历数据: {current_date}")
-
-        if df_trade_cal['is_open'][0] == 1 and df_trade_cal['is_open'][1] == 1:
-            context.log.info(f"开盘日: {current_date}")
-        elif df_trade_cal['is_open'][0] == 0 and df_trade_cal['is_open'][1] == 0:
-            context.log.info(f"今日不开盘: {current_date}")
-            pretrade_date = df_trade_cal['pretrade_date'].iloc[0]
-            end_date = datetime.strptime(pretrade_date, "%Y%m%d")
-        else:
-            context.log.warning(f"出现深交上交所不同时开盘日 {current_date} 请检查数据")
-            raise
+    end_date = read_trade_cal(context = context)
 
     # 如果起始日期大于结束日期，说明没有新数据需要更新
     start_date_cmp = start_date.date() if isinstance(start_date, datetime) else start_date
     end_date_cmp = end_date.date() if isinstance(end_date, datetime) else end_date
 
     if start_date_cmp > end_date_cmp:
-        context.log.info(f"数据已是最新，无需更新 (最新日期: {latest_date_in_cos})")
+        context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
         return dg.MaterializeResult(
             metadata={
                 "status": dg.MetadataValue.text("up_to_date"),
-                "latest_date": dg.MetadataValue.text(str(latest_date_in_cos)),
-                "file_path": dg.MetadataValue.text(full_cos_path),
+                "latest_date": dg.MetadataValue.text(str(end_date)),
+                "file_path": dg.MetadataValue.text(file_path),
             }
         )
 
@@ -87,9 +64,9 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             return dg.MaterializeResult(
                 metadata={
                     "status": dg.MetadataValue.text("no_new_data"),
-                    "start_date": dg.MetadataValue.text(start_date),
-                    "end_date": dg.MetadataValue.text(end_date),
-                    "file_path": dg.MetadataValue.text(full_cos_path),
+                    "start_date": dg.MetadataValue.text(str(start_date)),
+                    "end_date": dg.MetadataValue.text(str(end_date)),
+                    "file_path": dg.MetadataValue.text(file_path),
                 }
             )
             
@@ -116,7 +93,7 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             path_extension=file_path,
             compression="zstd"
         )
-        context.log.info(f"日历数据已更新到 COS: {full_cos_path}")
+        context.log.info(f"日历数据已更新到 COS: {file_path}")
     except Exception as e:
         context.log.error(f"写入COS失败: {e}")
         raise
@@ -126,7 +103,7 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         "new_records": dg.MetadataValue.int(df_new.height),
         "date_range_start": dg.MetadataValue.text(str(df_new["cal_date"].min())),
         "date_range_end": dg.MetadataValue.text(str(df_new["cal_date"].max())),
-        "file_path": dg.MetadataValue.text(full_cos_path),
+        "file_path": dg.MetadataValue.text(file_path),
         "status": dg.MetadataValue.text("updated"),
     }
     

@@ -102,12 +102,10 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
                     start_date = date(2020,1,1)
             else:
                 context.log.info("COS中不存在数据，进行全量获取")
-                start_date = "20200101"
+                start_date = date(2020,1,1)
         except Exception as e:
             context.log.warning(f"读取COS现有数据失败: {e}")
             raise
-
-    start_date = datetime.strptime(start_date, "%Y%m%d")
 
     return start_date
 
@@ -134,6 +132,11 @@ def read_trade_cal(context: dg.AssetExecutionContext) -> pl.date:
             path_extension=file_path_trade_cal,
             force_download = True
         )
+    except Exception as e:
+        context.log.warning(f"读取日历数据失败: {e}")
+        raise
+    
+    if existing_df.height > 0:
 
         # 统一 trade_date 格式后筛选当天
         df_trade_cal = (
@@ -145,9 +148,9 @@ def read_trade_cal(context: dg.AssetExecutionContext) -> pl.date:
 
         context.log.info(f"从 COS 中读取日历数据: {current_date}")
 
-    except Exception as e:
-        context.log.warning(f"读取日历数据失败: {e}")
-        raise
+    else:
+        context.log.info("COS中不存在数据，进行全量获取")
+        return end_date
 
     if df_trade_cal['is_open'][0] == 1 and df_trade_cal['is_open'][1] == 1:
         context.log.info(f"开盘日: {current_date}")

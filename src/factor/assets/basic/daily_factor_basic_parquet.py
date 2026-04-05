@@ -65,12 +65,14 @@ def Daily_Factor_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResul
         trade_date_year = pd.to_datetime(trade_date, format="%Y%m%d").year
         trade_date_dt = pd.to_datetime(trade_date, format="%Y%m%d")
         trade_date_date = trade_date_dt.date()
+
+
         try:
             context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
             file_path_daily = f"data/daily_price/daily_price/daily_price_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(
-                    path_extension=file_path_daily,
+                    path_extension = file_path_daily,
                     force_download = True
                 )
             
@@ -79,16 +81,16 @@ def Daily_Factor_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 existing_df
                 .with_columns(pl.col("trade_date").cast(pl.Date))
                 .filter(pl.col("trade_date") == pl.lit(trade_date_date))
-                .select(["ts_code", "trade_date", "close"])
             )
 
-            context.log.info(f"已从 daily_price_{trade_date_year}.parquet 获取交易日日线信息: {trade_date}")
+            context.log.info(f"从 data/daily_price/daily_price/daily_price_{trade_date_year}.parquet 获取交易日日线信息: {trade_date}")
             time.sleep(0.3)
 
         except Exception as e:
-            context.log.error(f"从 daily_price_{trade_date_year}.parquet 读取日线失败: {e}")
+            context.log.error(f"从 data/daily_price/daily_price/daily_price_{trade_date_year}.parquet 读取日线失败: {e}")
             failed_days.append(trade_date)
             raise
+
 
         try:
             file_path_adj_factor = f"data/adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet"
@@ -164,7 +166,7 @@ def Daily_Factor_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 df_daily.join(
                     df_adj_factor,
                     on=["ts_code", "trade_date"],
-                    how="inner"
+                    how="left"
                 )
                 .join(
                     df_stock_basic,
@@ -174,14 +176,20 @@ def Daily_Factor_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 .with_columns([
                     pl.col("trade_date").cast(pl.Date),
                     pl.col("close").cast(pl.Float64),
-                    pl.col("adj_factor").cast(pl.Float64),
                 ])
                 .with_columns([
-                    (pl.col("open") * pl.col("adj_factor")).alias("adj_open"),
-                    (pl.col("close") * pl.col("adj_factor")).alias("adj_close"),
-                    (pl.col("high") * pl.col("adj_factor")).alias("adj_high"),
-                    (pl.col("low") * pl.col("adj_factor")).alias("adj_low"),
-                    (pl.col("pre_close") * pl.col("adj_factor")).alias("adj_pre_close"),
+                    pl.col("open").alias("open_bfq"),
+                    pl.col("close").alias("close_bfq"),
+                    pl.col("high").alias("high_bfq"),
+                    pl.col("low").alias("low_bfq"),
+                    pl.col("pre_close").alias("pre_close_bfq"),
+                ])
+                .with_columns([
+                    (pl.col("open_bfq") * pl.col("adj_factor")).alias("open_hfq"),
+                    (pl.col("close_bfq") * pl.col("adj_factor")).alias("close_hfq"),
+                    (pl.col("high_bfq") * pl.col("adj_factor")).alias("high_hfq"),
+                    (pl.col("low_bfq") * pl.col("adj_factor")).alias("low_hfq"),
+                    (pl.col("pre_close_bfq") * pl.col("adj_factor")).alias("pre_close_hfq"),
                 ])
                 .sort(["trade_date", "ts_code"])
                 .drop("close_right")
@@ -239,7 +247,7 @@ def Daily_Factor_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResul
             failed_days.append(f"YEAR_WRITE_{year}")
 
     context.log.info(f"""
-    ========== 后复权因子写入完成 ==========
+    ========== 因子基础数据写入完成 ==========
     本次处理:
         - 成功数: {total_days_success}
         - 总数据行数: {total_rows}

@@ -228,3 +228,4 @@ def cal_day_length(context: dg.AssetExecutionContext, start_date: date, end_date
     context.log.info(f"需要处理 {len(date_list)} 个交易日")
 
     return date_list
+

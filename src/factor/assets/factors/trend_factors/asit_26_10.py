@@ -32,4 +32,4 @@ def compute_asit_26_10(frame: pl.DataFrame) -> pl.Series:
     - ASI(t) = sum(SI(t-25), ..., SI(t))
     - ASIT(t) = mean(ASI(t-9), ..., ASI(t))
     """
-    return compute_asi_bundle(frame, m1=ASI_WINDOW, m2=ASIT_WINDOW)["asit"]
+    return compute_asi_bundle(frame, m1=ASI_WINDOW, m2=ASIT_WINDOW)[f"asit_{ASI_WINDOW}_{ASIT_WINDOW}"]

@@ -185,13 +185,13 @@ def Daily_Factor_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                     pl.col("pre_close").cast(pl.Float64),
                     pl.col("adj_factor").cast(pl.Float64),
                 ])
-                .with_columns([
-                    pl.col("open").alias("open_bfq"),
-                    pl.col("high").alias("high_bfq"),
-                    pl.col("low").alias("low_bfq"),
-                    pl.col("close").alias("close_bfq"),
-                    pl.col("pre_close").alias("pre_close_bfq"),
-                ])
+                .rename({
+                    "open": "open_bfq",
+                    "high": "high_bfq",
+                    "low": "low_bfq",
+                    "close": "close_bfq",
+                    "pre_close": "pre_close_bfq",
+                })
                 .with_columns([
                     (pl.col("open_bfq") * pl.col("adj_factor")).alias("open_hfq"),
                     (pl.col("high_bfq") * pl.col("adj_factor")).alias("high_hfq"),

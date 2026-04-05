@@ -20,7 +20,7 @@ from .factor_registry import load_factor_function, FACTOR_LIST
     description="每日使用A股信息基本面 计算因子 增量写入COS Parquet",
     deps=[Daily_Factor_Basic]
 )
-def Daily_Factor_Pipeline_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
     每日使用A股信息基本面 计算因子 增量写入COS Parquet
     """
@@ -128,6 +128,7 @@ def Daily_Factor_Pipeline_Input(context: dg.AssetExecutionContext) -> dg.Materia
             context.log.info(f"开始计算 {year} 因子: {factor_name}")
 
             try:
+                df_factor_basic = df_factor_basic.sort(["ts_code", "trade_date"])
                 result_df = func(df_factor_basic)
 
                 validate_factor_result(

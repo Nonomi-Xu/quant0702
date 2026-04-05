@@ -29,8 +29,8 @@ def Daily_Price_Limit(context: dg.AssetExecutionContext) -> dg.MaterializeResult
     current_year = datetime.now().year
     
     parquet_resource = ParquetResource()
-    
-    file_path = f"daily_price/daily_price_limit/daily_price_limit.parquet"
+
+    file_path = f"data/daily_price/daily_price_limit/daily_price_limit.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -106,7 +106,7 @@ def Daily_Price_Limit(context: dg.AssetExecutionContext) -> dg.MaterializeResult
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"daily_price/daily_price_limit/daily_price_limit_{year}.parquet"
+            file_path = f"data/daily_price/daily_price_limit/daily_price_limit_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(

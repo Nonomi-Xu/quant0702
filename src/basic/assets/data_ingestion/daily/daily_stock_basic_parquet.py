@@ -29,7 +29,7 @@ def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult
     current_year = datetime.now().year
     
     parquet_resource = ParquetResource()
-    file_path = f"stock_list/stock_basic/stock_basic.parquet"
+    file_path = f"data/stock_list/stock_basic/stock_basic.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -107,7 +107,7 @@ def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"stock_list/stock_basic/stock_basic_{year}.parquet"
+            file_path = f"data/stock_list/stock_basic/stock_basic_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(

@@ -22,7 +22,7 @@ def Daily_Trade_Cal(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
 
     pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
 
-    file_path = "trade_cal/trade_cal.parquet"
+    file_path = "data/trade_cal/trade_cal.parquet"
     
     # 初始化参数
     parquet_resource = ParquetResource()

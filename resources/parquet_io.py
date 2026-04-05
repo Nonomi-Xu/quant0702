@@ -23,7 +23,7 @@ class CloudConfig:
     COS_BUCKET = os.environ.get("COS_BUCKET")
     COS_REGION = os.environ.get("COS_REGION", "ap-guangzhou")
 
-    PARQUET_BASE_DIR = "a-stock/data"
+    PARQUET_BASE_DIR = "a-stock"
 
     ENABLE_LOCAL_CACHE = os.environ.get("ENABLE_PARQUET_CACHE", "true").lower() == "true"
     CACHE_DIR = Path(os.environ.get("PARQUET_CACHE_DIR", "/tmp/parquet_cache"))

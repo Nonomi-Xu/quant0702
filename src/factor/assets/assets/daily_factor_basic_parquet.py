@@ -28,7 +28,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
     
     # 初始化参数
     parquet_resource = ParquetResource()
-    file_path = f"data/adj_factor/hfq/hfq.parquet"
+    file_path = f"adj_factor/hfq/hfq.parquet"
 
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -62,7 +62,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
         trade_date_date = trade_date_dt.date()
         try:
             context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
-            file_path_daily = f"data/daily_price/daily_price/daily_price_{trade_date_year}.parquet"
+            file_path_daily = f"daily_price/daily_price/daily_price_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(
                     path_extension=file_path_daily,
@@ -86,7 +86,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
             raise
 
         try:
-            file_path_adj_factor = f"data/adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet"
+            file_path_adj_factor = f"adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(
                     path_extension=file_path_adj_factor,
@@ -101,11 +101,11 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
                 .select(["ts_code", "trade_date", "adj_factor"])
             )
 
-            context.log.info(f"从 data/adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet 获取复权因子信息: {trade_date}")
+            context.log.info(f"从 adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet 获取复权因子信息: {trade_date}")
             time.sleep(0.3)
 
         except Exception as e:
-            context.log.error(f"从 data/adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet 获取复权因子信息失败: {e}")
+            context.log.error(f"从 adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet 获取复权因子信息失败: {e}")
             failed_days.append(trade_date)
             raise
         

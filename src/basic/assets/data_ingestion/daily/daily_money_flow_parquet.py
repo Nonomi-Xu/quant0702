@@ -29,7 +29,7 @@ def Daily_Money_Flow(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     current_year = datetime.now().year
     
     parquet_resource = ParquetResource()
-    file_path = f"money_flow/money_flow.parquet"
+    file_path = f"data/money_flow/money_flow.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -105,7 +105,7 @@ def Daily_Money_Flow(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"money_flow/money_flow_{year}.parquet"
+            file_path = f"data/money_flow/money_flow_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(

@@ -28,7 +28,7 @@ def Daily_Stock_List_Now(context: dg.AssetExecutionContext) -> dg.MaterializeRes
 
     # 初始化参数
     parquet_resource = ParquetResource()
-    file_path = "stock_list/stock_list.parquet"
+    file_path = "data/stock_list/stock_list.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path)
 

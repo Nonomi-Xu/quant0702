@@ -29,7 +29,7 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
     current_year = datetime.now().year
     
     parquet_resource = ParquetResource()
-    file_path = f"stock_list/stock_list_active/stock_list_active.parquet"
+    file_path = f"data/stock_list/stock_list_active/stock_list_active.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -60,7 +60,7 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
         try:
             context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
             
-            file_path_daily = f"daily_price/daily_price/daily_price_{trade_date_year}.parquet"
+            file_path_daily = f"data/daily_price/daily_price/daily_price_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(
                     path_extension=file_path_daily,
@@ -81,7 +81,7 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
             raise
 
         try:
-            file_path_stock_list_st = f"stock_list/stock_list_st.parquet"
+            file_path_stock_list_st = f"data/stock_list/stock_list_st.parquet"
 
             existing_df = parquet_resource.read(
                     path_extension=file_path_stock_list_st,
@@ -154,7 +154,7 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"stock_list/stock_list_active/stock_list_active_{year}.parquet"
+            file_path = f"data/stock_list/stock_list_active/stock_list_active_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(

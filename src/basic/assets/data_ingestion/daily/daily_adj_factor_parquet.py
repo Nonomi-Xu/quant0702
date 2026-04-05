@@ -31,7 +31,7 @@ def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     
     # 初始化参数
     parquet_resource = ParquetResource()
-    file_path = f"adj_factor/adj_factor/adj_factor.parquet"
+    file_path = f"data/adj_factor/adj_factor/adj_factor.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -115,7 +115,7 @@ def Daily_adj_factor(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"adj_factor/adj_factor/adj_factor_{year}.parquet"
+            file_path = f"data/adj_factor/adj_factor/adj_factor_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(

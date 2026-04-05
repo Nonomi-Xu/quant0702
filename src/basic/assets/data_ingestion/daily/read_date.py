@@ -19,9 +19,9 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
     existing_df = None
     latest_date_in_cos = None
 
-    if file_path == "trade_cal/trade_cal.parquet":
+    if file_path == "data/trade_cal/trade_cal.parquet":
         date_name = "cal_date"
-    elif file_path == "stock_list/stock_list.parquet":
+    elif file_path == "data/stock_list/stock_list.parquet":
         date_name = "last_update"
     else:
         date_name = "trade_date"
@@ -128,7 +128,7 @@ def read_trade_cal(context: dg.AssetExecutionContext) -> date:
     end_date = current_date
 
     try:
-        file_path_trade_cal = f"trade_cal/trade_cal.parquet"
+        file_path_trade_cal = f"data/trade_cal/trade_cal.parquet"
 
         existing_df = parquet_resource.read(
             path_extension=file_path_trade_cal,
@@ -179,7 +179,7 @@ def cal_day_length(context: dg.AssetExecutionContext, start_date: date, end_date
     parquet_resource = ParquetResource()
 
     try:
-        file_path_trade_cal = f"trade_cal/trade_cal.parquet"
+        file_path_trade_cal = f"data/trade_cal/trade_cal.parquet"
 
         existing_df = parquet_resource.read(
             path_extension=file_path_trade_cal,

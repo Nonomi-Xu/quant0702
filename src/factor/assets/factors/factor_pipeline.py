@@ -15,7 +15,7 @@ from factor_registry import
 
 
 @dg.asset(
-    group_name="daily_factor",
+    group_name="daily_factor", 
     description="每日使用A股信息基本面 计算因子 增量写入COS Parquet",
     deps=[Daily_Factor_Basic]
 )
@@ -44,7 +44,6 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
         # 全量更新
         start_date = _get_default_start_date_()
 
-
     date_list = cal_day_length(context = context, start_date = start_date, end_date = end_date)
 
     if not date_list:
@@ -58,7 +57,7 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
     
     context.log.info(f"需要处理 {len(date_list)} 个交易日")
 
-    context.log.info("开始获取各表数据")
+    context.log.info("开始获取原表数据")
     
     total_rows = 0
     total_days_success = 0
@@ -98,7 +97,7 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
             raise
 
         
-        # 收集三个数据源的存在状态
+        # 收集多个数据源的存在状态
         sources = {
             "factor_basic": df_factor_basic,
         }

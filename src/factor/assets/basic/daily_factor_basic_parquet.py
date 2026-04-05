@@ -7,28 +7,31 @@ import pandas as pd
 from datetime import datetime
 from resources.parquet_io import ParquetResource
 
-from .daily_adj_factor_parquet import Daily_adj_factor
-from .daily_price_parquet import Daily_Price
+from src.basic.assets.data_ingestion.daily.daily_adj_factor_parquet import Daily_adj_factor
+from src.basic.assets.data_ingestion.daily.daily_price_parquet import Daily_Price
+from src.basic.assets.data_ingestion.daily.daily_stock_basic_parquet import Daily_Stock_Basic
 
-from .read_date import read_past_date, read_trade_cal, cal_day_length
+from src.basic.assets.data_ingestion.daily.read_date import read_past_date, read_trade_cal, cal_day_length
 
 @dg.asset(
-    group_name="data_ingestion_daily",
-    description="每日获取A股复权因子 日线数据-收盘价 计算后复权 增量写入COS Parquet",
-    deps=[Daily_adj_factor, Daily_Price]
+    group_name="daily_factor",
+    description="每日获取A股 未复权日线数据 复权因子数据 每日指标 计算复权后的各价格 链接各表 增量写入COS Parquet",
+    deps=[Daily_adj_factor, Daily_Price, Daily_Stock_Basic]
 )
-def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Daily_Factor_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
-    每日获取A股复权因子 日线数据-收盘价 计算后复权 增量写入COS Parquet
+    每日获取A股 未复权日线数据 复权数据 每日指标 链接各表并计算复权后的各价格 增量写入COS Parquet
     """
 
-    context.log.info("开始计算后复权")
+    context.log.info("开始获取A股 未复权日线数据 复权数据 每日指标 链接各表并计算复权后的各价格 增量写入COS Parquet")
+
+    context.log.info("获取历史数据")
     
     current_year = datetime.now().year
     
     # 初始化参数
     parquet_resource = ParquetResource()
-    file_path = f"adj_factor/hfq/hfq.parquet"
+    file_path = f"factor/basic/factor_basic.parquet"
 
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
 
@@ -48,6 +51,8 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
         )
     
     context.log.info(f"需要处理 {len(date_list)} 个交易日")
+
+    context.log.info("开始获取各表数据")
     
     total_rows = 0
     total_days_success = 0
@@ -62,7 +67,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
         trade_date_date = trade_date_dt.date()
         try:
             context.log.info(f"处理日期 {idx}/{len(date_list)}: {trade_date}")
-            file_path_daily = f"daily_price/daily_price/daily_price_{trade_date_year}.parquet"
+            file_path_daily = f"data/daily_price/daily_price/daily_price_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(
                     path_extension=file_path_daily,
@@ -86,7 +91,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
             raise
 
         try:
-            file_path_adj_factor = f"adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet"
+            file_path_adj_factor = f"data/adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet"
 
             existing_df = parquet_resource.read(
                     path_extension=file_path_adj_factor,
@@ -101,25 +106,70 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
                 .select(["ts_code", "trade_date", "adj_factor"])
             )
 
-            context.log.info(f"从 adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet 获取复权因子信息: {trade_date}")
+            context.log.info(f"从 data/adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet 获取复权因子信息: {trade_date}")
             time.sleep(0.3)
 
         except Exception as e:
-            context.log.error(f"从 adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet 获取复权因子信息失败: {e}")
+            context.log.error(f"从 data/adj_factor/adj_factor/adj_factor_{trade_date_year}.parquet 获取复权因子信息失败: {e}")
             failed_days.append(trade_date)
-            raise
-        
-        if (df_daily.height == 0 and df_adj_factor.height != 0) or (df_daily.height != 0 and df_adj_factor.height == 0):
-            context.log.error(f"{trade_date} 出现 日线股票和复权因子仅有一个存在 请检查")
             raise
 
         try:
+            file_path_stock_basic = f"data/stock_list/stock_basic/stock_basic_{trade_date_year}.parquet"
 
-            df_hfq = (
+            existing_df = parquet_resource.read(
+                    path_extension = file_path_stock_basic,
+                    force_download = True
+                )
+            
+            # 统一 trade_date 格式后筛选当天
+            df_stock_basic = (
+                existing_df
+                .with_columns(pl.col("trade_date").cast(pl.Date))
+                .filter(pl.col("trade_date") == pl.lit(trade_date_date))
+            )
+
+            context.log.info(f"从 data/stock_list/stock_basic/stock_basic_{trade_date_year}.parquet 获取基本面信息: {trade_date}")
+            time.sleep(0.3)
+
+        except Exception as e:
+            context.log.error(f"从 data/stock_list/stock_basic/stock_basic_{trade_date_year}.parquet 获取基本面信息失败: {e}")
+            failed_days.append(trade_date)
+            raise
+        
+        # 收集三个数据源的存在状态
+        sources = {
+            "daily": df_daily,
+            "adj_factor": df_adj_factor,
+            "stock_basic": df_stock_basic,
+        }
+
+        # 判断哪些为空 / 非空
+        empty_sources = [name for name, df in sources.items() if df.height == 0]
+        non_empty_sources = [name for name, df in sources.items() if df.height != 0]
+
+        # 如果既有空的又有非空的 → 异常
+        if empty_sources and non_empty_sources:
+            context.log.error(
+                f"{trade_date} 数据不一致：存在缺失数据源\n"
+                f"缺失: {empty_sources}\n"
+                f"存在: {non_empty_sources}"
+            )
+            raise ValueError("数据源不一致")
+        
+        context.log.info("开始链接")
+
+        try:
+            df_factor_basic = (
                 df_daily.join(
                     df_adj_factor,
                     on=["ts_code", "trade_date"],
                     how="inner"
+                )
+                .join(
+                    df_stock_basic,
+                    on=["ts_code", "trade_date"],
+                    how="left"   # 一般用 left，避免丢数据
                 )
                 .with_columns([
                     pl.col("trade_date").cast(pl.Date),
@@ -127,32 +177,32 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
                     pl.col("adj_factor").cast(pl.Float64),
                 ])
                 .with_columns([
-                    (pl.col("close") * pl.col("adj_factor")).alias("hfq_factor"),
-                ])
-                .select([
-                    "ts_code",
-                    "trade_date",
-                    "hfq_factor",
+                    (pl.col("open") * pl.col("adj_factor")).alias("adj_open"),
+                    (pl.col("close") * pl.col("adj_factor")).alias("adj_close"),
+                    (pl.col("high") * pl.col("adj_factor")).alias("adj_high"),
+                    (pl.col("low") * pl.col("adj_factor")).alias("adj_low"),
+                    (pl.col("pre_close") * pl.col("adj_factor")).alias("adj_pre_close"),
                 ])
                 .sort(["trade_date", "ts_code"])
+                .drop("close_right")
             )
 
-            if df_hfq.height == 0:
+            if df_factor_basic.height == 0:
                 context.log.warning(f"{trade_date} 合并后无数据，跳过")
                 continue
 
             if trade_date_year not in yearly_data:
                 yearly_data[trade_date_year] = []
 
-            yearly_data[trade_date_year].append(df_hfq)
+            yearly_data[trade_date_year].append(df_factor_basic)
 
-            total_rows += df_hfq.height
+            total_rows += df_factor_basic.height
             total_days_success += 1
 
-            context.log.info(f"交易日 {trade_date} 后复权数据计算完成，共 {df_hfq.height} 行")
+            context.log.info(f"交易日 {trade_date} 因子基础数据计算完成，共 {df_factor_basic.height} 行")
 
         except Exception as e:
-            context.log.error(f"交易日 {trade_date} 计算后复权数据失败: {e}")
+            context.log.error(f"交易日 {trade_date} 计算因子基础数据失败: {e}")
             failed_days.append(trade_date)
             raise
 
@@ -172,7 +222,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"adj_factor/hfq/hfq_{year}.parquet"
+            file_path = f"factor/basic/factor_basic_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(

@@ -57,14 +57,14 @@ def compute_asi_bundle(frame: pl.DataFrame, m1: int, m2: int) -> dict[str, pl.Se
     """共享计算链：一次性计算 ASI 与 ASIT。"""
     si_frame = _compute_si_frame(frame)
     asi = si_frame.select(
-        pl.col("si").rolling_sum(window_size=m1).over("ts_code").alias("asi")
+        pl.col("si").rolling_sum(window_size=m1).over("ts_code").alias("asi_26")
     ).to_series()
 
-    asit_frame = frame.select("ts_code").with_columns(asi.alias("asi"))
+    asit_frame = frame.select("ts_code").with_columns(asi.alias("asi_26"))
     asit = asit_frame.select(
-        pl.col("asi").rolling_mean(window_size=m2).over("ts_code").alias("asit")
+        pl.col("asi_26").rolling_mean(window_size=m2).over("ts_code").alias("asit_26_10")
     ).to_series()
-    return {"asi": asi, "asit": asit}
+    return {"asi_26": asi, "asit_26_10": asit}
 
 
 def _compute_si_frame(frame: pl.DataFrame) -> pl.DataFrame:

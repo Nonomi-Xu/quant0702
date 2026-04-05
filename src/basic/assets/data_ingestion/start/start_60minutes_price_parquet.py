@@ -1,55 +1,45 @@
 """A股数据获取资产"""
 
-import time
 import dagster as dg
 import polars as pl
 import tushare as ts
 import pandas as pd
 import os
-from datetime import datetime
 from resources.parquet_io import ParquetResource
+import time
+from datetime import datetime, timedelta, date
 
-from .daily_trade_cal_parquet import Daily_Trade_Cal
+from .start_stock_list_duckdb import Start_Stock_List
 
-from .read_date import read_past_date, read_trade_cal, cal_day_length
 
 @dg.asset(
-    group_name="data_ingestion_daily",
-    description="增量更新每日基本面指标数据",
-    deps=[Daily_Trade_Cal]
+    group_name="data_ingestion_first_time",
+    description="第一次创建A股历史日线数据库"
 )
-def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Start_Daily_Prices(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
-    增量更新每日基本面指标数据
+    第一次创建历史日线数据库
     """
-    context.log.info("开始增量更新每日股票日线数据")
+    context.log.info("开始创建日线数据")
 
     pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
     
-    current_year = datetime.now().year
-    
-    parquet_resource = ParquetResource()
-    file_path = f"stock_list/stock_basic/stock_basic.parquet"
-    
-    start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
+    start_date = date(2016,9,1)
+    end_date = date(2026,3,14)
 
-    end_date = read_trade_cal(context = context)
+    context.log.info(f"时间范围: {start_date} -> {end_date}")
 
-    context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
+    current = datetime.strptime(start_date, "%Y-%m-%d")
+    end_dt = datetime.strptime(end_date, "%Y-%m-%d")
 
-    date_list = cal_day_length(context = context, start_date = start_date, end_date = end_date)
+    date_list = []
 
-    if not date_list:
-        return dg.MaterializeResult(
-            metadata={
-                "status": dg.MetadataValue.text("up_to_date"),
-                "latest_date": dg.MetadataValue.text(str(end_date)),
-                "file_path": dg.MetadataValue.text(file_path),
-            }
-        )
+    while current <= end_dt:
+        date_list.append(current.strftime("%Y%m%d"))
+        current += timedelta(days=1)
     
     context.log.info(f"共需处理 {len(date_list)} 个交易日")
-
+    
     total_rows = 0
     total_days_success = 0
     failed_days = []
@@ -59,12 +49,10 @@ def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult
 
     for idx, trade_date in enumerate(date_list, start=1):
         try:
-            df = pro.daily_basic(trade_date=trade_date)
-            # 控制请求频率，避免过快
-            time.sleep(0.3)
+            df = pro.daily(trade_date=trade_date)
         
         except Exception as e:
-            context.log.error(f"接口 pro.daily_basic 获取失败: {e}")
+            context.log.error(f"接口 pro.daily 获取失败: {e}")
             raise
 
         try:
@@ -74,9 +62,23 @@ def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult
                 context.log.warning(f"{trade_date} 无数据，跳过")
                 continue
 
+            pd_df = pd.DataFrame({
+                "ts_code": df["ts_code"],
+                "trade_date": pd.to_datetime(df["trade_date"], format="%Y%m%d"),
+                "open": df["open"],
+                "high": df["high"],
+                "low": df["low"],
+                "close": df["close"],
+                "pre_close": df["pre_close"],
+                "change": df["change"],
+                "pct_chg": df["pct_chg"],
+                "vol": df["vol"],
+                "amount": df["amount"] if "amount" in df.columns else 0,
+            })
+
             pl_df = (
-                pl.from_pandas(df)
-                .with_columns(pl.col("trade_date").str.strptime(pl.Date, "%Y%m%d"))
+                pl.from_pandas(pd_df)
+                .with_columns(pl.col("trade_date").cast(pl.Date))
             )
 
             year = pd.to_datetime(trade_date, format="%Y%m%d").year
@@ -93,7 +95,8 @@ def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult
             context.log.warning(f"处理交易日 {trade_date} 失败: {e}")
             failed_days.append(trade_date)
 
-        
+        # 控制请求频率，避免过快
+        time.sleep(0.3)
 
     # 最后按年份写入 parquet
     year_file_stats = {}
@@ -101,19 +104,19 @@ def Daily_Stock_Basic(context: dg.AssetExecutionContext) -> dg.MaterializeResult
     for year, dfs in yearly_data.items():
         if not dfs:
             continue
+
         try:
             year_df = (
                 pl.concat(dfs, how="vertical")
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"stock_list/stock_basic/stock_basic_{year}.parquet"
+            file_path = f"daily_price/daily_price_{year}.parquet"
 
             parquet_resource = ParquetResource()
-            parquet_resource.append_file(
+            parquet_resource.write(
                 df=year_df,
-                path_extension=file_path,
-                compression='zstd'
+                path_extension=file_path
             )
 
             year_file_stats[str(year)] = len(year_df)

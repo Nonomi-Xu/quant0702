@@ -15,20 +15,21 @@ from .read_date import read_past_date, read_trade_cal, cal_day_length
 
 @dg.asset(
     group_name="data_ingestion_daily",
-    description="增量更新每日股票日线数据",
+    description="增量更新每日股票涨跌停价格",
     deps=[Daily_Price]
 )
 def Daily_Price_Limit(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
-    增量更新每日股票日线数据
+    增量更新每日股票涨跌停价格
     """
-    context.log.info("开始增量更新每日股票日线数据")
+    context.log.info("增量更新每日股票涨跌停价格")
 
     pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
     
     current_year = datetime.now().year
     
     parquet_resource = ParquetResource()
+    
     file_path = f"daily_price/daily_price_limit/daily_price_limit.parquet"
     
     start_date = read_past_date(context = context, file_path = file_path, current_year = current_year)
@@ -59,12 +60,12 @@ def Daily_Price_Limit(context: dg.AssetExecutionContext) -> dg.MaterializeResult
 
     for idx, trade_date in enumerate(date_list, start=1):
         try:
-            df = pro.daily(trade_date=trade_date)
+            df = pro.stk_limit(trade_date=trade_date)
             # 控制请求频率，避免过快
             time.sleep(0.3)
         
         except Exception as e:
-            context.log.error(f"接口 pro.daily 获取失败: {e}")
+            context.log.error(f"接口 pro.stk_limit 获取失败: {e}")
             raise
 
         try:

@@ -2,6 +2,7 @@
 import dagster as dg
 import polars as pl
 from datetime import datetime, timedelta, date
+from zoneinfo import ZoneInfo
 from pathlib import Path
 from resources.parquet_io import ParquetResource
 
@@ -151,6 +152,10 @@ def read_trade_cal(context: dg.AssetExecutionContext) -> date:
     else:
         context.log.info("COS中不存在数据，进行全量获取")
         return end_date
+    
+    if df_trade_cal.height == 0:
+        context.log.info("trade_cal 中没有任何对应数据")
+        return end_date
 
     if df_trade_cal['is_open'][0] == 1 and df_trade_cal['is_open'][1] == 1:
         context.log.info(f"开盘日: {current_date}")
@@ -203,6 +208,22 @@ def cal_day_length(context: dg.AssetExecutionContext, start_date: date, end_date
             context.log.info(f"开盘日: {current}")
             date_list.append(current.strftime("%Y%m%d"))
         current += timedelta(days=1)
+
+    context.log.info(f"需要处理 {len(date_list)} 个交易日")
+
+    # ===============================
+    # 判断北京时间
+    # ===============================
+    now_cn = datetime.now(ZoneInfo("Asia/Shanghai"))
+
+    if now_cn.hour < 17:
+        today_str = now_cn.strftime("%Y%m%d")
+
+        if today_str in date_list:
+            date_list.remove(today_str)
+            context.log.info(
+                f"当前北京时间 {now_cn.strftime('%H:%M')} < 17:00，移除当天交易日 {today_str}"
+            )
 
     context.log.info(f"需要处理 {len(date_list)} 个交易日")
 

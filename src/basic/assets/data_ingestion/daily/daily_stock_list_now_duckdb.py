@@ -16,7 +16,7 @@ from .daily_stock_list_parquet import Daily_Stock_List
     description="每日更新A股股票列表（全量刷新）",
     deps=[Daily_Stock_List]
 )
-def Daily_Stock_List_Duckdb(context: dg.AssetExecutionContext) -> pl.DataFrame:
+def Daily_Stock_List_Now_Duckdb(context: dg.AssetExecutionContext) -> pl.DataFrame:
     """
     每日更新A股股票列表（全量刷新）
     """

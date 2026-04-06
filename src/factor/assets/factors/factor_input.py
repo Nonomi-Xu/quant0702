@@ -24,22 +24,13 @@ from .factor_registry import load_factor_function, FACTOR_LIST
 )
 def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
-    每日使用A股信息基本面计算因子，按“因子名/年份”粒度增量写入 COS Parquet
+    每日使用A股信息基本面计算因子，按因子分目录、按年份写入 COS Parquet
 
-    存储结构：
+    存储结构:
     - factor/factors/{factor_name}/{factor_name}_{year}.parquet
-
-    规则：
-    1. 每个因子单独计算自己的增量起点
-    2. 已有历史的因子：从该因子历史最新日期开始增量
-    3. 新增因子：从 _get_default_start_date_() 开始补历史
-    4. end_date 直接使用 read_trade_cal(context=context)
-    5. 每个因子每年只输入“上一年 + 当年”的基础数据
-    6. 每个因子只保留自身 required_fields + 主键列，降低内存
-    7. 交易日列表直接使用 cal_day_length(context, start_date, end_date)
     """
 
-    context.log.info("开始按因子独立存储方式计算并写入 COS Parquet")
+    context.log.info("开始按单因子分文件方式计算并写入 COS Parquet")
 
     parquet_resource = ParquetResource()
     end_date = read_trade_cal(context=context)
@@ -47,14 +38,14 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
     end_date_obj = pd.to_datetime(end_date, format="%Y%m%d").date()
 
     total_rows = 0
-    total_days_success = 0
+    total_days = 0
     failed_factors: list[str] = []
     factor_update_stats: dict[str, dict] = {}
     any_updated = False
 
     for factor_name, spec in FACTOR_LIST.items():
-        factor_total_rows = 0
-        factor_total_days = 0
+        factor_rows = 0
+        factor_days = 0
         factor_modes: dict[str, str] = {}
 
         try:
@@ -66,18 +57,17 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
             )
             factor_start_date_obj = pd.to_datetime(factor_start_date, format="%Y%m%d").date()
 
-            context.log.info(f"因子 {factor_name} 的增量起点为 {factor_start_date}")
+            context.log.info(f"因子 {factor_name} 增量起点: {factor_start_date}")
 
-            years_to_process = list(range(factor_start_date_obj.year, end_date_obj.year + 1))
-
-            for year in years_to_process:
+            for year in range(factor_start_date_obj.year, end_date_obj.year + 1):
                 df_factor_basic = None
                 result_df = None
                 existing_df = None
                 merged_df = None
+                final_written_df = None
 
                 try:
-                    output_file_path = build_factor_output_path(factor_name=factor_name, year=year)
+                    output_file_path = build_factor_output_path(factor_name, year)
                     output_columns = spec.get("output_columns", [factor_name])
 
                     try:
@@ -90,24 +80,23 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                         context.log.warning(f"年份 {year} 因子 {factor_name} 基础数据读取失败，跳过: {e}")
                         continue
 
-                    year_start_bound = max(
+                    year_start = max(
                         factor_start_date_obj,
                         pd.to_datetime(f"{year}0101", format="%Y%m%d").date(),
                     )
-                    year_end_bound = min(
+                    year_end = min(
                         end_date_obj,
                         pd.to_datetime(f"{year}1231", format="%Y%m%d").date(),
                     )
 
-                    if year_start_bound > year_end_bound:
+                    if year_start > year_end:
                         continue
 
                     trade_date_str_list = cal_day_length(
                         context=context,
-                        start_date=year_start_bound,
-                        end_date=year_end_bound,
+                        start_date=year_start,
+                        end_date=year_end,
                     )
-
                     if not trade_date_str_list:
                         continue
 
@@ -116,26 +105,23 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                         for d in trade_date_str_list
                     ]
 
-                    file_exists = True
-                    existing_dates: list = []
                     try:
                         existing_dates = read_existing_trade_dates(
                             parquet_resource=parquet_resource,
                             path_extension=output_file_path,
                         )
+                        file_exists = True
                     except Exception:
-                        file_exists = False
                         existing_dates = []
+                        file_exists = False
 
-                    target_dates_set = set(target_trade_dates)
-                    existing_dates_set = set(existing_dates)
-                    missing_dates = sorted(target_dates_set - existing_dates_set)
+                    missing_dates = sorted(set(target_trade_dates) - set(existing_dates))
 
                     if not file_exists:
                         missing_dates = target_trade_dates
-                        update_mode = "create_factor_year_file"
+                        update_mode = "create"
                     elif missing_dates:
-                        update_mode = "append_new_dates_or_backfill"
+                        update_mode = "incremental"
                     else:
                         update_mode = "noop"
 
@@ -143,8 +129,7 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                         continue
 
                     context.log.info(
-                        f"年份 {year} 因子 {factor_name} 开始处理，"
-                        f"目标交易日数: {len(missing_dates)}，模式: {update_mode}"
+                        f"年份 {year} 因子 {factor_name} 开始处理，目标交易日数: {len(missing_dates)}，模式: {update_mode}"
                     )
 
                     result_df = build_single_factor_frame_for_dates(
@@ -153,7 +138,6 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                         trade_dates_date=missing_dates,
                         factor_name=factor_name,
                     )
-
                     if result_df is None or result_df.height == 0:
                         continue
 
@@ -168,14 +152,18 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                             path_extension=output_file_path,
                             compression="zstd",
                         )
+                        final_written_df = result_df
+                        update_mode = "create"
+
                     else:
-                        if can_append_only(existing_dates=existing_dates, new_dates=missing_dates):
+                        if can_append_only(existing_dates, missing_dates):
                             parquet_resource.append_file(
                                 df=result_df,
                                 path_extension=output_file_path,
                                 compression="zstd",
                             )
-                            update_mode = "append_new_dates"
+                            final_written_df = result_df
+                            update_mode = "append"
                         else:
                             existing_df = parquet_resource.read(
                                 path_extension=output_file_path,
@@ -185,10 +173,9 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                                 df=existing_df,
                                 output_columns=output_columns,
                             )
-                            merged_df = pl.concat([existing_df, result_df], how="vertical_relaxed")
                             merged_df = (
-                                merged_df
-                                .sort(["trade_date", "ts_code"])
+                                pl.concat([existing_df, result_df], how="vertical_relaxed")
+                                .sort(["ts_code", "trade_date"])
                                 .unique(subset=["ts_code", "trade_date"], keep="last")
                             )
                             parquet_resource.write(
@@ -196,19 +183,20 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                                 path_extension=output_file_path,
                                 compression="zstd",
                             )
-                            update_mode = "rewrite_with_backfill"
+                            final_written_df = result_df
+                            update_mode = "rewrite"
 
-                    year_rows = result_df.height
-                    year_days = result_df.select(pl.col("trade_date").n_unique()).item()
+                    year_rows = int(final_written_df.height)
+                    year_days = int(final_written_df.select(pl.col("trade_date").n_unique()).item())
 
-                    factor_total_rows += year_rows
-                    factor_total_days += year_days
+                    factor_rows += year_rows
+                    factor_days += year_days
                     factor_modes[str(year)] = update_mode
                     any_updated = True
 
                     context.log.info(
-                        f"年份 {year} 因子 {factor_name} 写入完成: "
-                        f"{output_file_path}, 行数: {year_rows}, 交易日数: {year_days}, 模式: {update_mode}"
+                        f"年份 {year} 因子 {factor_name} 写入完成: {output_file_path}, "
+                        f"行数: {year_rows}, 交易日数: {year_days}, 模式: {update_mode}"
                     )
 
                 finally:
@@ -216,17 +204,18 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                     result_df = None
                     existing_df = None
                     merged_df = None
+                    final_written_df = None
                     gc.collect()
 
                 time.sleep(0.05)
 
-            total_rows += factor_total_rows
-            total_days_success += factor_total_days
+            total_rows += factor_rows
+            total_days += factor_days
             factor_update_stats[factor_name] = {
                 "start_date": str(factor_start_date),
                 "end_date": str(end_date),
-                "rows": int(factor_total_rows),
-                "days": int(factor_total_days),
+                "rows": int(factor_rows),
+                "days": int(factor_days),
                 "modes": {str(k): str(v) for k, v in factor_modes.items()},
             }
 
@@ -249,7 +238,7 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
 
     return dg.MaterializeResult(
         metadata={
-            "success_days": dg.MetadataValue.int(int(total_days_success)),
+            "success_days": dg.MetadataValue.int(int(total_days)),
             "total_rows": dg.MetadataValue.int(int(total_rows)),
             "failed_factors": dg.MetadataValue.int(len(failed_factors)),
             "factor_update_stats": dg.MetadataValue.json(factor_update_stats),
@@ -264,37 +253,31 @@ def resolve_factor_start_date(
     default_start_date: str,
 ) -> str:
     """
-    单个因子单独决定增量起点：
-    - 如果历史文件存在，取该因子历史最新日期
-    - 如果不存在任何历史文件，返回默认起始日
+    单个因子独立维护增量起点：
+    - 存在历史文件 -> 用该因子历史最新日期
+    - 不存在历史文件 -> 用默认起始日
     """
     current_year = datetime.now().year
     default_start_year = pd.to_datetime(default_start_date, format="%Y%m%d").year
 
     for year in range(current_year, default_start_year - 1, -1):
-        file_path = build_factor_output_path(factor_name=factor_name, year=year)
+        file_path = build_factor_output_path(factor_name, year)
         try:
             df = parquet_resource.read(
                 path_extension=file_path,
                 force_download=True,
             )
-
             if df.height == 0 or "trade_date" not in df.columns:
-                df = None
-                gc.collect()
                 continue
 
             latest_date = df.select(pl.col("trade_date").max()).item()
-            df = None
-            gc.collect()
-
             if latest_date is None:
                 continue
 
-            if isinstance(latest_date, str):
-                latest_date_str = latest_date
-            else:
-                latest_date_str = pd.to_datetime(latest_date).strftime("%Y%m%d")
+            latest_date_str = (
+                latest_date if isinstance(latest_date, str)
+                else pd.to_datetime(latest_date).strftime("%Y%m%d")
+            )
 
             context.log.info(
                 f"因子 {factor_name} 检测到历史文件 {file_path}，最新日期: {latest_date_str}"
@@ -303,10 +286,10 @@ def resolve_factor_start_date(
 
         except Exception:
             continue
+        finally:
+            gc.collect()
 
-    context.log.info(
-        f"因子 {factor_name} 未检测到历史文件，使用默认起始日: {default_start_date}"
-    )
+    context.log.info(f"因子 {factor_name} 未检测到历史文件，使用默认起始日: {default_start_date}")
     return default_start_date
 
 
@@ -322,7 +305,7 @@ def load_factor_basic_for_factor_year(
     """
     每个因子每年只读取：
     - 当年
-    - 上一年（如果存在）
+    - 上一年（若存在）
 
     并且只保留：
     - ts_code
@@ -330,50 +313,42 @@ def load_factor_basic_for_factor_year(
     - 该因子 required_fields
     """
     required_fields = FACTOR_LIST[factor_name].get("required_fields", [])
-    select_columns = ["ts_code", "trade_date", *required_fields]
-    select_columns = list(dict.fromkeys(select_columns))
+    select_columns = list(dict.fromkeys(["ts_code", "trade_date", *required_fields]))
 
     current_path = f"factor/basic/factor_basic_{year}.parquet"
     df_current = parquet_resource.read(
         path_extension=current_path,
         force_download=True,
     )
-
-    available_current_columns = [c for c in select_columns if c in df_current.columns]
     df_current = (
         df_current
-        .select(available_current_columns)
-        .sort(["trade_date", "ts_code"])
+        .select([c for c in select_columns if c in df_current.columns])
+        .sort(["ts_code", "trade_date"])
     )
 
     if year <= 2016:
         return df_current
 
-    previous_path = f"factor/basic/factor_basic_{year-1}.parquet"
+    previous_path = f"factor/basic/factor_basic_{year - 1}.parquet"
     try:
         df_previous = parquet_resource.read(
             path_extension=previous_path,
             force_download=True,
         )
-        available_previous_columns = [c for c in select_columns if c in df_previous.columns]
         df_previous = (
             df_previous
-            .select(available_previous_columns)
-            .sort(["trade_date", "ts_code"])
+            .select([c for c in select_columns if c in df_previous.columns])
+            .sort(["ts_code", "trade_date"])
         )
 
-        df_factor_basic = pl.concat(
-            [df_previous, df_current],
-            how="diagonal_relaxed",
-        ).sort(["trade_date", "ts_code"])
-
-        df_previous = None
-        df_current = None
-        gc.collect()
-        return df_factor_basic
-
+        return (
+            pl.concat([df_previous, df_current], how="diagonal_relaxed")
+            .sort(["ts_code", "trade_date"])
+        )
     except Exception:
         return df_current
+    finally:
+        gc.collect()
 
 
 def build_single_factor_frame_for_dates(
@@ -384,7 +359,7 @@ def build_single_factor_frame_for_dates(
 ) -> pl.DataFrame:
     """
     计算窗口使用上一年+当年数据；
-    最终输出只保留 trade_dates_date 对应的目标日期。
+    最终输出只保留目标交易日。
     """
     if not trade_dates_date:
         return pl.DataFrame(schema={"ts_code": pl.Utf8, "trade_date": pl.Date})
@@ -396,20 +371,22 @@ def build_single_factor_frame_for_dates(
     )
     output_columns = spec.get("output_columns", [factor_name])
 
-    target_dates_set = set(trade_dates_date)
+    target_dates = set(trade_dates_date)
 
     base_df = (
         df_factor_basic
-        .filter(pl.col("trade_date").is_in(target_dates_set))
+        .filter(pl.col("trade_date").is_in(target_dates))
         .select(["ts_code", "trade_date"])
-        .sort(["trade_date", "ts_code"])
+        .sort(["ts_code", "trade_date"])
     )
+
+    input_df = df_factor_basic.sort(["ts_code", "trade_date"])
 
     context.log.info(
-        f"开始计算因子: {factor_name}，输入列: {df_factor_basic.columns}，目标日期数: {len(trade_dates_date)}"
+        f"开始计算因子: {factor_name}，输入列: {input_df.columns}，目标日期数: {len(trade_dates_date)}"
     )
 
-    result_df = func(df_factor_basic)
+    result_df = func(input_df)
 
     validate_factor_result(
         result_df=result_df,
@@ -417,16 +394,14 @@ def build_single_factor_frame_for_dates(
         expected_output_columns=output_columns,
     )
 
-    result_df = result_df.select(["ts_code", "trade_date", *output_columns])
-
     return (
         base_df
         .join(
-            result_df,
+            result_df.select(["ts_code", "trade_date", *output_columns]),
             on=["ts_code", "trade_date"],
             how="left",
         )
-        .sort(["trade_date", "ts_code"])
+        .sort(["ts_code", "trade_date"])
     )
 
 
@@ -436,14 +411,13 @@ def normalize_single_factor_schema(
 ) -> pl.DataFrame:
     expected_columns = ["ts_code", "trade_date", *output_columns]
     missing_columns = [c for c in expected_columns if c not in df.columns]
-
     if missing_columns:
         df = df.with_columns([pl.lit(None).alias(c) for c in missing_columns])
 
     return (
         df
         .select(expected_columns)
-        .sort(["trade_date", "ts_code"])
+        .sort(["ts_code", "trade_date"])
     )
 
 
@@ -455,7 +429,6 @@ def read_existing_trade_dates(
         path_extension=path_extension,
         force_download=True,
     )
-
     dates = (
         df.select("trade_date")
         .unique()
@@ -463,8 +436,6 @@ def read_existing_trade_dates(
         .get_column("trade_date")
         .to_list()
     )
-
-    df = None
     gc.collect()
     return dates
 
@@ -474,6 +445,39 @@ def can_append_only(existing_dates: list, new_dates: list) -> bool:
         return False
     if not existing_dates:
         return True
+    return min(new_dates) > max(existing_dates)
 
-    existing_max = max(existing_dates)
-    return min(new_dates) > existing_max
+
+def validate_factor_result(
+    result_df: pl.DataFrame,
+    factor_name: str,
+    expected_output_columns: list[str] | None = None,
+) -> None:
+    required_cols = {"ts_code", "trade_date"}
+    actual_cols = set(result_df.columns)
+
+    if not required_cols.issubset(actual_cols):
+        missing = required_cols - actual_cols
+        raise ValueError(f"因子 {factor_name} 缺少必要列: {sorted(missing)}")
+
+    factor_cols = [c for c in result_df.columns if c not in ["ts_code", "trade_date"]]
+    if not factor_cols:
+        raise ValueError(f"因子 {factor_name} 未返回任何因子列")
+
+    dup_count = (
+        result_df
+        .group_by(["ts_code", "trade_date"])
+        .len()
+        .filter(pl.col("len") > 1)
+        .height
+    )
+    if dup_count > 0:
+        raise ValueError(f"因子 {factor_name} 返回结果存在重复键，共 {dup_count} 组")
+
+    if expected_output_columns is not None:
+        expected = set(expected_output_columns)
+        actual = set(factor_cols)
+        if expected != actual:
+            raise ValueError(
+                f"因子 {factor_name} 输出列不匹配，期望 {sorted(expected)}，实际 {sorted(actual)}"
+            )

@@ -1,7 +1,7 @@
 """A股数据获取资产"""
 import dagster as dg
 import polars as pl
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 from zoneinfo import ZoneInfo
 from pathlib import Path
 from resources.parquet_io import ParquetResource
@@ -176,6 +176,13 @@ def cal_day_length(context: dg.AssetExecutionContext, start_date: date, end_date
     如果起始日期大于结束日期，说明没有新数据需要更新
     '''
 
+    now_utc = datetime.now(timezone.utc)
+    beijing_time = now_utc + timedelta(hours=8)
+
+    if 0 <= beijing_time.hour < 17:
+        context.log.info(f"当前北京时间 {beijing_time}，处于0-17点，end_date 回退一天")
+        end_date = end_date - timedelta(days=1)
+
     parquet_resource = ParquetResource()
 
     try:
@@ -208,22 +215,6 @@ def cal_day_length(context: dg.AssetExecutionContext, start_date: date, end_date
             context.log.info(f"开盘日: {current}")
             date_list.append(current.strftime("%Y%m%d"))
         current += timedelta(days=1)
-
-    context.log.info(f"需要处理 {len(date_list)} 个交易日")
-
-    # ===============================
-    # 判断北京时间
-    # ===============================
-    now_cn = datetime.now(ZoneInfo("Asia/Shanghai"))
-
-    if now_cn.hour < 17:
-        today_str = now_cn.strftime("%Y%m%d")
-
-        if today_str in date_list:
-            date_list.remove(today_str)
-            context.log.info(
-                f"当前北京时间 {now_cn.strftime('%H:%M')} < 17:00，移除当天交易日 {today_str}"
-            )
 
     context.log.info(f"需要处理 {len(date_list)} 个交易日")
 

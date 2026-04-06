@@ -5,9 +5,11 @@ import polars as pl
 
 ASI_WINDOW = 26
 ASIT_WINDOW = 10
+ASI_COLUMN = f"asi_{ASI_WINDOW}"
+ASIT_COLUMN = f"asit_{ASI_WINDOW}_{ASIT_WINDOW}"
 
 
-def compute_asi_26(frame: pl.DataFrame) -> pl.Series:
+def compute_asi_26(frame: pl.DataFrame) -> pl.DataFrame:
     r"""
     ASI 主线因子，参数 M1=26。
 
@@ -53,18 +55,21 @@ def compute_asi_26(frame: pl.DataFrame) -> pl.Series:
     return compute_asi_bundle(frame, m1=ASI_WINDOW, m2=ASIT_WINDOW)["asi"]
 
 
-def compute_asi_bundle(frame: pl.DataFrame, m1: int, m2: int) -> dict[str, pl.Series]:
+def compute_asi_bundle(frame: pl.DataFrame, m1: int, m2: int) -> dict[str, pl.DataFrame]:
     """共享计算链：一次性计算 ASI 与 ASIT。"""
     si_frame = _compute_si_frame(frame)
     asi = si_frame.select(
-        pl.col("si").rolling_sum(window_size=m1).over("ts_code").alias(f"asi_{ASI_WINDOW}")
-    ).to_series()
+        "trade_date",
+        "ts_code",
+        pl.col("si").rolling_sum(window_size=m1).over("ts_code").alias(ASI_COLUMN),
+    )
 
-    asit_frame = frame.select("ts_code").with_columns(asi.alias(f"asi_{ASI_WINDOW}"))
-    asit = asit_frame.select(
-        pl.col(f"asi_{ASI_WINDOW}").rolling_mean(window_size=m2).over("ts_code").alias(f"asit_{ASI_WINDOW}_{ASIT_WINDOW}")
-    ).to_series()
-    return {f"asi_{ASI_WINDOW}": asi, f"asit_{ASI_WINDOW}_{ASIT_WINDOW}": asit}
+    asit = asi.select(
+        "trade_date",
+        "ts_code",
+        pl.col(ASI_COLUMN).rolling_mean(window_size=m2).over("ts_code").alias(ASIT_COLUMN),
+    )
+    return {"asi": asi, "asit": asit}
 
 
 def _compute_si_frame(frame: pl.DataFrame) -> pl.DataFrame:

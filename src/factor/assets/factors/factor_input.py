@@ -83,12 +83,6 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 pd.to_datetime(d, format="%Y%m%d").date()
                 for d in trade_dates
             ]
-        
-        factor_df = (
-            df_factor_basic
-            .filter(pl.col("trade_date").is_in(trade_dates_date))
-            .select(["ts_code", "trade_date"])
-        )
 
         context.log.info(f"开始处理年份 {year}，共 {len(trade_dates)} 个交易日")
 
@@ -116,6 +110,12 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
             context.log.error(f"年份 {year} 源文件读取失败: {e}")
             failed_days.extend(trade_dates)
             raise
+
+        factor_df = (
+            df_factor_basic
+            .filter(pl.col("trade_date").is_in(trade_dates_date))
+            .select(["ts_code", "trade_date"])
+        )
 
         for factor_name in FACTOR_LIST:
             spec = FACTOR_LIST[factor_name]
@@ -172,20 +172,20 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
         try:
             output_file_path = f"factor/factors/factors_{year}.parquet"
             if read_past_column_name:
-                parquet_resource.overwrite(
-                    df=df_factor_basic,
+                parquet_resource.write(
+                    df=factor_df,
                     path_extension=output_file_path,
                     compression="zstd"
                 )
             else:
                 parquet_resource.append_file(
-                    df=df_factor_basic,
+                    df=factor_df,
                     path_extension=output_file_path,
                     compression="zstd"
                 )
 
-            year_rows = df_factor_basic.height
-            year_days_success = df_factor_basic.select(pl.col("trade_date").n_unique()).item()
+            year_rows = factor_df.height
+            year_days_success = factor_df.select(pl.col("trade_date").n_unique()).item()
 
             total_rows += year_rows
             total_days_success += year_days_success

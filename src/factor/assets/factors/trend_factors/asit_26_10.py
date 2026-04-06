@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import polars as pl
 
-from .asi_26 import ASI_WINDOW, ASIT_WINDOW, compute_asi_bundle
+from .asi_26 import ASI_COLUMN, ASIT_COLUMN, ASI_WINDOW, ASIT_WINDOW, compute_asi_bundle
 
 
-def compute_asit_26_10(frame: pl.DataFrame) -> pl.Series:
+def compute_asit_26_10(frame: pl.DataFrame) -> pl.DataFrame:
     r"""
     ASIT 平滑振动升降指标，参数 M1=26, M2=10。
 
@@ -32,4 +32,4 @@ def compute_asit_26_10(frame: pl.DataFrame) -> pl.Series:
     - ASI(t) = sum(SI(t-25), ..., SI(t))
     - ASIT(t) = mean(ASI(t-9), ..., ASI(t))
     """
-    return compute_asi_bundle(frame, m1=ASI_WINDOW, m2=ASIT_WINDOW)[f"asit_{ASI_WINDOW}_{ASIT_WINDOW}"]
+    return compute_asi_bundle(frame, m1=ASI_WINDOW, m2=ASIT_WINDOW)["asit"]

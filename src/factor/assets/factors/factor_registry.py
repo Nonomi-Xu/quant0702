@@ -92,7 +92,7 @@ FACTOR_LIST = {
     "brar_ar_26": {
         "label": "BRAR人气指标AR",
         "formula": "AR(i,t) = sum(H(i,t-k)-O(i,t-k), k=0..25) / sum(O(i,t-k)-L(i,t-k), k=0..25) * 100",
-        "required_fields": ["open_hfq", "high_hfq", "low_hfq"],
+        "required_fields": ["close_hfq", "open_hfq", "high_hfq", "low_hfq"],
         "module": "src.factor.assets.factors.factors.brar",
         "function": "compute_brar_ar_26",
         "output_columns": ["brar_ar_26"],
@@ -100,9 +100,17 @@ FACTOR_LIST = {
     "brar_br_26": {
         "label": "BRAR意愿指标BR",
         "formula": "BR(i,t) = sum(max(0,H(i,t-k)-C(i,t-k-1)), k=0..25) / sum(max(0,C(i,t-k-1)-L(i,t-k)), k=0..25) * 100",
-        "required_fields": ["high_hfq", "low_hfq", "close_hfq"],
+        "required_fields": ["close_hfq", "high_hfq", "low_hfq", "close_hfq"],
         "module": "src.factor.assets.factors.factors.brar",
         "function": "compute_brar_br_26",
         "output_columns": ["brar_br_26"],
+    },
+    "cci_14": {
+        "label": "CCI顺势指标",
+        "formula": "CCI(i,t) = (TP(i,t) - MA14(TP,i,t)) / (0.015 * MD14(TP,i,t))",
+        "required_fields": ["close_hfq", "high_hfq", "low_hfq"],
+        "module": "src.factor.assets.factors.factors.cci",
+        "function": "compute_cci_14",
+        "output_columns": ["cci_14"],
     },
 }

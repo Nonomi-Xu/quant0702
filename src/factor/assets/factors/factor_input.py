@@ -3,9 +3,7 @@ import dagster as dg
 import polars as pl
 import pandas as pd
 import gc
-from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
-from collections import defaultdict
+from datetime import datetime
 from resources.parquet_io import ParquetResource
 
 from src.factor.assets.basic.daily_factor_basic_parquet import Daily_Factor_Basic

@@ -36,7 +36,7 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
     4. end_date 直接使用 read_trade_cal(context=context)
     5. 每个因子每年只输入“上一年 + 当年”的基础数据
     6. 每个因子只保留自身 required_fields + 主键列，降低内存
-    7. 上一年数据只参与计算，不参与最终输出
+    7. 交易日列表直接使用 cal_day_length(context, start_date, end_date)
     """
 
     context.log.info("开始按因子独立存储方式计算并写入 COS Parquet")
@@ -102,15 +102,19 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                     if year_start_bound > year_end_bound:
                         continue
 
-                    target_trade_dates = get_trade_dates_from_basic(
-                        df_factor_basic=df_factor_basic,
-                        start_bound=year_start_bound,
-                        end_bound=year_end_bound,
-                        target_year=year,
+                    trade_date_str_list = cal_day_length(
+                        context=context,
+                        start_date=year_start_bound,
+                        end_date=year_end_bound,
                     )
 
-                    if not target_trade_dates:
+                    if not trade_date_str_list:
                         continue
+
+                    target_trade_dates = [
+                        pd.to_datetime(d, format="%Y%m%d").date()
+                        for d in trade_date_str_list
+                    ]
 
                     file_exists = True
                     existing_dates: list = []
@@ -219,11 +223,11 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
             total_rows += factor_total_rows
             total_days_success += factor_total_days
             factor_update_stats[factor_name] = {
-                "start_date": factor_start_date,
-                "end_date": end_date,
-                "rows": factor_total_rows,
-                "days": factor_total_days,
-                "modes": factor_modes,
+                "start_date": str(factor_start_date),
+                "end_date": str(end_date),
+                "rows": int(factor_total_rows),
+                "days": int(factor_total_days),
+                "modes": {str(k): str(v) for k, v in factor_modes.items()},
             }
 
         except Exception as e:
@@ -245,9 +249,10 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
 
     return dg.MaterializeResult(
         metadata={
-            "success_days": dg.MetadataValue.int(total_days_success),
-            "total_rows": dg.MetadataValue.int(total_rows),
+            "success_days": dg.MetadataValue.int(int(total_days_success)),
+            "total_rows": dg.MetadataValue.int(int(total_rows)),
             "failed_factors": dg.MetadataValue.int(len(failed_factors)),
+            "factor_update_stats": dg.MetadataValue.json(factor_update_stats),
         }
     )
 
@@ -371,25 +376,6 @@ def load_factor_basic_for_factor_year(
         return df_current
 
 
-def get_trade_dates_from_basic(
-    df_factor_basic: pl.DataFrame,
-    start_bound,
-    end_bound,
-    target_year: int,
-) -> list:
-    return (
-        df_factor_basic
-        .filter(pl.col("trade_date").dt.year() == target_year)
-        .filter(pl.col("trade_date") >= pl.lit(start_bound))
-        .filter(pl.col("trade_date") <= pl.lit(end_bound))
-        .select("trade_date")
-        .unique()
-        .sort("trade_date")
-        .get_column("trade_date")
-        .to_list()
-    )
-
-
 def build_single_factor_frame_for_dates(
     context: dg.AssetExecutionContext,
     df_factor_basic: pl.DataFrame,
@@ -412,7 +398,6 @@ def build_single_factor_frame_for_dates(
 
     target_dates_set = set(trade_dates_date)
 
-    # 这里只保留目标日期，不让上一年数据进入最终输出
     base_df = (
         df_factor_basic
         .filter(pl.col("trade_date").is_in(target_dates_set))
@@ -492,38 +477,3 @@ def can_append_only(existing_dates: list, new_dates: list) -> bool:
 
     existing_max = max(existing_dates)
     return min(new_dates) > existing_max
-
-
-def validate_factor_result(
-    result_df: pl.DataFrame,
-    factor_name: str,
-    expected_output_columns: list[str] | None = None,
-) -> None:
-    required_cols = {"ts_code", "trade_date"}
-    actual_cols = set(result_df.columns)
-
-    if not required_cols.issubset(actual_cols):
-        missing = required_cols - actual_cols
-        raise ValueError(f"因子 {factor_name} 缺少必要列: {missing}")
-
-    factor_cols = [c for c in result_df.columns if c not in ["ts_code", "trade_date"]]
-    if not factor_cols:
-        raise ValueError(f"因子 {factor_name} 未返回任何因子列")
-
-    dup_count = (
-        result_df
-        .group_by(["ts_code", "trade_date"])
-        .len()
-        .filter(pl.col("len") > 1)
-        .height
-    )
-    if dup_count > 0:
-        raise ValueError(f"因子 {factor_name} 返回结果存在重复键，共 {dup_count} 组")
-
-    if expected_output_columns is not None:
-        expected = set(expected_output_columns)
-        actual_factor_cols = set(factor_cols)
-        if expected != actual_factor_cols:
-            raise ValueError(
-                f"因子 {factor_name} 输出列不匹配，期望 {sorted(expected)}，实际 {sorted(actual_factor_cols)}"
-            )

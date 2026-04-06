@@ -1,3 +1,6 @@
+# scripts
+scripts/
+
 # Python
 __pycache__/
 *.py[cod]

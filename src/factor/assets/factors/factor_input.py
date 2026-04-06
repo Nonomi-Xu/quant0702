@@ -44,7 +44,11 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
 
     context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
 
-    if read_past_column_name:
+    expectd_columns = FACTOR_LIST.keys()
+
+    bool_fresh = read_past_column_name(context = context, file_path = file_path, expected_columns = expected_columns, current_year = current_year)
+
+    if bool_fresh:
         # 全量更新
         start_date = _get_default_start_date_()
 
@@ -168,10 +172,10 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
         # 一次性 join 全年目标数据
         # ----------------------------
 
-            # 写入
+        # 写入
         try:
             output_file_path = f"factor/factors/factors_{year}.parquet"
-            if read_past_column_name:
+            if bool_fresh:
                 parquet_resource.write(
                     df=factor_df,
                     path_extension=output_file_path,
@@ -204,11 +208,12 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
         time.sleep(0.1)
 
     context.log.info(f"""
-    ========== 因子基础数据写入完成 ==========
+    ========== 因子计算数据写入完成 ==========
     本次处理:
         - 成功交易日数: {total_days_success}
         - 总数据行数: {total_rows}
         - 失败数: {len(failed_days)}
+        - 因子列表 :{expectd_columns}
 
     各年份文件行数:
         {year_file_stats}

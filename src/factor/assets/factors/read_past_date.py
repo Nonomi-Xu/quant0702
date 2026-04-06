@@ -37,7 +37,7 @@ def read_past_column_name(
             missing_in_parquet = sorted(expected_columns_set - existing_columns_set)
             extra_in_parquet = sorted(existing_columns_set - expected_columns_set)
 
-            context.log.warning(
+            context.log.info(
                 f"{path_for_log} 列名不一致，需要全量更新。"
                 f" 期望列: {expected_columns}; "
                 f" 现有列: {existing_columns}; "
@@ -79,6 +79,7 @@ def read_past_column_name(
             context.log.info(f"检查年度文件列名: {yearly_file_path}")
 
             if not _read_and_check(yearly_file_path):
+                context.log.info(f"{yearly_file_path} 文件列名与因子列名不一致")
                 return True
 
         return False

@@ -27,7 +27,7 @@ def compute_atr_20(frame: pl.DataFrame) -> pl.DataFrame:
         pl.col("close_hfq").shift(1).over("ts_code").alias("prev_close_hfq")
     )
     tr_frame = with_prev.select(
-        "date",
+        "trade_date",
         "ts_code",
         pl.max_horizontal(
             (pl.col("high_hfq") - pl.col("low_hfq")),
@@ -36,7 +36,7 @@ def compute_atr_20(frame: pl.DataFrame) -> pl.DataFrame:
         ).alias("tr_20_base"),
     )
     return tr_frame.select(
-        "date",
+        "trade_date",
         "ts_code",
         pl.col("tr_20_base").rolling_mean(window_size=ATR_WINDOW).over("ts_code").alias(ATR_COLUMN),
     )

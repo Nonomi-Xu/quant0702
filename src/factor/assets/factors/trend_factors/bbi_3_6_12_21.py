@@ -26,7 +26,7 @@ def compute_bbi_3_6_12_21(frame: pl.DataFrame) -> pl.DataFrame:
     当前项目仅使用后复权口径计算价格型因子。
     """
     enriched = frame.select(
-        "date",
+        "trade_date",
         "ts_code",
         pl.col("close_hfq").rolling_mean(window_size=BBI_M1).over("ts_code").alias("ma_3"),
         pl.col("close_hfq").rolling_mean(window_size=BBI_M2).over("ts_code").alias("ma_6"),
@@ -34,7 +34,7 @@ def compute_bbi_3_6_12_21(frame: pl.DataFrame) -> pl.DataFrame:
         pl.col("close_hfq").rolling_mean(window_size=BBI_M4).over("ts_code").alias("ma_21"),
     )
     return enriched.select(
-        "date",
+        "trade_date",
         "ts_code",
         ((pl.col("ma_3") + pl.col("ma_6") + pl.col("ma_12") + pl.col("ma_21")) / 4).alias(BBI_COLUMN),
     )

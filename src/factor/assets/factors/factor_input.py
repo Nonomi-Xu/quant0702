@@ -44,7 +44,7 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
 
     context.log.info(f"增量获取时间范围: {start_date} -> {end_date}")
 
-    expectd_columns = FACTOR_LIST.keys()
+    expected_columns = FACTOR_LIST.keys()
 
     bool_fresh = read_past_column_name(context = context, file_path = file_path, expected_columns = expected_columns, current_year = current_year)
 
@@ -213,7 +213,7 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
         - 成功交易日数: {total_days_success}
         - 总数据行数: {total_rows}
         - 失败数: {len(failed_days)}
-        - 因子列表 :{expectd_columns}
+        - 因子列表 :{expected_columns}
 
     各年份文件行数:
         {year_file_stats}

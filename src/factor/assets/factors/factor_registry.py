@@ -41,4 +41,28 @@ FACTOR_LIST = {
         "function": "compute_bbi_3_6_12_21",
         "output_columns": ["bbi_3_6_12_21"]
     },
+        "bias_6": {
+        "label": "BIAS6乖离率",
+        "formula": "BIAS6(i,t) = ((C(i,t) - MA6(i,t)) / MA6(i,t)) * 100",
+        "required_fields": ["close_hfq"],
+        "module": "src.factor.assets.factors.mean_reversion_factors.bias",
+        "function": "compute_bias_6",
+        "output_columns": ["bias_6"],
+    },
+    "bias_12": {
+        "label": "BIAS12乖离率",
+        "formula": "BIAS12(i,t) = ((C(i,t) - MA12(i,t)) / MA12(i,t)) * 100",
+        "required_fields": ["close_hfq"],
+        "module": "src.factor.assets.factors.mean_reversion_factors.bias",
+        "function": "compute_bias_12",
+        "output_columns": ["bias_12"],
+    },
+    "bias_24": {
+        "label": "BIAS24乖离率",
+        "formula": "BIAS24(i,t) = ((C(i,t) - MA24(i,t)) / MA24(i,t)) * 100",
+        "required_fields": ["close_hfq"],
+        "module": "src.factor.assets.factors.mean_reversion_factors.bias",
+        "function": "compute_bias_24",
+        "output_columns": ["bias_24"],
+    },
 }

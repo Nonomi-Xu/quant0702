@@ -31,7 +31,7 @@ def read_past_column_name(
 
     def _columns_match(df: pl.DataFrame, path_for_log: str) -> bool:
         existing_columns = list(df.columns)
-        existing_columns_set = set(existing_columns)
+        existing_columns_set = set(existing_columns) - {"ts_code"} - {"trade_date"}
 
         if existing_columns_set != expected_columns_set:
             missing_in_parquet = sorted(expected_columns_set - existing_columns_set)

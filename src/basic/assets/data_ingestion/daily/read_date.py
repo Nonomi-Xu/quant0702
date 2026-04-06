@@ -114,59 +114,85 @@ def read_past_date(context: dg.AssetExecutionContext, file_path:str, current_yea
 
 def read_trade_cal(context: dg.AssetExecutionContext) -> date:
     """
-    获取A股历史交易日历 并返回end_date
+    获取A股历史交易日历，并返回 end_date
+
+    规则：
+    1. 如果今天不开盘，end_date = 今天对应的 pretrade_date
+    2. 如果今天开盘，但当前北京时间在 00:00-17:00，则 end_date 也取上一交易日
+    3. 如果今天开盘，且当前北京时间已过 17:00，则 end_date = 今天
     """
 
-    current_date = datetime.now().date()
-    
-    # 初始化参数
-    parquet_resource = ParquetResource()
-    
-    # 尝试读取已存在的日历数据
-    existing_df = None
+    # 北京时间
+    bj_now = datetime.now(ZoneInfo("Asia/Shanghai"))
+    current_date = bj_now.date()
 
+    parquet_resource = ParquetResource()
     end_date = current_date
 
     try:
-        file_path_trade_cal = f"data/trade_cal/trade_cal.parquet"
-
+        file_path_trade_cal = "data/trade_cal/trade_cal.parquet"
         existing_df = parquet_resource.read(
             path_extension=file_path_trade_cal,
-            force_download = True
+            force_download=True
         )
     except Exception as e:
         context.log.warning(f"读取日历数据失败: {e}")
         raise
-    
-    if existing_df.height > 0:
 
-        # 统一 trade_date 格式后筛选当天
-        df_trade_cal = (
-            existing_df
-            .filter(pl.col("cal_date") == current_date)
-            .select(["exchange", "cal_date", "is_open", "pretrade_date"])
-        )
-
-        context.log.info(f"从 COS 中读取日历数据: {current_date}")
-
-    else:
+    if existing_df.height == 0:
         context.log.info("COS中不存在数据，进行全量获取")
         return end_date
-    
+
+    df_trade_cal = (
+        existing_df
+        .filter(pl.col("cal_date") == current_date)
+        .select(["exchange", "cal_date", "is_open", "pretrade_date"])
+    )
+
+    context.log.info(f"从 COS 中读取日历数据: {current_date}")
+
     if df_trade_cal.height == 0:
-        context.log.info("trade_cal 中没有任何对应数据")
-        return end_date
+        if 0 <= bj_now.hour < 17:
+            
+            end_date = end_date - timedelta(days=1)
+            df_trade_cal = (
+                existing_df
+                .filter(pl.col("cal_date") == end_date)
+                .select(["exchange", "cal_date", "is_open", "pretrade_date"])
+            )
+            pretrade_date = df_trade_cal["pretrade_date"][0]
+            context.log.info(f"今日为开盘日，但北京时间 {bj_now.strftime('%H:%M:%S')} 尚未到17点，end_date 使用上一交易日: {pretrade_date}")
+        return pretrade_date
 
-    if df_trade_cal['is_open'][0] == 1 and df_trade_cal['is_open'][1] == 1:
-        context.log.info(f"开盘日: {current_date}")
-    elif df_trade_cal['is_open'][0] == 0 and df_trade_cal['is_open'][1] == 0:
-        context.log.info(f"今日不开盘: {current_date}")
-        pretrade_date = df_trade_cal['pretrade_date'][0]
+    # 更稳妥：不要假设一定有两行且顺序固定
+    is_open_values = df_trade_cal["is_open"].to_list()
+
+    if len(is_open_values) < 2:
+        context.log.warning(f"{current_date} 的交易所日历数据不足两条，请检查数据")
+        raise ValueError("trade_cal 数据不足，无法判断沪深是否同时开盘")
+
+    if all(x == 1 for x in is_open_values):
+        pretrade_date = df_trade_cal["pretrade_date"][0]
+
+        # 今日开盘，但北京时间 00:00-17:00，仍然去除今天
+        if 0 <= bj_now.hour < 17:
+            context.log.info(f"今日为开盘日，但北京时间 {bj_now.strftime('%H:%M:%S')} 尚未到17点，end_date 使用上一交易日: {pretrade_date}")
+            end_date = pretrade_date
+        else:
+            context.log.info(f"今日为开盘日，且北京时间已过17点，end_date 使用今日: {current_date}")
+            end_date = current_date
+
+    elif all(x == 0 for x in is_open_values):
+        pretrade_date = df_trade_cal["pretrade_date"][0]
+        context.log.info(f"今日不开盘: {current_date}，end_date 使用上一交易日: {pretrade_date}")
         end_date = pretrade_date
-    else:
-        context.log.warning(f"出现深交上交所不同时开盘日 {current_date} 请检查数据")
-        raise
 
+    else:
+        context.log.warning(f"出现深交所/上交所不同时开盘日: {current_date}，请检查数据")
+        raise ValueError("沪深交易所开盘状态不一致")
+    
+
+    context.log.info(f"最终使用end_date = {end_date}")
     return end_date
 
 

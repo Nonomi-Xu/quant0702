@@ -89,4 +89,20 @@ FACTOR_LIST = {
         "function": "compute_boll_upper_20_2",
         "output_columns": ["boll_upper_20_2"],
     },
+    "brar_ar_26": {
+        "label": "BRAR人气指标AR",
+        "formula": "AR(i,t) = sum(H(i,t-k)-O(i,t-k), k=0..25) / sum(O(i,t-k)-L(i,t-k), k=0..25) * 100",
+        "required_fields": ["open_hfq", "high_hfq", "low_hfq"],
+        "module": "src.factor.assets.factors.factors.brar",
+        "function": "compute_brar_ar_26",
+        "output_columns": ["brar_ar_26"],
+    },
+    "brar_br_26": {
+        "label": "BRAR意愿指标BR",
+        "formula": "BR(i,t) = sum(max(0,H(i,t-k)-C(i,t-k-1)), k=0..25) / sum(max(0,C(i,t-k-1)-L(i,t-k)), k=0..25) * 100",
+        "required_fields": ["high_hfq", "low_hfq", "close_hfq"],
+        "module": "src.factor.assets.factors.factors.brar",
+        "function": "compute_brar_br_26",
+        "output_columns": ["brar_br_26"],
+    },
 }

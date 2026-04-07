@@ -11,7 +11,7 @@ from src.factor.assets.basic.daily_factor_basic_parquet import Daily_Factor_Basi
 from src.basic.assets.data_ingestion.daily.read_date import read_past_date, read_trade_cal, cal_day_length
 from src.basic.assets.data_ingestion.daily.env_api import _get_default_start_date_
 
-from .factor_registry import load_factor_function, FACTOR_LIST
+from .factor_registry import load_factor_function, get_factor_category, FACTOR_LIST
 
 
 @dg.asset(
@@ -24,7 +24,7 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
     每日使用A股信息基本面计算因子，按因子分目录、按年份写入 COS Parquet
 
     存储结构:
-    - factor/factors/{factor_name}/{factor_name}_{year}.parquet
+    - factor/factors/{factor_category}/{factor_name}/{factor_name}_{year}.parquet
     """
 
     context.log.info("开始按单因子分文件方式计算并写入 COS Parquet")
@@ -290,7 +290,8 @@ def resolve_factor_start_date(
 
 
 def build_factor_output_path(factor_name: str, year: int) -> str:
-    return f"factor/factors/{factor_name}/{factor_name}_{year}.parquet"
+    factor_category = get_factor_category(factor_name)
+    return f"factor/factors/{factor_category}/{factor_name}/{factor_name}_{year}.parquet"
 
 
 def load_factor_basic_for_factor_year(

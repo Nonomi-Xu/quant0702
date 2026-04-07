@@ -5,6 +5,7 @@ from datetime import date
 import polars as pl
 
 from resources.parquet_io import ParquetResource
+from src.factor.assets.factors.factor_registry import get_factor_category
 
 from .config import FactorAnalysisConfig
 
@@ -17,8 +18,12 @@ def read_factor_values(
     config: FactorAnalysisConfig,
 ) -> pl.DataFrame:
     frames: list[pl.DataFrame] = []
+    factor_category = get_factor_category(config.factor_name)
     for year in config.years:
-        path = f"{config.factor_base_path}/{config.factor_name}/{config.factor_name}_{year}.parquet"
+        path = (
+            f"{config.factor_base_path}/{factor_category}/"
+            f"{config.factor_name}/{config.factor_name}_{year}.parquet"
+        )
         if not parquet_resource.exists(path):
             continue
         frame = parquet_resource.read(path_extension=path, force_download=True)

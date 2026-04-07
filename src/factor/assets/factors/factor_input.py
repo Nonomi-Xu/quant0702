@@ -1,9 +1,10 @@
 import time
+import os
 import dagster as dg
 import polars as pl
 import pandas as pd
 import gc
-from datetime import datetime
+from datetime import datetime, timedelta
 from resources.parquet_io import ParquetResource
 
 from src.factor.assets.basic.daily_factor_basic_parquet import Daily_Factor_Basic
@@ -12,6 +13,9 @@ from src.basic.assets.data_ingestion.daily.read_date import read_past_date, read
 from src.basic.assets.data_ingestion.daily.env_api import _get_default_start_date_
 
 from .factor_registry import load_factor_function, get_factor_category, FACTOR_LIST
+
+
+FACTOR_CONTEXT_CALENDAR_DAYS = int(os.environ.get("FACTOR_CONTEXT_CALENDAR_DAYS", "500"))
 
 
 @dg.asset(
@@ -39,8 +43,11 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
     failed_factors: list[str] = []
     factor_update_stats: dict[str, dict] = {}
     any_updated = False
+    factor_items = get_selected_factor_items()
+    if len(factor_items) != len(FACTOR_LIST):
+        context.log.info(f"本次仅处理指定因子: {[name for name, _ in factor_items]}")
 
-    for factor_name, spec in FACTOR_LIST.items():
+    for factor_name, spec in factor_items:
         factor_rows = 0
         factor_days = 0
         factor_modes: dict[str, str] = {}
@@ -66,16 +73,6 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 try:
                     output_file_path = build_factor_output_path(factor_name, year)
                     output_columns = spec.get("output_columns", [factor_name])
-
-                    try:
-                        df_factor_basic = load_factor_basic_for_factor_year(
-                            parquet_resource=parquet_resource,
-                            year=year,
-                            factor_name=factor_name,
-                        )
-                    except Exception as e:
-                        context.log.warning(f"年份 {year} 因子 {factor_name} 基础数据读取失败，跳过: {e}")
-                        continue
 
                     year_start = max(
                         factor_start_date_obj,
@@ -129,6 +126,17 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                         f"年份 {year} 因子 {factor_name} 开始处理，目标交易日数: {len(missing_dates)}，模式: {update_mode}"
                     )
 
+                    try:
+                        df_factor_basic = load_factor_basic_for_factor_year(
+                            parquet_resource=parquet_resource,
+                            year=year,
+                            factor_name=factor_name,
+                            target_dates=missing_dates,
+                        )
+                    except Exception as e:
+                        context.log.warning(f"年份 {year} 因子 {factor_name} 基础数据读取失败，跳过: {e}")
+                        continue
+
                     result_df = build_single_factor_frame_for_dates(
                         context=context,
                         df_factor_basic=df_factor_basic,
@@ -162,9 +170,11 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                             final_written_df = result_df
                             update_mode = "append"
                         else:
-                            existing_df = parquet_resource.read(
+                            existing_df = parquet_resource.read_columns(
                                 path_extension=output_file_path,
+                                columns=["ts_code", "trade_date", *output_columns],
                                 force_download=True,
+                                strict=False,
                             )
                             existing_df = normalize_single_factor_schema(
                                 df=existing_df,
@@ -259,9 +269,11 @@ def resolve_factor_start_date(
     for year in range(current_year, default_start_year - 1, -1):
         file_path = build_factor_output_path(factor_name, year)
         try:
-            df = parquet_resource.read(
+            df = parquet_resource.read_columns(
                 path_extension=file_path,
+                columns=["trade_date"],
                 force_download=True,
+                strict=False,
             )
             if df.height == 0 or "trade_date" not in df.columns:
                 continue
@@ -289,6 +301,25 @@ def resolve_factor_start_date(
     return default_start_date
 
 
+def get_selected_factor_items() -> list[tuple[str, dict]]:
+    """
+    可选通过环境变量 FACTOR_NAMES 限制本次计算的因子，降低小规格服务器内存压力。
+
+    例：
+    FACTOR_NAMES=relative_strength_index_6,on_balance_volume
+    """
+    raw_names = os.environ.get("FACTOR_NAMES", "").strip()
+    if not raw_names:
+        return list(FACTOR_LIST.items())
+
+    selected_names = [name.strip() for name in raw_names.split(",") if name.strip()]
+    unknown_names = [name for name in selected_names if name not in FACTOR_LIST]
+    if unknown_names:
+        raise ValueError(f"FACTOR_NAMES 包含未知因子: {unknown_names}")
+
+    return [(name, FACTOR_LIST[name]) for name in selected_names]
+
+
 def build_factor_output_path(factor_name: str, year: int) -> str:
     factor_category = get_factor_category(factor_name)
     return f"factor/factors/{factor_category}/{factor_name}/{factor_name}_{year}.parquet"
@@ -298,6 +329,7 @@ def load_factor_basic_for_factor_year(
     parquet_resource: ParquetResource,
     year: int,
     factor_name: str,
+    target_dates: list | None = None,
 ) -> pl.DataFrame:
     """
     每个因子每年只读取：
@@ -311,15 +343,27 @@ def load_factor_basic_for_factor_year(
     """
     required_fields = FACTOR_LIST[factor_name].get("required_fields", [])
     select_columns = list(dict.fromkeys(["ts_code", "trade_date", *required_fields]))
+    start_date = None
+    end_date = None
+    if target_dates:
+        start_date = min(target_dates) - timedelta(days=FACTOR_CONTEXT_CALENDAR_DAYS)
+        end_date = max(target_dates)
 
     current_path = f"factor/basic/factor_basic_{year}.parquet"
-    df_current = parquet_resource.read(
+    df_current = parquet_resource.read_columns(
         path_extension=current_path,
+        columns=select_columns,
         force_download=True,
+        strict=False,
     )
+    if df_current.is_empty() or not {"ts_code", "trade_date"}.issubset(set(df_current.columns)):
+        raise ValueError(f"{current_path} 缺少必要键列或数据为空")
     df_current = (
-        df_current
-        .select([c for c in select_columns if c in df_current.columns])
+        filter_factor_context(
+            df_current.select([c for c in select_columns if c in df_current.columns]),
+            start_date=start_date,
+            end_date=end_date,
+        )
         .sort(["ts_code", "trade_date"])
     )
 
@@ -328,13 +372,20 @@ def load_factor_basic_for_factor_year(
 
     previous_path = f"factor/basic/factor_basic_{year - 1}.parquet"
     try:
-        df_previous = parquet_resource.read(
+        df_previous = parquet_resource.read_columns(
             path_extension=previous_path,
+            columns=select_columns,
             force_download=True,
+            strict=False,
         )
+        if df_previous.is_empty() or not {"ts_code", "trade_date"}.issubset(set(df_previous.columns)):
+            return df_current
         df_previous = (
-            df_previous
-            .select([c for c in select_columns if c in df_previous.columns])
+            filter_factor_context(
+                df_previous.select([c for c in select_columns if c in df_previous.columns]),
+                start_date=start_date,
+                end_date=end_date,
+            )
             .sort(["ts_code", "trade_date"])
         )
 
@@ -346,6 +397,20 @@ def load_factor_basic_for_factor_year(
         return df_current
     finally:
         gc.collect()
+
+
+def filter_factor_context(
+    frame: pl.DataFrame,
+    start_date,
+    end_date,
+) -> pl.DataFrame:
+    if frame.is_empty() or start_date is None or end_date is None or "trade_date" not in frame.columns:
+        return frame
+    return (
+        frame
+        .with_columns(pl.col("trade_date").cast(pl.Date))
+        .filter((pl.col("trade_date") >= start_date) & (pl.col("trade_date") <= end_date))
+    )
 
 
 def build_single_factor_frame_for_dates(
@@ -422,10 +487,14 @@ def read_existing_trade_dates(
     parquet_resource: ParquetResource,
     path_extension: str,
 ) -> list:
-    df = parquet_resource.read(
+    df = parquet_resource.read_columns(
         path_extension=path_extension,
+        columns=["trade_date"],
         force_download=True,
+        strict=False,
     )
+    if df.is_empty() or "trade_date" not in df.columns:
+        return []
     dates = (
         df.select("trade_date")
         .unique()

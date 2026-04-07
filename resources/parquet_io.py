@@ -209,6 +209,29 @@ class COSParquetManager:
 
         return pl.read_parquet(local_path)
 
+    def read_parquet_columns(
+        self,
+        path_extension: str,
+        columns: list[str],
+        force_download: bool = False,
+        strict: bool = False,
+    ) -> pl.DataFrame:
+        local_path = self.download_file(path_extension, force=force_download)
+
+        # 如果COS没有文件，则返回空DataFrame
+        if local_path is None or not local_path.exists():
+            return pl.DataFrame()
+
+        schema = pl.read_parquet_schema(local_path)
+        selected_columns = [column for column in columns if column in schema]
+        missing_columns = [column for column in columns if column not in schema]
+        if strict and missing_columns:
+            raise ValueError(f"{path_extension} 缺少必要列: {missing_columns}")
+        if not selected_columns:
+            return pl.DataFrame()
+
+        return pl.read_parquet(local_path, columns=selected_columns)
+
     def write_parquet(
         self,
         df: pl.DataFrame,
@@ -360,6 +383,20 @@ class ParquetResource:
 
     def read(self, path_extension: str, force_download: bool = False) -> pl.DataFrame:
         return self.manager.read_parquet(path_extension, force_download=force_download)
+
+    def read_columns(
+        self,
+        path_extension: str,
+        columns: list[str],
+        force_download: bool = False,
+        strict: bool = False,
+    ) -> pl.DataFrame:
+        return self.manager.read_parquet_columns(
+            path_extension=path_extension,
+            columns=columns,
+            force_download=force_download,
+            strict=strict,
+        )
 
     def write(
         self,

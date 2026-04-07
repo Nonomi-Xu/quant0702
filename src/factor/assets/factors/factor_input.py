@@ -11,7 +11,6 @@ from src.factor.assets.basic.daily_factor_basic_parquet import Daily_Factor_Basi
 from src.basic.assets.data_ingestion.daily.read_date import read_past_date, read_trade_cal, cal_day_length
 from src.basic.assets.data_ingestion.daily.env_api import _get_default_start_date_
 
-from .read_past_date import read_past_column_name
 from .factor_registry import load_factor_function, FACTOR_LIST
 
 

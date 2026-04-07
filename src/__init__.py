@@ -11,10 +11,13 @@ from .basic import (
 
 from .factor import (
     get_Daily_Factor_defs,
+    get_Factor_Analysis_defs,
 )
+
 
 __all__ = [
     # 'get_Data_Ingestion_Start_INFO_assets_defs',
     'get_Data_Ingestion_Daily_defs',
     'get_Daily_Factor_defs',
+    'get_Factor_Analysis_defs'
 ]

@@ -11,6 +11,7 @@ from src.basic import (
 )
 from src.factor import (
     get_Daily_Factor_defs,
+    get_Factor_Analysis_defs,
 )
 
 @dg.definitions
@@ -19,6 +20,7 @@ def defs():
     # Data_Ingestion_Start_INFO_assets_defs = get_Data_Ingestion_Start_INFO_assets_defs()
     Data_Ingestion_Daily_defs = get_Data_Ingestion_Daily_defs()
     Daily_Factor_defs = get_Daily_Factor_defs()
+    Factor_Analysis_defs = get_Factor_Analysis_defs()
     
     global_defs = dg.Definitions(
         resources={
@@ -32,6 +34,7 @@ def defs():
         # Data_Ingestion_Start_INFO_assets_defs,
         Data_Ingestion_Daily_defs,
         Daily_Factor_defs,
+        Factor_Analysis_defs,
         global_defs
     )
 

@@ -172,7 +172,7 @@ def Daily_adj_factor_hfq(context: dg.AssetExecutionContext) -> dg.MaterializeRes
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = f"adj_factor/hfq/hfq_{year}.parquet"
+            file_path = f"data/adj_factor/hfq/hfq_{year}.parquet"
 
             parquet_resource = ParquetResource()
             parquet_resource.append_file(

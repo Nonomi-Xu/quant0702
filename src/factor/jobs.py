@@ -9,7 +9,7 @@ Daily_Factor_Job = dg.define_asset_job(
 
 Factor_Analysis_Job = dg.define_asset_job(
     name="Factor_Alalysis_Job",
-    selection=dg.AssetSelection.groups("Factor Analysis"), 
+    selection=dg.AssetSelection.groups("factor_analysis"), 
     description="分析因子各项数据"
 )
 

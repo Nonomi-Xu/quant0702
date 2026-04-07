@@ -1,0 +1,23 @@
+from __future__ import annotations
+
+import polars as pl
+
+
+EXPMA_WINDOW = 50
+EXPMA_COLUMN = f"exponential_average_{EXPMA_WINDOW}"
+
+
+def compute_exponential_average_50(frame: pl.DataFrame) -> pl.DataFrame:
+    r"""
+    EMA 指数平均数指标，参数 N2=50。
+
+    定义：
+
+        EXPMA_t = alpha * C_t + (1 - alpha) * EXPMA_{t-1}
+        alpha = 2 / (50 + 1)
+    """
+    return frame.select(
+        "trade_date",
+        "ts_code",
+        pl.col("close_hfq").ewm_mean(span=EXPMA_WINDOW, adjust=False).over("ts_code").alias(EXPMA_COLUMN),
+    )

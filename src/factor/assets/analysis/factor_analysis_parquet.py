@@ -15,7 +15,7 @@ from .pipeline import run_factor_analysis
 
 
 @dg.asset(
-    group_name="Factor Analysis",
+    group_name="factor_analysis",
     description="读取云端单因子结果并生成 IC、分组收益、多空收益和覆盖率监控表",
     deps=[Daily_Factor_Input, Daily_Stock_List_Active, Daily_Stock_List_Now],
 )

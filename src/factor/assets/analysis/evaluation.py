@@ -20,8 +20,12 @@ def evaluate_factor(
         sample = frame.select("trade_date", "ts_code", config.factor_name, label_column).drop_nulls()
         ic_values: list[float] = []
         long_short_values: list[float] = []
+        long_short_gross_values: list[float] = []
+        transaction_cost_values: list[float] = []
         long_group_holdings: list[set[str]] = []
         short_group_holdings: list[set[str]] = []
+        previous_long_holdings: set[str] | None = None
+        previous_short_holdings: set[str] | None = None
 
         for date_sample in sample.partition_by("trade_date", maintain_order=True):
             date_value = date_sample.item(0, "trade_date")
@@ -50,20 +54,33 @@ def evaluate_factor(
             )
             group_return = grouped.group_by("_group").agg(pl.col(label_column).mean().alias("forward_return"))
             group_map = {row["_group"]: row["forward_return"] for row in group_return.to_dicts()}
-            long_short = safe_subtract(group_map.get(config.group_count), group_map.get(1))
-            if long_short is not None:
-                long_short_values.append(long_short)
+            long_short_gross = safe_subtract(group_map.get(config.group_count), group_map.get(1))
 
-            long_group_holdings.append(
-                set(grouped.filter(pl.col("_group") == config.group_count).get_column("ts_code").to_list())
+            current_long_holdings = set(grouped.filter(pl.col("_group") == config.group_count).get_column("ts_code").to_list())
+            current_short_holdings = set(grouped.filter(pl.col("_group") == 1).get_column("ts_code").to_list())
+            long_turnover = pair_turnover(previous_long_holdings, current_long_holdings)
+            short_turnover = pair_turnover(previous_short_holdings, current_short_holdings)
+            transaction_cost = (
+                one_leg_rebalance_cost(long_turnover, config)
+                + one_leg_rebalance_cost(short_turnover, config)
             )
-            short_group_holdings.append(
-                set(grouped.filter(pl.col("_group") == 1).get_column("ts_code").to_list())
-            )
+            long_short = long_short_gross - transaction_cost if long_short_gross is not None else None
+
+            if long_short is not None and long_short_gross is not None:
+                long_short_values.append(long_short)
+                long_short_gross_values.append(long_short_gross)
+                transaction_cost_values.append(transaction_cost)
+
+            long_group_holdings.append(current_long_holdings)
+            short_group_holdings.append(current_short_holdings)
+            previous_long_holdings = current_long_holdings
+            previous_short_holdings = current_short_holdings
 
             group_row: dict[str, object] = {"factor": config.factor_name, "trade_date": date_value, "horizon": horizon}
             for group_id in range(1, config.group_count + 1):
                 group_row[f"group_{group_id}"] = group_map.get(group_id)
+            group_row["long_short_gross"] = long_short_gross
+            group_row["transaction_cost"] = transaction_cost
             group_row["long_short"] = long_short
             group_rows.append(group_row)
 
@@ -83,12 +100,14 @@ def evaluate_factor(
                     safe_divide(sum(1 for value in ic_values if value > 0), len(ic_values)),
                     6,
                 ),
+                "long_short_gross_mean": round(mean(long_short_gross_values), 6),
                 "long_short_mean": round(mean(long_short_values), 6),
                 "long_short_sharpe": round(
                     safe_divide(mean(long_short_values), std(long_short_values)) * math.sqrt(252 / max(horizon, 1)),
                     6,
                 ),
                 "long_short_max_drawdown": round(max_drawdown(long_short_values), 6),
+                "transaction_cost_mean": round(mean(transaction_cost_values), 6),
                 "win_rate": round(
                     safe_divide(sum(1 for value in long_short_values if value > 0), len(long_short_values)),
                     6,
@@ -140,6 +159,19 @@ def average_turnover(holdings_by_date: list[set[str]]) -> float:
         turnover_values.append(1 - safe_divide(kept_count, len(previous_holdings)))
 
     return mean(turnover_values)
+
+
+def pair_turnover(previous_holdings: set[str] | None, current_holdings: set[str]) -> float:
+    if previous_holdings is None or not previous_holdings:
+        return 0.0
+    kept_count = len(previous_holdings & current_holdings)
+    return 1 - safe_divide(kept_count, len(previous_holdings))
+
+
+def one_leg_rebalance_cost(turnover: float, config: FactorAnalysisConfig) -> float:
+    buy_cost = config.commission_rate + config.slippage_rate
+    sell_cost = config.commission_rate + config.stamp_tax_rate + config.slippage_rate
+    return turnover * (buy_cost + sell_cost)
 
 
 def max_drawdown(returns: list[float]) -> float:

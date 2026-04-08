@@ -12,6 +12,12 @@ from .config import FactorAnalysisConfig
 
 KEY_COLUMNS = ["ts_code", "trade_date"]
 SUMMARY_REFRESH_DAYS = 25
+REQUIRED_SUMMARY_COLUMNS = {
+    "updated_at",
+    "ic_positive_ratio",
+    "long_short_gross_mean",
+    "transaction_cost_mean",
+}
 
 
 def read_factor_values(
@@ -181,10 +187,10 @@ def latest_existing_summary_update(
 
         summary = parquet_resource.read_columns(
             path_extension=path,
-            columns=["updated_at"],
+            columns=sorted(REQUIRED_SUMMARY_COLUMNS),
             force_download=True,
         )
-        if summary.is_empty() or "updated_at" not in summary.columns:
+        if summary.is_empty() or not REQUIRED_SUMMARY_COLUMNS.issubset(summary.columns):
             return None
 
         parsed_dates = [

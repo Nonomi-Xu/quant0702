@@ -22,6 +22,9 @@ class FactorAnalysisConfig:
     neutralize_size: bool = True
     neutralize_liquidity: bool = True
     write_prepared_factor: bool = False
+    commission_rate: float = 0.003
+    stamp_tax_rate: float = 0.001
+    slippage_rate: float = 0.001
 
     @property
     def years(self) -> range:

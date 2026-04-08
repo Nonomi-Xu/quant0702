@@ -13,32 +13,38 @@ def compute_price_momentum_index_20(frame: pl.DataFrame) -> pl.DataFrame:
 
     定义：
 
-        MID_t = (H_t + L_t + C_t) / 3
-        REF_MID_t = MID_{t-1}
+        PREV_MID_t = (H_{t-1} + L_{t-1}) / 2
 
-        CR_t = sum(max(0, H_t - REF_MID_t), ..., max(0, H_{t-19} - REF_MID_{t-19}))
-               / sum(max(0, REF_MID_t - L_t), ..., max(0, REF_MID_{t-19} - L_{t-19}))
+        CR_t = sum(max(0, H_t - PREV_MID_t), ..., max(0, H_{t-19} - PREV_MID_{t-19}))
+               / sum(max(0, PREV_MID_t - L_t), ..., max(0, PREV_MID_{t-19} - L_{t-19}))
                * 100
     """
-    base = frame.select(
-        "trade_date",
-        "ts_code",
-        ((pl.col("high_hfq") + pl.col("low_hfq") + pl.col("close_hfq")) / 3).alias("mid_price"),
-        pl.col("high_hfq"),
-        pl.col("low_hfq"),
-    ).with_columns(
-        pl.col("mid_price").shift(1).over("ts_code").alias("prev_mid_price")
-    ).select(
-        "trade_date",
-        "ts_code",
-        pl.when(pl.col("prev_mid_price").is_null())
-        .then(None)
-        .otherwise((pl.col("high_hfq") - pl.col("prev_mid_price")).clip(lower_bound=0))
-        .alias("cr_up"),
-        pl.when(pl.col("prev_mid_price").is_null())
-        .then(None)
-        .otherwise((pl.col("prev_mid_price") - pl.col("low_hfq")).clip(lower_bound=0))
-        .alias("cr_down"),
+    base = (
+        frame.select(
+            "trade_date",
+            "ts_code",
+            pl.col("high_hfq"),
+            pl.col("low_hfq"),
+        )
+        .sort(["ts_code", "trade_date"])
+        .with_columns(
+            ((pl.col("high_hfq") + pl.col("low_hfq")) / 2)
+            .shift(1)
+            .over("ts_code")
+            .alias("prev_mid_price")
+        )
+        .select(
+            "trade_date",
+            "ts_code",
+            pl.when(pl.col("prev_mid_price").is_null())
+            .then(None)
+            .otherwise((pl.col("high_hfq") - pl.col("prev_mid_price")).clip(lower_bound=0))
+            .alias("cr_up"),
+            pl.when(pl.col("prev_mid_price").is_null())
+            .then(None)
+            .otherwise((pl.col("prev_mid_price") - pl.col("low_hfq")).clip(lower_bound=0))
+            .alias("cr_down"),
+        )
     )
 
     rolling = base.select(

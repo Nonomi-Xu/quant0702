@@ -137,7 +137,7 @@ def Daily_Stock_List_Active(context: dg.AssetExecutionContext) -> dg.Materialize
         year_df = (
             df
             .filter(pl.col("trade_date").is_in(trade_dates_date))
-            .select(["ts_code", "trade_date"])
+            .select(["ts_code", "trade_date", "amount_20d_avg", "turnover_rate_20d_avg"])
             .sort(["trade_date", "ts_code"])
         )
 

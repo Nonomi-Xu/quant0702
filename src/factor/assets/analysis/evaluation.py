@@ -79,6 +79,10 @@ def evaluate_factor(
                     safe_divide(sum(1 for value in ic_values if abs(value) > 0.02), len(ic_values)),
                     6,
                 ),
+                "ic_positive_ratio": round(
+                    safe_divide(sum(1 for value in ic_values if value > 0), len(ic_values)),
+                    6,
+                ),
                 "long_short_mean": round(mean(long_short_values), 6),
                 "long_short_sharpe": round(
                     safe_divide(mean(long_short_values), std(long_short_values)) * math.sqrt(252 / max(horizon, 1)),
@@ -93,6 +97,7 @@ def evaluate_factor(
                 "short_group_turnover": round(short_group_turnover, 6),
                 "long_short_turnover": round(mean([long_group_turnover, short_group_turnover]), 6),
                 "ic_observations": len(ic_values),
+                "updated_at": config.end_date,
             }
         )
 

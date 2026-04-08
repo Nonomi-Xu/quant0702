@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 
 import polars as pl
 
@@ -11,6 +11,7 @@ from .config import FactorAnalysisConfig
 
 
 KEY_COLUMNS = ["ts_code", "trade_date"]
+SUMMARY_REFRESH_DAYS = 25
 
 
 def read_factor_values(
@@ -144,6 +145,71 @@ def write_analysis_outputs(
             path_extension=f"{config.analysis_base_path}/{config.factor_name}/{name}.parquet",
             compression="zstd",
         )
+
+
+def summary_path(config: FactorAnalysisConfig, horizon: int) -> str:
+    return f"{config.analysis_base_path}/{config.factor_name}/horizon_{horizon}/summary.parquet"
+
+
+def parse_summary_updated_at(value: object) -> date | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+
+    text = str(value).strip()
+    if not text:
+        return None
+
+    try:
+        return date.fromisoformat(text[:10])
+    except ValueError:
+        return None
+
+
+def latest_existing_summary_update(
+    parquet_resource: ParquetResource,
+    config: FactorAnalysisConfig,
+) -> date | None:
+    horizon_dates: list[date] = []
+    for horizon in config.horizons:
+        path = summary_path(config, horizon)
+        if not parquet_resource.exists(path):
+            return None
+
+        summary = parquet_resource.read_columns(
+            path_extension=path,
+            columns=["updated_at"],
+            force_download=True,
+        )
+        if summary.is_empty() or "updated_at" not in summary.columns:
+            return None
+
+        parsed_dates = [
+            parsed
+            for parsed in (parse_summary_updated_at(value) for value in summary.get_column("updated_at").to_list())
+            if parsed is not None
+        ]
+        if not parsed_dates:
+            return None
+        horizon_dates.append(max(parsed_dates))
+
+    if not horizon_dates:
+        return None
+    return min(horizon_dates)
+
+
+def should_skip_recent_summary(
+    parquet_resource: ParquetResource,
+    config: FactorAnalysisConfig,
+    refresh_days: int = SUMMARY_REFRESH_DAYS,
+) -> tuple[bool, date | None]:
+    updated_at = latest_existing_summary_update(parquet_resource, config)
+    if updated_at is None:
+        return False, None
+    return (config.end_date - updated_at).days <= refresh_days, updated_at
 
 
 def filter_date_range(frame: pl.DataFrame, start_date: date, end_date: date) -> pl.DataFrame:

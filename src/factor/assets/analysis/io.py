@@ -17,6 +17,9 @@ REQUIRED_SUMMARY_COLUMNS = {
     "ic_positive_ratio",
     "long_short_gross_mean",
     "transaction_cost_mean",
+    "avg_daily_sample_count",
+    "min_daily_sample_count",
+    "max_daily_sample_count",
 }
 
 

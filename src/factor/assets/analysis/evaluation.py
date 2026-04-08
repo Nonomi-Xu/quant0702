@@ -19,6 +19,7 @@ def evaluate_factor(
         label_column = f"forward_return_{horizon}"
         sample = frame.select("trade_date", "ts_code", config.factor_name, label_column).drop_nulls()
         ic_values: list[float] = []
+        daily_sample_counts: list[int] = []
         long_short_values: list[float] = []
         long_short_gross_values: list[float] = []
         transaction_cost_values: list[float] = []
@@ -43,10 +44,19 @@ def evaluate_factor(
                 ranked.get_column("_factor_rank").to_list(),
                 ranked.get_column("_return_rank").to_list(),
             )
-            ic_values.append(ic_value)
-            ic_rows.append({"factor": config.factor_name, "trade_date": date_value, "horizon": horizon, "ic": ic_value})
-
             n_obs = ranked.height
+            ic_values.append(ic_value)
+            daily_sample_counts.append(n_obs)
+            ic_rows.append(
+                {
+                    "factor": config.factor_name,
+                    "trade_date": date_value,
+                    "horizon": horizon,
+                    "ic": ic_value,
+                    "sample_count": n_obs,
+                }
+            )
+
             grouped = ranked.with_columns(
                 (((pl.arange(0, pl.len()) * config.group_count) / n_obs).floor().cast(pl.Int64) + 1)
                 .clip(1, config.group_count)
@@ -116,6 +126,9 @@ def evaluate_factor(
                 "short_group_turnover": round(short_group_turnover, 6),
                 "long_short_turnover": round(mean([long_group_turnover, short_group_turnover]), 6),
                 "ic_observations": len(ic_values),
+                "avg_daily_sample_count": round(mean(daily_sample_counts), 2),
+                "min_daily_sample_count": min(daily_sample_counts) if daily_sample_counts else 0,
+                "max_daily_sample_count": max(daily_sample_counts) if daily_sample_counts else 0,
                 "updated_at": config.end_date,
             }
         )

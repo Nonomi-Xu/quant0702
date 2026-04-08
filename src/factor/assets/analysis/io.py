@@ -13,13 +13,26 @@ from .config import FactorAnalysisConfig
 KEY_COLUMNS = ["ts_code", "trade_date"]
 SUMMARY_REFRESH_DAYS = 25
 REQUIRED_SUMMARY_COLUMNS = {
-    "updated_at",
+    "factor",
+    "horizon",
+    "ic_mean",
+    "ic_ir",
+    "ic_abs_gt_002_ratio",
     "ic_positive_ratio",
     "long_short_gross_mean",
+    "long_short_mean",
+    "long_short_sharpe",
+    "long_short_max_drawdown",
     "transaction_cost_mean",
+    "win_rate",
+    "long_group_turnover",
+    "short_group_turnover",
+    "long_short_turnover",
+    "ic_observations",
     "avg_daily_sample_count",
     "min_daily_sample_count",
     "max_daily_sample_count",
+    "updated_at",
 }
 
 
@@ -188,11 +201,16 @@ def latest_existing_summary_update(
         if not parquet_resource.exists(path):
             return None
 
-        summary = parquet_resource.read_columns(
-            path_extension=path,
-            columns=sorted(REQUIRED_SUMMARY_COLUMNS),
-            force_download=True,
-        )
+        try:
+            summary = parquet_resource.read_columns(
+                path_extension=path,
+                columns=sorted(REQUIRED_SUMMARY_COLUMNS),
+                force_download=True,
+                strict=True,
+            )
+        except Exception:
+            return None
+
         if summary.is_empty() or not REQUIRED_SUMMARY_COLUMNS.issubset(summary.columns):
             return None
 

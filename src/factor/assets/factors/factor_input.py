@@ -44,10 +44,13 @@ def Daily_Factor_Input(context: dg.AssetExecutionContext) -> dg.MaterializeResul
     factor_update_stats: dict[str, dict] = {}
     any_updated = False
     factor_items = get_selected_factor_items()
+    factor_counts = 0
     if len(factor_items) != len(FACTOR_LIST):
         context.log.info(f"本次仅处理指定因子: {[name for name, _ in factor_items]}")
 
     for factor_name, spec in factor_items:
+        factor_counts += 1
+        context.log.info(f"处理因子进度 {factor_counts}/{len(FACTOR_LIST)}")
         factor_rows = 0
         factor_days = 0
         factor_modes: dict[str, str] = {}

@@ -46,13 +46,28 @@ def compute_momentum_504_21_126(frame: pl.DataFrame) -> pl.DataFrame:
             .over("ts_code")
             .alias("lagged_log_return")
         )
+        .with_columns(
+            [
+                pl.col("lagged_log_return").fill_null(0).alias("lagged_log_return_filled"),
+                pl.col("lagged_log_return")
+                .is_not_null()
+                .cast(pl.Int64)
+                .rolling_sum(window_size=MOMENTUM_WINDOW)
+                .over("ts_code")
+                .alias("valid_return_count"),
+            ]
+        )
     )
 
     return returns.select(
         "trade_date",
         "ts_code",
-        pl.col("lagged_log_return")
-        .rolling_sum(window_size=MOMENTUM_WINDOW, weights=weights)
-        .over("ts_code")
+        pl.when(pl.col("valid_return_count") < MOMENTUM_WINDOW)
+        .then(None)
+        .otherwise(
+            pl.col("lagged_log_return_filled")
+            .rolling_sum(window_size=MOMENTUM_WINDOW, weights=weights)
+            .over("ts_code")
+        )
         .alias(MOMENTUM_COLUMN),
     )

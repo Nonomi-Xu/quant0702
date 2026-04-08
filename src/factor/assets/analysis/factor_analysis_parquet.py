@@ -28,8 +28,11 @@ def Factor_Analysis(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     empty_factors = 0
     skipped_recent_factors = 0
     total_summary_rows = 0
+    factor_counts = 0
 
     for factor_name in FACTOR_LIST:
+        factor_counts += 1
+        context.log.info(f"处理因子进度 {factor_counts}/{len(FACTOR_LIST)}")
         config = FactorAnalysisConfig(
             factor_name=factor_name,
             start_date=start_date,

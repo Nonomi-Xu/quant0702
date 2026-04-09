@@ -17,7 +17,7 @@ def read_active_universe(
     required_columns = [*KEY_COLUMNS, "amount_20d_avg", "turnover_rate_20d_avg"]
 
     for year in config.years:
-        path = f"{config.active_universe_base_path}/stock_list_active_{year}.parquet"
+        path = f"{config.active_universe_base_path}/stock_active_list_{year}.parquet"
         if not parquet_resource.exists(path):
             continue
 

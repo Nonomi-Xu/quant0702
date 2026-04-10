@@ -12,7 +12,7 @@ from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
 from src.shared.cal_day_length import cal_day_length
 
-FILE_PATH_FRONT = "data/stock/stock_money_flow/stock_money_flow/"
+FILE_PATH_BASE = "data/stock/stock_money_flow/stock_money_flow"
 FILE_NAME = "stock_money_flow"
 
 @dg.asset(
@@ -31,7 +31,7 @@ def Stock_Money_Flow_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeR
     tushare_api = TushareClient()
     
     start_date = read_past_date(context = context, 
-                                file_path_front = FILE_PATH_FRONT,
+                                file_path_base = FILE_PATH_BASE,
                                 file_name = FILE_NAME,
                                 mode = "yearly",
                                 current_year = current_year
@@ -45,7 +45,7 @@ def Stock_Money_Flow_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeR
 
     if not date_list:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
-        file_path = FILE_PATH_FRONT + FILE_NAME + f"_{current_year}.parquet"
+        file_path = f"{FILE_PATH_BASE}/{FILE_NAME}_{current_year}.parquet"
         return dg.MaterializeResult(
             metadata={
                 "status": dg.MetadataValue.text("up_to_date"),
@@ -106,7 +106,7 @@ def Stock_Money_Flow_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeR
                 .sort(["trade_date", "ts_code"])
             )
 
-            file_path = FILE_PATH_FRONT + FILE_NAME + f"_{year}.parquet"
+            file_path = f"{FILE_PATH_BASE}/{FILE_NAME}_{year}.parquet"
 
             parquet_resource.append_file(
                 df=year_df,

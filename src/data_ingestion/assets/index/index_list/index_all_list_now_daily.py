@@ -11,7 +11,7 @@ from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
 from src.shared.cal_day_length import cal_day_length
 
-FILE_PATH_FRONT = "data/index/index_list/"
+FILE_PATH_BASE = "data/index/index_list"
 FILE_NAME = "index_all_list_now"
 
 @dg.asset(
@@ -32,7 +32,7 @@ def Index_All_List_Now_Daily(context: dg.AssetExecutionContext) -> dg.Materializ
     
     
     start_date = read_past_date(context = context, 
-                                file_path_front = FILE_PATH_FRONT,
+                                file_path_base = FILE_PATH_BASE,
                                 file_name = FILE_NAME,
                                 mode = "default",
                                 date_name = "last_update",
@@ -45,7 +45,7 @@ def Index_All_List_Now_Daily(context: dg.AssetExecutionContext) -> dg.Materializ
     date_list = cal_day_length(context = context, start_date = start_date, end_date = end_date)
 
     if not date_list:
-        file_path = FILE_PATH_FRONT + FILE_NAME + ".parquet"
+        file_path = f"{FILE_PATH_BASE}/{FILE_NAME}.parquet"
         context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
         return dg.MaterializeResult(
             metadata={
@@ -112,7 +112,7 @@ def Index_All_List_Now_Daily(context: dg.AssetExecutionContext) -> dg.Materializ
     context.log.info(f"字段列表: {pl_stocks_ts.columns}")
 
     # 写入 COS parquet
-    file_path = FILE_PATH_FRONT + FILE_NAME + ".parquet"
+    file_path = f"{FILE_PATH_BASE}/{FILE_NAME}.parquet"
     parquet_resource = ParquetResource()
     parquet_resource.write(
             df=pl_stocks_ts,

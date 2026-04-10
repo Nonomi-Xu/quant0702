@@ -17,7 +17,7 @@ from src.shared.read_past_date import read_past_date
 from src.shared.cal_day_length import cal_day_length
 from src.shared.validate_source_dates import validate_source_dates
 
-FILE_PATH_FRONT = "data/stock/stock_active_list/"
+FILE_PATH_BASE = "data/stock/stock_active_list"
 FILE_NAME = "stock_active_list"
 
 NEW_STOCK_DAYS = 120
@@ -53,7 +53,7 @@ def Stock_Active_List_Daily(context: dg.AssetExecutionContext) -> dg.Materialize
     parquet_resource = ParquetResource()
     
     start_date = read_past_date(context = context, 
-                                file_path_front = FILE_PATH_FRONT,
+                                file_path_base = FILE_PATH_BASE,
                                 file_name = FILE_NAME,
                                 mode = "yearly",
                                 current_year = current_year
@@ -65,7 +65,7 @@ def Stock_Active_List_Daily(context: dg.AssetExecutionContext) -> dg.Materialize
 
     if not date_list:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
-        file_path = FILE_PATH_FRONT + FILE_NAME + f"_{current_year}.parquet"
+        file_path = f"{FILE_PATH_BASE}/{FILE_NAME}_{current_year}.parquet"
         return dg.MaterializeResult(
             metadata={
                 "status": dg.MetadataValue.text("up_to_date"),
@@ -170,7 +170,7 @@ def Stock_Active_List_Daily(context: dg.AssetExecutionContext) -> dg.Materialize
             failed_days.extend(trade_dates)
             continue
 
-        output_file_path = FILE_PATH_FRONT + FILE_NAME + f"_{year}.parquet"
+        output_file_path = f"{FILE_PATH_BASE}/{FILE_NAME}_{year}.parquet"
         parquet_resource.append_file(
             df=year_df,
             path_extension=output_file_path,
@@ -269,4 +269,51 @@ def build_active_stock_list_frame(
         )
         .select(["ts_code", "trade_date", "amount_20d_avg", "turnover_rate_20d_avg"])
         .sort(["ts_code", "trade_date"])
+    )
+
+
+def load_stock_active_list(
+        parquet_resource: ParquetResource,
+        year: int | None = datetime.now().year,
+        mode: str | None = None
+    ) -> pl.DataFrame:
+    frames: list[pl.DataFrame] = []
+
+    if mode == "add past year":
+        year_list = [year - 1, year]
+    elif mode == "all years":
+        year_list = list(range(year, 2015, -1))
+    else:
+        year_list = [year]
+    
+    for source_year in year_list:
+        if source_year < 2016:
+            continue
+
+        file_path_daily = f"{FILE_PATH_BASE}/{FILE_NAME}_{source_year}.parquet"
+        try:
+            frame = parquet_resource.read(
+                path_extension=file_path_daily,
+                force_download=True,
+            )
+        except Exception:
+            if source_year == year:
+                raise
+            continue
+
+        if frame is None or frame.is_empty():
+            continue
+
+        frames.append(
+            frame
+            .with_columns(pl.col("trade_date").cast(pl.Date))
+        )
+
+    df = pl.concat(frames, how="vertical_relaxed")
+
+    if df.is_empty():
+        raise
+
+    return (
+        df.sort(["ts_code", "trade_date"])
     )

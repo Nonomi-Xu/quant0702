@@ -14,8 +14,8 @@ class FactorAnalysisConfig:
     winsor_quantile: float = 0.01
     min_sample_per_date: int = 20
     factor_base_path: str = "factor/factors"
-    basic_base_path: str = "factor/basic"
-    active_universe_base_path: str = "data/stock/stock_active_list/"
+    source_base_path: str = "data/factor/factor_source"
+    active_universe_base_path: str = "data/stock/stock_active_list"
     stock_list_path: str = "data/stock/stock_list/stock_list.parquet"
     analysis_base_path: str = "factor/analysis"
     neutralize_industry: bool = True

@@ -11,7 +11,7 @@ from src.shared.read_past_date import read_past_date
 from src.shared.cal_day_length import cal_day_length
 
 
-FILE_PATH_FRONT = "data/stock/stock_st_list/"
+FILE_PATH_BASE = "data/stock/stock_st_list"
 FILE_NAME = "stock_st_list"
 
 
@@ -32,7 +32,7 @@ def Stock_ST_List_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     tushare_api = TushareClient()
     
     start_date = read_past_date(context = context, 
-                                file_path_front = FILE_PATH_FRONT,
+                                file_path_base = FILE_PATH_BASE,
                                 file_name = FILE_NAME,
                                 mode = "default",
                                 )
@@ -43,7 +43,8 @@ def Stock_ST_List_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
     if not date_list:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
-        file_path = FILE_PATH_FRONT + FILE_NAME + ".parquet"
+        
+        file_path = f"{FILE_PATH_BASE}/{FILE_NAME}.parquet"
         return dg.MaterializeResult(
             metadata={
                 "status": dg.MetadataValue.text("up_to_date"),
@@ -140,7 +141,7 @@ def Stock_ST_List_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     context.log.info(f"字段列表: {df.columns}")
 
     # 写入 COS parquet
-    file_path = FILE_PATH_FRONT + FILE_NAME + ".parquet"
+    file_path = f"{FILE_PATH_BASE}/{FILE_NAME}.parquet"
     
     parquet_resource.append_file(
             df=df,

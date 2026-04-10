@@ -7,7 +7,7 @@ from .env_api import _get_default_start_date_
 
 def read_past_date(
         context: dg.AssetExecutionContext, 
-        file_path_front: str, 
+        file_path_base: str, 
         file_name: str,
         mode: str,
         date_name: str | None = "trade_date",
@@ -35,7 +35,7 @@ def read_past_date(
             while current_year_for_search >= _get_default_start_date_().year and not found_data:
                 
                 # 构建向前查找的文件路径
-                search_file_path = file_path_front + file_name + f"_{current_year_for_search}.parquet"
+                search_file_path = f"{file_path_base}/{file_name}_{current_year_for_search}.parquet"
                 context.log.info(f"读取年度文件: {search_file_path}")
                 
                 try:

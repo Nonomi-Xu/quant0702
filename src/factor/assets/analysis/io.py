@@ -6,6 +6,10 @@ import polars as pl
 
 from resources.parquet_io import ParquetResource
 from src.factor.assets.factors.factor_registry import get_factor_category
+from src.data_ingestion.assets.factor.factor_source_daily import load_factor_source
+from src.data_ingestion.assets.factor.factor_input_daily import load_factor
+from src.data_ingestion.assets.stock.stock_list.stock_list_now_daily import load_stock_list_now
+from src.data_ingestion.assets.stock.stock_active_list.stock_active_list_daily import load_stock_active_list
 
 from .config import FactorAnalysisConfig
 
@@ -36,27 +40,25 @@ REQUIRED_SUMMARY_COLUMNS = {
 }
 
 
-def read_factor_values(
+def read_factor(
     parquet_resource: ParquetResource,
     config: FactorAnalysisConfig,
 ) -> pl.DataFrame:
-    frames: list[pl.DataFrame] = []
-    factor_category = get_factor_category(config.factor_name)
-    for year in config.years:
-        path = (
-            f"{config.factor_base_path}/{factor_category}/"
-            f"{config.factor_name}/{config.factor_name}_{year}.parquet"
-        )
-        if not parquet_resource.exists(path):
-            continue
-        frame = parquet_resource.read(path_extension=path, force_download=True)
-        if frame is None or frame.is_empty():
-            continue
-        required_columns = [*KEY_COLUMNS, config.factor_name]
-        missing = [column for column in required_columns if column not in frame.columns]
-        if missing:
-            raise ValueError(f"{path} 缺少必要列: {missing}")
-        frames.append(frame.select(required_columns))
+    required_columns = [*KEY_COLUMNS, config.factor_name]
+
+    frames = load_factor(
+        parquet_resource = parquet_resource,
+        factor_name = {config.factor_name},
+        year = config.end_date.year,
+        mode = "all years",
+    )
+    
+    
+
+    missing = [column for column in required_columns if column not in frames.columns]
+    if missing:
+        raise ValueError(f" 缺少必要列: {missing}")
+    frames.append(frames.select(required_columns))
 
     if not frames:
         return pl.DataFrame(schema={"ts_code": pl.Utf8, "trade_date": pl.Date, config.factor_name: pl.Float64})
@@ -64,53 +66,48 @@ def read_factor_values(
     return filter_date_range(pl.concat(frames, how="vertical_relaxed"), config.start_date, config.end_date)
 
 
-def read_basic_values(
+def read_factor_source(
     parquet_resource: ParquetResource,
     config: FactorAnalysisConfig,
 ) -> pl.DataFrame:
-    frames: list[pl.DataFrame] = []
-    required_columns = ["ts_code", "trade_date", "close_hfq", "circ_mv"]
+    required_columns = [*KEY_COLUMNS, "circ_mv"]
 
-    for year in config.years:
-        path = f"{config.basic_base_path}/factor_basic_{year}.parquet"
-        if not parquet_resource.exists(path):
-            continue
-        frame = parquet_resource.read(path_extension=path, force_download=True)
-        if frame is None or frame.is_empty():
-            continue
-        missing = [column for column in required_columns if column not in frame.columns]
-        if missing:
-            raise ValueError(f"{path} 缺少必要列: {missing}")
-        frames.append(frame.select(required_columns))
+    frames = load_factor_source(
+        parquet_resource = parquet_resource,
+        year = config.end_date.year,
+        mode = "all years",
+    )
+    
+    
+    missing = [column for column in required_columns if column not in frames.columns]
+    if missing:
+        raise ValueError(f" 缺少必要列: {missing}")
+    frames.append(frames.select(required_columns))
 
     if not frames:
-        return pl.DataFrame(
-            schema={
-                "ts_code": pl.Utf8,
-                "trade_date": pl.Date,
-                "close_hfq": pl.Float64,
-                "circ_mv": pl.Float64,
-            }
-        )
+        return pl.DataFrame(schema={"ts_code": pl.Utf8, "trade_date": pl.Date, config.factor_name: pl.Float64})
 
-    return filter_date_range(pl.concat(frames, how="diagonal_relaxed"), config.start_date, config.end_date)
+    return filter_date_range(pl.concat(frames, how="vertical_relaxed"), config.start_date, config.end_date)
 
 
-def read_industry_values(
+def read_stock_list_now(
     parquet_resource: ParquetResource,
     config: FactorAnalysisConfig,
 ) -> pl.DataFrame:
     required_columns = ["ts_code", "industry"]
-    if not parquet_resource.exists(config.stock_list_path):
-        return pl.DataFrame(schema={"ts_code": pl.Utf8, "industry": pl.Utf8})
 
-    frame = parquet_resource.read(path_extension=config.stock_list_path, force_download=True)
-    if frame is None or frame.is_empty():
-        return pl.DataFrame(schema={"ts_code": pl.Utf8, "industry": pl.Utf8})
-
+    frame = load_stock_list_now(
+        parquet_resource = parquet_resource,
+    )
+    
+    
     missing = [column for column in required_columns if column not in frame.columns]
     if missing:
-        raise ValueError(f"{config.stock_list_path} 缺少必要列: {missing}")
+        raise ValueError(f" 缺少必要列: {missing}")
+    frame.append(frame.select(required_columns))
+
+    if not frame:
+        return pl.DataFrame(schema={"ts_code": pl.Utf8,  config.factor_name: pl.Float64})
 
     return (
         frame
@@ -120,57 +117,77 @@ def read_industry_values(
         .sort("ts_code")
     )
 
+def read_stock_active_list(
+    parquet_resource: ParquetResource,
+    config: FactorAnalysisConfig,
+) -> pl.DataFrame:
+    """读取 daily_stock_active_list 产出的可研究股票池。"""
+
+    required_columns = [*KEY_COLUMNS, "amount_20d_avg", "turnover_rate_20d_avg"]
+
+    frames = load_stock_active_list(
+        parquet_resource = parquet_resource,
+        year = config.end_date.year,
+        mode = "all years",
+    )
+    
+    
+    missing = [column for column in required_columns if column not in frames.columns]
+    if missing:
+        raise ValueError(f" 缺少必要列: {missing}")
+    frames.append(frames.select(required_columns))
+
+    if not frames:
+        return pl.DataFrame(schema={"ts_code": pl.Utf8, "trade_date": pl.Date, config.factor_name: pl.Float64})
+
+    return filter_date_range(pl.concat(frames, how="vertical_relaxed"), config.start_date, config.end_date)
 
 def write_analysis_outputs(
     parquet_resource: ParquetResource,
     config: FactorAnalysisConfig,
     outputs: dict[str, pl.DataFrame],
 ) -> None:
+    category = get_factor_category(config.factor_name)
     for name, frame in outputs.items():
         if name == "prepared_factor":
             if not config.write_prepared_factor:
                 continue
             parquet_resource.write(
                 df=frame,
-                path_extension=f"{config.analysis_base_path}/{config.factor_name}/{name}.parquet",
+                path_extension=f"{config.analysis_base_path}/{category}/{config.factor_name}/{name}.parquet",
                 compression="zstd",
             )
-            continue
 
-        if name in {"summary", "ic", "group_returns"}:
+        elif name in {"summary", "ic", "group_returns"}:
             for horizon in config.horizons:
                 horizon_frame = frame.filter(pl.col("horizon") == horizon) if "horizon" in frame.columns else frame
                 parquet_resource.write(
                     df=horizon_frame,
                     path_extension=(
-                        f"{config.analysis_base_path}/{config.factor_name}/"
+                        f"{config.analysis_base_path}/{category}/{config.factor_name}/"
                         f"horizon_{horizon}/{name}.parquet"
                     ),
                     compression="zstd",
                 )
-            continue
 
-        if name in {"monitor", "raw_monitor"}:
+        elif name in {"monitor", "raw_monitor"}:
             for horizon in config.horizons:
                 parquet_resource.write(
                     df=frame,
                     path_extension=(
-                        f"{config.analysis_base_path}/{config.factor_name}/"
+                        f"{config.analysis_base_path}/{category}/{config.factor_name}/"
                         f"horizon_{horizon}/{name}.parquet"
                     ),
                     compression="zstd",
                 )
             continue
-
-        parquet_resource.write(
-            df=frame,
-            path_extension=f"{config.analysis_base_path}/{config.factor_name}/{name}.parquet",
-            compression="zstd",
-        )
-
+        
+        else:
+            raise
 
 def summary_path(config: FactorAnalysisConfig, horizon: int) -> str:
-    return f"{config.analysis_base_path}/{config.factor_name}/horizon_{horizon}/summary.parquet"
+    category = get_factor_category(config.factor_name)
+    return f"{config.analysis_base_path}/{category}/{config.factor_name}/horizon_{horizon}/summary.parquet"
 
 
 def parse_summary_updated_at(value: object) -> date | None:
@@ -244,6 +261,5 @@ def filter_date_range(frame: pl.DataFrame, start_date: date, end_date: date) -> 
         frame
         .with_columns(pl.col("trade_date").cast(pl.Date))
         .filter((pl.col("trade_date") >= start_date) & (pl.col("trade_date") <= end_date))
-        .unique(subset=KEY_COLUMNS, keep="last")
         .sort(KEY_COLUMNS)
     )

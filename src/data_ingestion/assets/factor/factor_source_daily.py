@@ -16,7 +16,7 @@ from src.shared.read_past_date import read_past_date
 from src.shared.cal_day_length import cal_day_length
 from src.shared.validate_source_dates import validate_source_dates
 
-FILE_PATH_FRONT = "data/factor/factor_source/"
+FILE_PATH_BASE = "data/factor/factor_source"
 FILE_NAME = "factor_source"
 
 @dg.asset(
@@ -39,7 +39,7 @@ def Factor_Source_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResu
     parquet_resource = ParquetResource()
 
     start_date = read_past_date(context = context, 
-                                file_path_front = FILE_PATH_FRONT,
+                                file_path_base = FILE_PATH_BASE,
                                 file_name = FILE_NAME,
                                 mode = "yearly",
                                 current_year = current_year
@@ -53,7 +53,7 @@ def Factor_Source_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
     if not date_list:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
-        file_path = FILE_PATH_FRONT + FILE_NAME + f"_{current_year}.parquet"
+        file_path = f"{FILE_PATH_BASE}/{FILE_NAME}_{current_year}.parquet"
         return dg.MaterializeResult(
             metadata={
                 "status": dg.MetadataValue.text("up_to_date"),
@@ -204,7 +204,7 @@ def Factor_Source_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResu
                 raise ValueError(f"年份 {year} 合并后 adj_factor 存在空值: {null_adj_count} 行")
 
             # 写入
-            output_file_path = FILE_PATH_FRONT + FILE_NAME + f"_{year}.parquet"
+            output_file_path = f"{FILE_PATH_BASE}/{FILE_NAME}_{year}.parquet"
             parquet_resource.append_file(
                 df=df_factor_source,
                 path_extension=output_file_path,
@@ -255,13 +255,15 @@ def Factor_Source_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
 def load_factor_source(
         parquet_resource: ParquetResource,
-        year: int,
+        year: int | None = datetime.now().year,
         mode: str | None = None
     ) -> pl.DataFrame:
     frames: list[pl.DataFrame] = []
 
     if mode == "add past year":
         year_list = [year - 1, year]
+    elif mode == "all years":
+        year_list = list(range(year, 2015, -1))
     else:
         year_list = [year]
     
@@ -269,7 +271,7 @@ def load_factor_source(
         if source_year < 2016:
             continue
 
-        file_path = FILE_PATH_FRONT + FILE_NAME + f"_{source_year}.parquet"
+        file_path = f"{FILE_PATH_BASE}/{FILE_NAME}_{source_year}.parquet"
         try:
             frame = parquet_resource.read(
                 path_extension=file_path,

@@ -15,7 +15,7 @@ from src.shared.cal_day_length import cal_day_length
 
 from src.factor.assets.factors.factor_registry import get_factor_category, load_factor_function, FACTOR_LIST
 
-FILE_PATH_FRONT_ALL = "factor/factors/"
+FILE_PATH_FRONT_ALL = "factor/factors"
 
 @dg.asset(
     group_name="data_ingestion_daily", 
@@ -37,21 +37,21 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
     end_date = read_trade_cal(context=context)
 
     total_rows = 0
-    success_factors = 0
+    success_factors: list[str] = []
     failed_factors: list[str] = []
     factor_items = list(FACTOR_LIST.items())
     factor_counts = 0
 
     for factor_name, spec in factor_items:
-        category = get_factor_category
-        FILE_PATH_FRONT = FILE_PATH_FRONT_ALL + f"{category}/{factor_name}/"
+        category = get_factor_category(factor_name)
+        FILE_PATH_BASE = f"{FILE_PATH_FRONT_ALL}/{category}/{factor_name}"
         FILE_NAME = f"{factor_name}"
         factor_counts += 1
         context.log.info(f"处理因子进度 {factor_counts}/{len(FACTOR_LIST)}")
 
         try:
             factor_start_date = read_past_date(context = context, 
-                                file_path_front = FILE_PATH_FRONT,
+                                file_path_base = FILE_PATH_BASE,
                                 file_name = FILE_NAME,
                                 mode = "yearly",
                                 current_year = current_year
@@ -66,8 +66,7 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 )
             
             if not date_list:
-                context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
-                success_factors += 1
+                success_factors.append(factor_name)
                 continue
             
             context.log.info(f"需要处理 {len(date_list)} 个交易日")
@@ -131,7 +130,7 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                     )
 
                 # 写入
-                output_file_path = FILE_PATH_FRONT + FILE_NAME + f"_{year}.parquet"
+                output_file_path = f"{FILE_PATH_BASE}/{FILE_NAME}_{year}.parquet"
                 parquet_resource.append_file(
                     df=result_df,
                     path_extension=output_file_path,
@@ -170,7 +169,7 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
             ======================================
             """)
 
-            success_factors += 1
+            success_factors.append(factor_name)
             gc.collect()
 
         except Exception as e:
@@ -261,3 +260,53 @@ def validate_factor_result(
             raise ValueError(
                 f"因子 {factor_name} 输出列不匹配，期望 {sorted(expected)}，实际 {sorted(actual)}"
             )
+
+
+
+
+def load_factor(
+        parquet_resource: ParquetResource,
+        factor_name: str,
+        year: int | None = datetime.now().year,
+        mode: str | None = None
+    ) -> pl.DataFrame:
+    frames: list[pl.DataFrame] = []
+
+    if mode == "add past year":
+        year_list = [year - 1, year]
+    elif mode == "all years":
+        year_list = list(range(year, 2015, -1))
+    else:
+        year_list = [year]
+    
+    for source_year in year_list:
+        if source_year < 2016:
+            continue
+        category = get_factor_category(factor_name)
+        file_path = f"{FILE_PATH_FRONT_ALL}/{category}/{factor_name}_{source_year}.parquet"
+        try:
+            frame = parquet_resource.read(
+                path_extension=file_path,
+                force_download=True,
+            )
+        except Exception:
+            if source_year == year:
+                raise
+            continue
+
+        if frame is None or frame.is_empty():
+            continue
+
+        frames.append(
+            frame
+            .with_columns(pl.col("trade_date").cast(pl.Date))
+        )
+
+    df = pl.concat(frames, how="vertical_relaxed")
+
+    if df.is_empty():
+        raise
+
+    return (
+        df.sort(["ts_code", "trade_date"])
+    )

@@ -17,7 +17,7 @@ from src.shared.cal_day_length import cal_day_length
 from src.shared.validate_source_dates import validate_source_dates
 
 
-FILE_PATH_FRONT = "data/stock/stock_adj_factor/stock_adj_factor_hfq/"
+FILE_PATH_BASE = "data/stock/stock_adj_factor/stock_adj_factor_hfq"
 FILE_NAME = "stock_adj_factor_hfq"
 
 
@@ -41,7 +41,7 @@ def Stock_Adj_Factor_HFQ_Daily(context: dg.AssetExecutionContext) -> dg.Material
     parquet_resource = ParquetResource()
 
     start_date = read_past_date(context = context, 
-                                file_path_front = FILE_PATH_FRONT,
+                                file_path_base = FILE_PATH_BASE,
                                 file_name = FILE_NAME,
                                 mode = "yearly",
                                 current_year = current_year
@@ -55,7 +55,7 @@ def Stock_Adj_Factor_HFQ_Daily(context: dg.AssetExecutionContext) -> dg.Material
 
     if not date_list:
         context.log.info(f"数据已是最新，无需更新 (最新日期: {end_date})")
-        file_path = FILE_PATH_FRONT + FILE_NAME + f"_{current_year}.parquet"
+        file_path = f"{FILE_PATH_BASE}/{FILE_NAME}_{current_year}.parquet"
         return dg.MaterializeResult(
             metadata={
                 "status": dg.MetadataValue.text("up_to_date"),
@@ -162,7 +162,7 @@ def Stock_Adj_Factor_HFQ_Daily(context: dg.AssetExecutionContext) -> dg.Material
             failed_days.extend(trade_dates)
             continue
 
-        output_file_path = FILE_PATH_FRONT + FILE_NAME + f"_{year}.parquet"
+        output_file_path = f"{FILE_PATH_BASE}/{FILE_NAME}_{year}.parquet"
         parquet_resource.append_file(
             df=year_df,
             path_extension=output_file_path,

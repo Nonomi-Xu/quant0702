@@ -6,24 +6,26 @@ from .config import FactorAnalysisConfig
 
 
 def prepare_factor_sample(
-    factor_values: pl.DataFrame,
-    basic_values: pl.DataFrame,
-    industry_values: pl.DataFrame,
+    factor: pl.DataFrame,
+    factor_source: pl.DataFrame,
+    stock_list_now: pl.DataFrame,
+    stock_active_list: pl.DataFrame,
     config: FactorAnalysisConfig,
 ) -> pl.DataFrame:
     sample = (
-        basic_values
+        factor_source
         .select(["ts_code", "trade_date", "close_hfq", "circ_mv"])
-        .join(factor_values, on=["ts_code", "trade_date"], how="left")
+        .join(factor, on=["ts_code", "trade_date"], how="left")
+        .join(stock_active_list, on=["ts_code", "trade_date"], how="right")
     )
 
-    if industry_values.is_empty():
+    if stock_list_now.is_empty():
         sample = sample.with_columns(pl.lit(None).cast(pl.Utf8).alias("industry"))
     else:
-        sample = sample.join(industry_values, on="ts_code", how="left")
+        sample = sample.join(stock_list_now, on="ts_code", how="left")
 
     return (
         sample
-        .select(["ts_code", "trade_date", "close_hfq", "circ_mv", "industry", config.factor_name])
+        .select(["ts_code", "trade_date", "close_hfq", "circ_mv", "industry", "amount_20d_avg", "turnover_rate_20d_avg", config.factor_name])
         .sort(["ts_code", "trade_date"])
     )

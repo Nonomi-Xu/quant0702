@@ -6,7 +6,7 @@ from resources.parquet_io import ParquetResource
 
 from .config import FactorAnalysisConfig
 from .evaluation import evaluate_factor
-from .io import read_basic_values, read_factor_values, read_industry_values, write_analysis_outputs
+from .io import read_factor_source, read_factor, read_stock_list_now, read_stock_active_list, write_analysis_outputs
 from .labeling import add_forward_returns
 from .neutralization import (
     neutralize_industry_cross_section,
@@ -16,7 +16,6 @@ from .neutralization import (
 from .preprocess import prepare_factor_sample
 from .reporting import build_monitor
 from .standardization import zscore_cross_section
-from .universe import filter_active_universe, read_active_universe
 from .winsorization import winsorize_cross_section
 
 
@@ -25,21 +24,29 @@ def run_factor_analysis(
     config: FactorAnalysisConfig,
     write_outputs: bool = True,
 ) -> dict[str, pl.DataFrame]:
-    factor_values = read_factor_values(parquet_resource, config)
-    basic_values = read_basic_values(parquet_resource, config)
-    industry_values = read_industry_values(parquet_resource, config)
-    active_universe = read_active_universe(parquet_resource, config)
+    """
+    注意这里的stock_source, stock_list_now, stock_active_list只取指定column
+    """
+    df_factor = read_factor(parquet_resource, config)
+    df_factor_source = read_factor_source(parquet_resource, config)
+    df_stock_list_now = read_stock_list_now(parquet_resource, config)
+    df_stock_active_list = read_stock_active_list(parquet_resource, config)
 
     if (
-        factor_values.is_empty()
-        or basic_values.is_empty()
-        or active_universe.is_empty()
-        or (config.neutralize_industry and industry_values.is_empty())
+        df_factor.is_empty()
+        or df_factor_source.is_empty()
+        or df_stock_active_list.is_empty()
+        or (config.neutralize_industry and df_stock_list_now.is_empty())
     ):
         outputs = empty_outputs(config.factor_name)
     else:
-        sample = prepare_factor_sample(factor_values, basic_values, industry_values, config)
-        sample = filter_active_universe(sample, active_universe)
+        sample = prepare_factor_sample(
+            df_factor, 
+            df_factor_source, 
+            df_stock_list_now, 
+            df_stock_active_list,
+            config
+        )
         if sample.is_empty():
             outputs = empty_outputs(config.factor_name)
         else:

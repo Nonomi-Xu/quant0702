@@ -1,12 +1,12 @@
 import dagster as dg
 
-from .assets import Factor_Analysis_assets
+from .assets.factor_analysis import Factor_Analysis
 from .jobs import Factor_Analysis_Jobs
 
 
 def get_factor_analysis_defs() -> dg.Definitions:
     return dg.Definitions(
-        assets=Factor_Analysis_assets,
+        assets=[Factor_Analysis],
         jobs=Factor_Analysis_Jobs,
     )
 

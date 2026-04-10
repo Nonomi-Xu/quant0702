@@ -1,0 +1,24 @@
+from __future__ import annotations
+
+import polars as pl
+
+from .average_turnover_rate_shared import compute_average_turnover_rate
+
+
+TURNOVER_RATE_WINDOW = 5
+TURNOVER_RATE_COLUMN = f"average_turnover_rate_{TURNOVER_RATE_WINDOW}"
+
+
+def compute_average_turnover_rate_5(frame: pl.DataFrame) -> pl.DataFrame:
+    r"""
+    5日平均换手率，Tushare 对应 VOL5，单位为 %。
+
+    公式：
+
+        VOL5(i,t) = mean(turnover_rate(i,t-4), ..., turnover_rate(i,t))
+
+    字段映射：
+
+        turnover_rate(t) = turnover_rate(t)
+    """
+    return compute_average_turnover_rate(frame, TURNOVER_RATE_WINDOW, TURNOVER_RATE_COLUMN)

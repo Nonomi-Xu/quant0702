@@ -7,19 +7,15 @@ from dagster import in_process_executor
 from resources.duckdb_io import DuckDBResource
 from resources.parquet_io import ParquetResource
 
-from src.data_ingestion import (
-    get_Data_Ingestion_Daily_defs
-)
-from src.factor import (
-    get_Factor_Analysis_defs,
-)
+from src.orchestration.data_ingestion import get_data_ingestion_defs
+from src.orchestration.factor_analysis import get_factor_analysis_defs
 
 @dg.definitions
 def defs():
     """使用装饰器懒加载定义"""
     
-    Data_Ingestion_Daily_defs = get_Data_Ingestion_Daily_defs()
-    Factor_Analysis_defs = get_Factor_Analysis_defs()
+    Data_Ingestion_Daily_defs = get_data_ingestion_defs()
+    Factor_Analysis_defs = get_factor_analysis_defs()
     
     global_defs = dg.Definitions(
         resources={
@@ -34,4 +30,3 @@ def defs():
         Factor_Analysis_defs,
         global_defs
     )
-

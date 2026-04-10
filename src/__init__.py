@@ -1,20 +1,16 @@
-
-# src/__init__.py
-"""Work Orchestration Area - 工作编排区
-"""
+"""Top-level package kept intentionally thin to avoid circular imports."""
 
 
-from .data_ingestion import (
-    get_Data_Ingestion_Daily_defs,
-)
+def get_Data_Ingestion_Daily_defs():
+    from .orchestration.data_ingestion import get_data_ingestion_defs
 
-from .factor import (
-    get_Factor_Analysis_defs,
-)
+    return get_data_ingestion_defs()
 
 
-__all__ = [
-    # 'get_Data_Ingestion_Start_INFO_assets_defs',
-    'get_Data_Ingestion_Daily_defs',
-    'get_Factor_Analysis_defs'
-]
+def get_Factor_Analysis_defs():
+    from .orchestration.factor_analysis import get_factor_analysis_defs
+
+    return get_factor_analysis_defs()
+
+
+__all__ = ["get_Data_Ingestion_Daily_defs", "get_Factor_Analysis_defs"]

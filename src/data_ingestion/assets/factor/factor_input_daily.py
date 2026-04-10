@@ -13,7 +13,7 @@ from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
 from src.shared.cal_day_length import cal_day_length
 
-from src.factor.assets.factors.factor_registry import get_factor_category, load_factor_function, FACTOR_LIST
+from src.domain.factor_catalog.registry import FACTOR_LIST, get_factor_category, load_factor_function
 
 FILE_PATH_FRONT_ALL = "factor/factors"
 

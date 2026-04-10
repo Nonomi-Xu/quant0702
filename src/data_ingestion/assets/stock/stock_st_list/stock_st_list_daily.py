@@ -222,7 +222,7 @@ def set_trade_date_pl(df: pd.DataFrame, trade_date: str) -> pd.DataFrame:
 
 
 def load_stock_st_list(parquet_resource: ParquetResource) -> pl.DataFrame:
-    file_path = FILE_PATH_FRONT + FILE_NAME + ".parquet"
+    file_path = f"{FILE_PATH_BASE}/{FILE_NAME}.parquet"
     frame = parquet_resource.read(
         path_extension=file_path,
         force_download=True,

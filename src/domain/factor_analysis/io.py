@@ -48,7 +48,7 @@ def read_factor(
 
     frames = load_factor(
         parquet_resource = parquet_resource,
-        factor_name = {config.factor_name},
+        factor_name = config.factor_name,
         year = config.end_date.year,
         mode = "all years",
     )

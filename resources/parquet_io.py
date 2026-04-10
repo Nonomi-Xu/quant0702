@@ -275,6 +275,13 @@ class COSParquetManager:
         """
         if self.exists(path_extension):
             old_df = self.read_parquet(path_extension)
+            missing_columns = [column for column in old_df.columns if column not in df.columns]
+            extra_columns = [column for column in df.columns if column not in old_df.columns]
+            if missing_columns or extra_columns:
+                raise ValueError(
+                    f"{path_extension} 列结构不一致，缺少列: {missing_columns}，额外列: {extra_columns}"
+                )
+            df = df.select(old_df.columns)
             new_df = pl.concat([old_df, df], how="vertical_relaxed")
         else:
             new_df = df

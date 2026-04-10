@@ -2,7 +2,6 @@
 import dagster as dg
 import polars as pl
 import pandas as pd
-import os
 from datetime import datetime
 from resources.parquet_io import ParquetResource
 from resources.tushare_io import TushareClient

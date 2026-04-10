@@ -30,7 +30,7 @@ class TushareClient:
             return df
 
         except Exception as e:
-            raise TushareAPIError(f"TushareAPI请求失败: {func.__name__}, error={str(e)}") from e
+            raise TushareAPIError(f"TushareAPI请求失败: {api_name}, error={str(e)}") from e
 
 
     def __getattr__(self, name: str):
@@ -44,7 +44,6 @@ class TushareClient:
 
         def wrapper(**kwargs):
             return self._request(
-                func=func,
                 api_name=name,
                 **kwargs,
             )

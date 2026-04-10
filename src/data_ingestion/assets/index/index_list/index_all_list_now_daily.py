@@ -1,38 +1,35 @@
 """A股数据获取资产"""
 
-import os
 import dagster as dg
 import polars as pl
-import tushare as ts
 from datetime import datetime
 
 from resources.parquet_io import ParquetResource
-
-from src.data_ingestion.assets.trade_cal.trade_cal_daily import Trade_Cal_Daily
+from resources.tushare_io import TushareClient
 
 from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
 from src.shared.cal_day_length import cal_day_length
 
-FILE_PATH_FRONT = "data/index/index_List/"
-FILE_NAME = "index_list_now"
+FILE_PATH_FRONT = "data/index/index_list/"
+FILE_NAME = "index_all_list_now"
 
 @dg.asset(
     group_name="data_ingestion_daily",
-    description="每日获取指数基础信息 全量更新",
-    deps=[Trade_Cal_Daily],
+    description="每日获取全部指数基础信息 全量更新",
+    deps=[dg.AssetKey("Trade_Cal_Daily")],
 )
-def Index_List_Now_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+def Index_All_List_Now_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
     每日获取指数基础信息 全量更新
     """
 
-    context.log.info("开始每日获取指数基础信息 全量更新")
-    
-    pro = ts.pro_api(os.getenv("TUSHARE_TOKEN"))
+    context.log.info("开始每日获取全部指数基础信息 全量更新")
 
     # 初始化参数
     parquet_resource = ParquetResource()
+    tushare_api = TushareClient()
+    
     
     start_date = read_past_date(context = context, 
                                 file_path_front = FILE_PATH_FRONT,
@@ -61,38 +58,29 @@ def Index_List_Now_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeRes
     context.log.info(f"共需处理 {len(date_list)} 个交易日")
 
     # 获取指数股票
-    try:
-        df = pro.index_basic(**{
-            "ts_code": "",
-            "market": "",
-            "publisher": "",
-            "category": "",
-            "name": "",
-            "limit": "",
-            "offset": ""
-        }, fields=[
-            "ts_code",
-            "name",
-            "market",
-            "publisher",
-            "category",
-            "base_date",
-            "base_point",
-            "list_date",
-            "exp_date",
-            "index_type",
-            "weight_rule",
-            "desc",
-            "fullname"
-        ])
-    except Exception as e:
-            context.log.error(f"接口 pro.index_basic 获取失败: {e}")
-            raise
-
-    status_list = ['L', 'D', 'G', 'P']
-    spot_dfs = []
-    
-    
+    df = tushare_api.index_basic(**{
+        "ts_code": "",
+        "market": "",
+        "publisher": "",
+        "category": "",
+        "name": "",
+        "limit": "",
+        "offset": ""
+    }, fields=[
+        "ts_code",
+        "name",
+        "market",
+        "publisher",
+        "category",
+        "base_date",
+        "base_point",
+        "list_date",
+        "exp_date",
+        "index_type",
+        "weight_rule",
+        "desc",
+        "fullname"
+    ])
 
     update_time = datetime.now().date()
 
@@ -141,3 +129,4 @@ def Index_List_Now_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeRes
             "file_path": dg.MetadataValue.text(file_path),
             }
         )
+

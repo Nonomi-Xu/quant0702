@@ -1,15 +1,10 @@
 """A股数据获取资产"""
 
-import time
 import dagster as dg
 import polars as pl
-import tushare as ts
 import pandas as pd
-import os
 from resources.parquet_io import ParquetResource
 from resources.tushare_io import TushareClient
-
-from src.data_ingestion.assets.trade_cal.trade_cal_daily import Trade_Cal_Daily
 
 from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
@@ -23,7 +18,7 @@ FILE_NAME = "stock_st_list"
 @dg.asset(
     group_name="data_ingestion_daily",
     description="每日获取A股ST股票列表并增量写入COS Parquet",
-    deps=[Trade_Cal_Daily]
+    deps=[dg.AssetKey("Trade_Cal_Daily")]
 )
 def Stock_ST_List_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
@@ -73,8 +68,8 @@ def Stock_ST_List_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResu
 
         context.log.warning(f"{trade_date} 无数据，开始向前/向后寻找最近非空日")
 
-        prev_date, prev_df = find_prev_nonempty_pl(date_list, current_idx, pro, cache, context)
-        next_date, next_df = find_next_nonempty_pl(date_list, current_idx, pro, cache, context)
+        prev_date, prev_df = find_prev_nonempty_pl(date_list, current_idx, tushare_api, cache, context)
+        next_date, next_df = find_next_nonempty_pl(date_list, current_idx, tushare_api, cache, context)
 
         # 前后都没有
         if prev_df is None and next_df is None:
@@ -170,8 +165,6 @@ def fetch_stock_st_with_cache_pl(api, trade_date: str, cache: dict, context=None
         return cache[trade_date]
 
     df = api.stock_st(trade_date=trade_date)
-    if context:
-        context.log.info(f"已获取交易日: {trade_date}")
 
     cache[trade_date] = df
     return df

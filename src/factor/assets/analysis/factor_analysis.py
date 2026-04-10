@@ -2,11 +2,8 @@
 import dagster as dg
 
 from resources.parquet_io import ParquetResource
-from src.basic.assets.data_ingestion.daily.daily_stock_list_active_parquet import Daily_Stock_List_Active
-from src.basic.assets.data_ingestion.daily.daily_stock_list_now_parquet import Daily_Stock_List_Now
-from src.basic.assets.data_ingestion.daily.env_api import _get_default_start_date_
-from src.basic.assets.data_ingestion.daily.read_date import read_trade_cal
-from src.factor.assets.factors.factor_input import Daily_Factor_Input
+from src.shared.env_api import _get_default_start_date_
+from src.shared.read_trade_cal import read_trade_cal
 from src.factor.assets.factors.factor_registry import FACTOR_LIST
 
 from .config import FactorAnalysisConfig
@@ -17,7 +14,7 @@ from .pipeline import run_factor_analysis
 @dg.asset(
     group_name="factor_analysis",
     description="读取云端单因子结果并生成 IC、分组收益、多空收益和覆盖率监控表",
-    deps=[Daily_Factor_Input, Daily_Stock_List_Active, Daily_Stock_List_Now],
+    deps=[dg.AssetKey("Factor_Input_Daily")],
 )
 def Factor_Analysis(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     parquet_resource = ParquetResource()

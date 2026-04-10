@@ -8,8 +8,8 @@ from datetime import datetime
 from collections import defaultdict
 from resources.parquet_io import ParquetResource
 
-from src.data_ingestion.assets.stock.stock_adj_factor.stock_adj_factor_daily import Stock_Adj_Factor_Daily, load_adj_factor
-from src.data_ingestion.assets.stock.stock_price.stock_price_daily_daily import Stock_Price_Daily_Daily, load_stock_price_daily
+from src.data_ingestion.assets.stock.stock_adj_factor.stock_adj_factor_daily import load_adj_factor
+from src.data_ingestion.assets.stock.stock_price.stock_price_daily_daily import load_stock_price_daily
 
 from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
@@ -24,7 +24,10 @@ FILE_NAME = "stock_adj_factor_hfq"
 @dg.asset(
     group_name="data_ingestion_daily",
     description="每日获取A股复权因子 日线数据-收盘价 计算后复权 增量写入COS Parquet",
-    deps=[Stock_Price_Daily_Daily, Stock_Adj_Factor_Daily]
+    deps=[
+        dg.AssetKey("Stock_Price_Daily_Daily"),
+        dg.AssetKey("Stock_Adj_Factor_Daily"),
+        ]
 )
 def Stock_Adj_Factor_HFQ_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
@@ -106,7 +109,7 @@ def Stock_Adj_Factor_HFQ_Daily(context: dg.AssetExecutionContext) -> dg.Material
 
             context.log.info(
                 f"年份 {year} 上下文数据读取完成: "
-                f"daily={df_daily.height}, "
+                f"stock_price_daily={df_stock_price_daily.height}, "
                 f"adj_factor={df_adj_factor.height}"
             )
 

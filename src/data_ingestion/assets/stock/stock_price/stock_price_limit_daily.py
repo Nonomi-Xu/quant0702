@@ -7,8 +7,6 @@ from datetime import datetime
 from resources.parquet_io import ParquetResource
 from resources.tushare_io import TushareClient
 
-from src.data_ingestion.assets.trade_cal.trade_cal_daily import Trade_Cal_Daily
-
 from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
 from src.shared.cal_day_length import cal_day_length
@@ -19,7 +17,7 @@ FILE_NAME = "stock_price_limit"
 @dg.asset(
     group_name="data_ingestion_daily",
     description="增量更新每日股票涨跌停价格",
-    deps=[Trade_Cal_Daily]
+    deps=[dg.AssetKey("Trade_Cal_Daily")]
 )
 def Stock_Price_Limit_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """

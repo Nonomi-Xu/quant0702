@@ -1,6 +1,5 @@
 """A股数据获取资产"""
 
-import time
 import dagster as dg
 import polars as pl
 import pandas as pd
@@ -8,9 +7,9 @@ from datetime import datetime
 from collections import defaultdict
 from resources.parquet_io import ParquetResource
 
-from src.data_ingestion.assets.stock.stock_price.stock_price_daily_daily import Stock_Price_Daily_Daily, load_stock_price_daily
-from src.data_ingestion.assets.stock.stock_basic_metric.stock_basic_metric_daily import Stock_Basic_Metric_Daily, load_stock_basic_metric
-from src.data_ingestion.assets.stock.stock_adj_factor.stock_adj_factor_hfq_daily import Stock_Adj_Factor_HFQ_Daily, load_adj_factor
+from src.data_ingestion.assets.stock.stock_price.stock_price_daily_daily import load_stock_price_daily
+from src.data_ingestion.assets.stock.stock_basic_metric.stock_basic_metric_daily import load_stock_basic_metric
+from src.data_ingestion.assets.stock.stock_adj_factor.stock_adj_factor_hfq_daily import load_adj_factor
 
 from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
@@ -23,7 +22,10 @@ FILE_NAME = "factor_source"
 @dg.asset(
     group_name="data_ingestion_daily",
     description="每日获取A股 未复权日线数据 复权因子数据 每日指标 计算复权后的各价格 链接各表 增量写入COS Parquet",
-    deps=[Stock_Adj_Factor_HFQ_Daily, Stock_Price_Daily_Daily, Stock_Basic_Metric_Daily]
+    deps=[dg.AssetKey("Stock_Adj_Factor_HFQ_Daily"),
+          dg.AssetKey("Stock_Price_Daily_Daily"),
+          dg.AssetKey("Stock_Basic_Metric_Daily"),
+        ]
 )
 def Factor_Source_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """

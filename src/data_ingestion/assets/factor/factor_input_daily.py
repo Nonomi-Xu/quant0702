@@ -7,7 +7,7 @@ from datetime import datetime
 from collections import defaultdict
 from resources.parquet_io import ParquetResource
 
-from src.data_ingestion.assets.factor.factor_source_daily import Factor_Source_Daily, load_factor_source
+from src.data_ingestion.assets.factor.factor_source_daily import load_factor_source
 
 from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
@@ -20,7 +20,7 @@ FILE_PATH_FRONT_ALL = "factor/factors/"
 @dg.asset(
     group_name="data_ingestion_daily", 
     description="每日使用A股信息基本面 计算因子 增量写入COS Parquet",
-    deps=[Factor_Source_Daily]
+    deps=[dg.AssetKey("Factor_Source_Daily")]
 )
 def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """

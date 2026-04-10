@@ -9,13 +9,10 @@ import os
 from resources.duckdb_io import DuckDBResource
 from resources.tushare_io import TushareClient
 
-from src.data_ingestion.assets.stock.stock_list.stock_list_now_daily import Stock_List_Now_Daily
-from src.data_ingestion.assets.trade_cal.trade_cal_daily import Trade_Cal_Daily
-
 @dg.asset(
     group_name="data_ingestion_daily",
     description="每日获取A股股票基础信息 全量刷新",
-    deps=[Trade_Cal_Daily, Stock_List_Now_Daily]
+    deps=[dg.AssetKey("Trade_Cal_Daily"), dg.AssetKey("Stock_List_Now_Daily")]
 )
 def Stock_List_Now_Duckdb_Daily(context: dg.AssetExecutionContext) -> pl.DataFrame:
     """

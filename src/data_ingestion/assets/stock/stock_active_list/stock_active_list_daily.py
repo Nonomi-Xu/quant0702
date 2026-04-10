@@ -7,10 +7,10 @@ from datetime import datetime
 from collections import defaultdict
 from resources.parquet_io import ParquetResource
 
-from src.data_ingestion.assets.stock.stock_st_list.stock_st_list_daily import Stock_ST_List_Daily, load_stock_st_list
-from src.data_ingestion.assets.stock.stock_price.stock_price_daily_daily import Stock_Price_Daily_Daily, load_stock_price_daily
-from src.data_ingestion.assets.stock.stock_list.stock_list_now_daily import Stock_List_Now_Daily, load_stock_list_now
-from src.data_ingestion.assets.stock.stock_basic_metric.stock_basic_metric_daily import Stock_Basic_Metric_Daily, load_stock_basic_metric
+from src.data_ingestion.assets.stock.stock_st_list.stock_st_list_daily import load_stock_st_list
+from src.data_ingestion.assets.stock.stock_price.stock_price_daily_daily import load_stock_price_daily
+from src.data_ingestion.assets.stock.stock_list.stock_list_now_daily import load_stock_list_now
+from src.data_ingestion.assets.stock.stock_basic_metric.stock_basic_metric_daily import load_stock_basic_metric
 
 from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
@@ -29,7 +29,12 @@ MIN_CIRC_MV = 200_000
 @dg.asset(
     group_name="data_ingestion_daily",
     description="每日获取A股股票 筛选后增量写入 得到当日可用的活跃股票",
-    deps=[Stock_ST_List_Daily, Stock_Price_Daily_Daily, Stock_List_Now_Daily, Stock_Basic_Metric_Daily]
+    deps=[
+        dg.AssetKey("Stock_ST_List_Daily"),
+        dg.AssetKey("Stock_Price_Daily_Daily"),
+        dg.AssetKey("Stock_List_Now_Daily"),
+        dg.AssetKey("Stock_Basic_Metric_Daily"),
+    ]
 )
 def Stock_Active_List_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """

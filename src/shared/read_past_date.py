@@ -36,7 +36,7 @@ def read_past_date(
                 # 构建向前查找的文件路径
 
                 search_file_path = file_path_front + file_name + f"_{current_year_for_search}.parquet"
-                context.log.info(f"读取年度文件: {file_path}")
+                context.log.info(f"读取年度文件: {search_file_path}")
                 
                 try:
                     existing_df = parquet_resource.read(

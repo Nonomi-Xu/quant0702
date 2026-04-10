@@ -67,7 +67,7 @@ def read_factor_source(
     parquet_resource: ParquetResource,
     config: FactorAnalysisConfig,
 ) -> pl.DataFrame:
-    required_columns = [*KEY_COLUMNS, "circ_mv"]
+    required_columns = [*KEY_COLUMNS, "close_hfq", "circ_mv"]
 
     frame = load_factor_source(
         parquet_resource = parquet_resource,
@@ -76,7 +76,14 @@ def read_factor_source(
     )
 
     if frame.is_empty():
-        return pl.DataFrame(schema={"ts_code": pl.Utf8, "trade_date": pl.Date, "circ_mv": pl.Float64})
+        return pl.DataFrame(
+            schema={
+                "ts_code": pl.Utf8,
+                "trade_date": pl.Date,
+                "close_hfq": pl.Float64,
+                "circ_mv": pl.Float64,
+            }
+        )
 
     missing = [column for column in required_columns if column not in frame.columns]
     if missing:

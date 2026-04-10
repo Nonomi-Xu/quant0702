@@ -69,8 +69,6 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 success_factors.append(factor_name)
                 continue
             
-            context.log.info(f"需要处理 {len(date_list)} 个交易日")
-
             # ----------------------------
             # 按年份分组
             # ----------------------------
@@ -283,7 +281,7 @@ def load_factor(
         if source_year < 2016:
             continue
         category = get_factor_category(factor_name)
-        file_path = f"{FILE_PATH_FRONT_ALL}/{category}/{factor_name}_{source_year}.parquet"
+        file_path = f"{FILE_PATH_FRONT_ALL}/{category}/{factor_name}/{factor_name}_{source_year}.parquet"
         try:
             frame = parquet_resource.read(
                 path_extension=file_path,
@@ -302,10 +300,17 @@ def load_factor(
             .with_columns(pl.col("trade_date").cast(pl.Date))
         )
 
+    if not frames:
+        raise FileNotFoundError(
+            f"未找到因子文件: factor_name={factor_name}, mode={mode}, year={year}, year_list={year_list}"
+        )
+
     df = pl.concat(frames, how="vertical_relaxed")
 
     if df.is_empty():
-        raise
+        raise FileNotFoundError(
+            f"因子文件存在但内容为空: factor_name={factor_name}, mode={mode}, year={year}, year_list={year_list}"
+        )
 
     return (
         df.sort(["ts_code", "trade_date"])

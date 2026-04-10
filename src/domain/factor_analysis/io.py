@@ -46,22 +46,21 @@ def read_factor(
 ) -> pl.DataFrame:
     required_columns = [*KEY_COLUMNS, config.factor_name]
 
-    frames = load_factor(
+    frame = load_factor(
         parquet_resource = parquet_resource,
         factor_name = config.factor_name,
         year = config.end_date.year,
         mode = "all years",
     )
 
-    missing = [column for column in required_columns if column not in frames.columns]
-    if missing:
-        raise ValueError(f" 缺少必要列: {missing}")
-    frames.append(frames.select(required_columns))
-
-    if not frames:
+    if frame.is_empty():
         return pl.DataFrame(schema={"ts_code": pl.Utf8, "trade_date": pl.Date, config.factor_name: pl.Float64})
 
-    return filter_date_range(pl.concat(frames, how="vertical_relaxed"), config.start_date, config.end_date)
+    missing = [column for column in required_columns if column not in frame.columns]
+    if missing:
+        raise ValueError(f" 缺少必要列: {missing}")
+
+    return filter_date_range(frame.select(required_columns), config.start_date, config.end_date)
 
 
 def read_factor_source(
@@ -70,22 +69,20 @@ def read_factor_source(
 ) -> pl.DataFrame:
     required_columns = [*KEY_COLUMNS, "circ_mv"]
 
-    frames = load_factor_source(
+    frame = load_factor_source(
         parquet_resource = parquet_resource,
         year = config.end_date.year,
         mode = "all years",
     )
-    
-    
-    missing = [column for column in required_columns if column not in frames.columns]
+
+    if frame.is_empty():
+        return pl.DataFrame(schema={"ts_code": pl.Utf8, "trade_date": pl.Date, "circ_mv": pl.Float64})
+
+    missing = [column for column in required_columns if column not in frame.columns]
     if missing:
         raise ValueError(f" 缺少必要列: {missing}")
-    frames.append(frames.select(required_columns))
 
-    if not frames:
-        return pl.DataFrame(schema={"ts_code": pl.Utf8, "trade_date": pl.Date, config.factor_name: pl.Float64})
-
-    return filter_date_range(pl.concat(frames, how="vertical_relaxed"), config.start_date, config.end_date)
+    return filter_date_range(frame.select(required_columns), config.start_date, config.end_date)
 
 
 def read_stock_list_now(
@@ -102,10 +99,8 @@ def read_stock_list_now(
     missing = [column for column in required_columns if column not in frame.columns]
     if missing:
         raise ValueError(f" 缺少必要列: {missing}")
-    frame.append(frame.select(required_columns))
-
-    if not frame:
-        return pl.DataFrame(schema={"ts_code": pl.Utf8,  config.factor_name: pl.Float64})
+    if frame.is_empty():
+        return pl.DataFrame(schema={"ts_code": pl.Utf8, "industry": pl.Utf8})
 
     return (
         frame
@@ -123,22 +118,27 @@ def read_stock_active_list(
 
     required_columns = [*KEY_COLUMNS, "amount_20d_avg", "turnover_rate_20d_avg"]
 
-    frames = load_stock_active_list(
+    frame = load_stock_active_list(
         parquet_resource = parquet_resource,
         year = config.end_date.year,
         mode = "all years",
     )
-    
-    
-    missing = [column for column in required_columns if column not in frames.columns]
+
+    if frame.is_empty():
+        return pl.DataFrame(
+            schema={
+                "ts_code": pl.Utf8,
+                "trade_date": pl.Date,
+                "amount_20d_avg": pl.Float64,
+                "turnover_rate_20d_avg": pl.Float64,
+            }
+        )
+
+    missing = [column for column in required_columns if column not in frame.columns]
     if missing:
         raise ValueError(f" 缺少必要列: {missing}")
-    frames.append(frames.select(required_columns))
 
-    if not frames:
-        return pl.DataFrame(schema={"ts_code": pl.Utf8, "trade_date": pl.Date, config.factor_name: pl.Float64})
-
-    return filter_date_range(pl.concat(frames, how="vertical_relaxed"), config.start_date, config.end_date)
+    return filter_date_range(frame.select(required_columns), config.start_date, config.end_date)
 
 def write_analysis_outputs(
     parquet_resource: ParquetResource,

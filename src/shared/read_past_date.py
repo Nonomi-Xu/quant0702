@@ -33,8 +33,8 @@ def read_past_date(
             found_data = False
             
             while current_year_for_search >= _get_default_start_date_().year and not found_data:
+                
                 # 构建向前查找的文件路径
-
                 search_file_path = file_path_front + file_name + f"_{current_year_for_search}.parquet"
                 context.log.info(f"读取年度文件: {search_file_path}")
                 

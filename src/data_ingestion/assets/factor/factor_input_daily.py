@@ -13,7 +13,7 @@ from src.shared.read_trade_cal import read_trade_cal
 from src.shared.read_past_date import read_past_date
 from src.shared.cal_day_length import cal_day_length
 
-from src.factor.assets.factors.factor_registry import load_factor_function, FACTOR_LIST
+from src.factor.assets.factors.factor_registry import get_factor_category, load_factor_function, FACTOR_LIST
 
 FILE_PATH_FRONT_ALL = "factor/factors/"
 
@@ -43,7 +43,8 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
     factor_counts = 0
 
     for factor_name, spec in factor_items:
-        FILE_PATH_FRONT = FILE_PATH_FRONT_ALL + f"{factor_name}/"
+        category = get_factor_category
+        FILE_PATH_FRONT = FILE_PATH_FRONT_ALL + f"{category}/{factor_name}/"
         FILE_NAME = f"{factor_name}"
         factor_counts += 1
         context.log.info(f"处理因子进度 {factor_counts}/{len(FACTOR_LIST)}")

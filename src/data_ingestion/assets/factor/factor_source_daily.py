@@ -290,7 +290,7 @@ def load_factor_source(
 
     df = pl.concat(frames, how="vertical_relaxed")
 
-    if not df:
+    if df.is_empty():
         raise
 
     return (

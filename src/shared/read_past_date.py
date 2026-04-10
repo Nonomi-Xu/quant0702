@@ -77,7 +77,7 @@ def read_past_date(
         
     elif mode == "default":
 
-        file_path = file_path_front + file_name + ".parquet"
+        file_path = f"{file_path_base}/{file_name}.parquet"
 
         if parquet_resource.exists(path_extension=file_path):
             try:
@@ -108,8 +108,6 @@ def read_past_date(
             raise
     
     else:
-        context.log.warning(f"mode = {mode} 写入错误: {e}")
-        raise
+        raise ValueError(f"不支持的 mode: {mode}")
 
     return start_date
-

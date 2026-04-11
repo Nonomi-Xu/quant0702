@@ -95,6 +95,7 @@ def Pattern_Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.Material
         except Exception as e:
             context.log.error(f"K线形态因子 {factor_name} 计算或写入失败: {e}")
             failed_factors.append(factor_name)
+            continue
 
     return dg.MaterializeResult(
         metadata={

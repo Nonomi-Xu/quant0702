@@ -24,6 +24,7 @@ def Factor_Analysis(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     skipped_recent_factors = 0
     total_summary_rows = 0
     factor_counts = 0
+    failed_factors: list[str] = []
 
     for factor_name in FACTOR_LIST:
         factor_counts += 1
@@ -33,29 +34,34 @@ def Factor_Analysis(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             start_date=start_date,
             end_date=end_date,
         )
-        should_skip, summary_updated_at = should_skip_recent_summary(parquet_resource, config)
-        if should_skip:
-            skipped_recent_factors += 1
-            context.log.info(
-                f"横截面因子 {factor_name} 已有近期 summary，updated_at={summary_updated_at}，距本次分析日期不超过25天，跳过"
+        try:
+            should_skip, summary_updated_at = should_skip_recent_summary(parquet_resource, config)
+            if should_skip:
+                skipped_recent_factors += 1
+                context.log.info(
+                    f"横截面因子 {factor_name} 已有近期 summary，updated_at={summary_updated_at}，距本次分析日期不超过25天，跳过"
+                )
+                continue
+
+            context.log.info(f"开始分析横截面因子: {factor_name}")
+            outputs = run_factor_analysis(
+                parquet_resource=parquet_resource,
+                config=config,
+                write_outputs=True,
             )
-            continue
+            summary = outputs["summary"]
+            if summary.height == 0 or ("status" in summary.columns and summary.item(0, "status") == "empty"):
+                empty_factors += 1
+                context.log.warning(f"横截面因子 {factor_name} 无可分析数据，跳过")
+                continue
 
-        context.log.info(f"开始分析横截面因子: {factor_name}")
-        outputs = run_factor_analysis(
-            parquet_resource=parquet_resource,
-            config=config,
-            write_outputs=True,
-        )
-        summary = outputs["summary"]
-        if summary.height == 0 or ("status" in summary.columns and summary.item(0, "status") == "empty"):
-            empty_factors += 1
-            context.log.warning(f"横截面因子 {factor_name} 无可分析数据，跳过")
+            updated_factors += 1
+            total_summary_rows += summary.height
+            context.log.info(f"横截面因子 {factor_name} 分析完成，summary 行数: {summary.height}")
+        except Exception as e:
+            context.log.error(f"横截面因子 {factor_name} 分析失败: {e}")
+            failed_factors.append(factor_name)
             continue
-
-        updated_factors += 1
-        total_summary_rows += summary.height
-        context.log.info(f"横截面因子 {factor_name} 分析完成，summary 行数: {summary.height}")
 
     return dg.MaterializeResult(
         metadata={
@@ -63,5 +69,6 @@ def Factor_Analysis(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             "empty_factors": dg.MetadataValue.int(empty_factors),
             "skipped_recent_factors": dg.MetadataValue.int(skipped_recent_factors),
             "summary_rows": dg.MetadataValue.int(total_summary_rows),
+            "failed_factors": dg.MetadataValue.json(failed_factors),
         }
     )

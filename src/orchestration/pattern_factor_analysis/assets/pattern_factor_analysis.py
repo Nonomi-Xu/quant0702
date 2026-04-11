@@ -23,8 +23,11 @@ def Pattern_Factor_Analysis(context: dg.AssetExecutionContext) -> dg.Materialize
     empty_factors = 0
     skipped_recent_factors = 0
     failed_factors: list[str] = []
+    factor_counts = 0
 
     for factor_name in PATTERN_FACTOR_LIST:
+        factor_counts += 1
+        context.log.info(f"处理K线形态因子分析进度 {factor_counts}/{len(PATTERN_FACTOR_LIST)}")
         config = PatternFactorAnalysisConfig(
             factor_name=factor_name,
             start_date=start_date,
@@ -39,6 +42,7 @@ def Pattern_Factor_Analysis(context: dg.AssetExecutionContext) -> dg.Materialize
                 )
                 continue
 
+            context.log.info(f"开始分析K线形态因子: {factor_name}")
             outputs = run_pattern_factor_analysis(parquet_resource=parquet_resource, config=config, write_outputs=True)
             summary = outputs["summary"]
             if summary.height == 0 or ("status" in summary.columns and summary.item(0, "status") == "empty"):
@@ -46,6 +50,7 @@ def Pattern_Factor_Analysis(context: dg.AssetExecutionContext) -> dg.Materialize
                 context.log.warning(f"K线形态因子 {factor_name} 无可分析数据，跳过")
                 continue
             updated_factors += 1
+            context.log.info(f"K线形态因子 {factor_name} 分析完成，summary 行数: {summary.height}")
         except Exception as e:
             context.log.error(f"K线形态因子 {factor_name} 分析失败: {e}")
             failed_factors.append(factor_name)

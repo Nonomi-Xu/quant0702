@@ -19,10 +19,29 @@ REQUIRED_SUMMARY_COLUMNS = {
     "factor",
     "horizon",
     "event_count",
+    "event_coverage_ratio",
+    "avg_daily_event_count",
+    "max_daily_event_count",
     "bullish_event_count",
     "bearish_event_count",
-    "avg_forward_return",
-    "median_forward_return",
+    "bullish_avg_signal_return",
+    "bullish_win_rate",
+    "bearish_avg_signal_return",
+    "bearish_win_rate",
+    "avg_excess_signal_return",
+    "avg_signal_return",
+    "median_signal_return",
+    "positive_mean_signal_return",
+    "negative_mean_signal_return",
+    "profit_loss_ratio",
+    "max_loss_signal_return",
+    "q05_signal_return",
+    "q95_signal_return",
+    "t_stat",
+    "p_value",
+    "active_years",
+    "yearly_avg_signal_return_std",
+    "yearly_win_rate_std",
     "win_rate",
     "updated_at",
 }
@@ -83,7 +102,7 @@ def write_analysis_outputs(
                 path_extension=f"{config.analysis_base_path}/{category}/{config.factor_name}/{name}.parquet",
                 compression="zstd",
             )
-        elif name in {"summary", "event_returns"}:
+        elif name == "summary":
             for horizon in config.horizons:
                 horizon_frame = frame.filter(pl.col("horizon") == horizon) if "horizon" in frame.columns else frame
                 parquet_resource.write(

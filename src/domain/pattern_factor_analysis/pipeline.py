@@ -32,7 +32,7 @@ def run_pattern_factor_analysis(
             outputs = empty_outputs(config.factor_name)
         else:
             labeled = add_forward_returns(sample, config)
-            summary, event_returns = evaluate_pattern_factor(labeled, config)
+            summary = evaluate_pattern_factor(labeled, config)
             monitor = build_pattern_monitor(labeled, config)
             prepared_columns = [
                 column
@@ -42,7 +42,6 @@ def run_pattern_factor_analysis(
             outputs = {
                 "prepared_pattern": labeled.select(prepared_columns),
                 "summary": summary,
-                "event_returns": event_returns,
                 "monitor": monitor,
             }
 
@@ -56,6 +55,5 @@ def empty_outputs(factor_name: str) -> dict[str, pl.DataFrame]:
     return {
         "prepared_pattern": pl.DataFrame(),
         "summary": pl.DataFrame({"factor": [factor_name], "status": ["empty"]}),
-        "event_returns": pl.DataFrame(),
         "monitor": pl.DataFrame(),
     }

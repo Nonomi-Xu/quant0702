@@ -120,6 +120,14 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 if null_adj_count > 0:
                     raise ValueError(f"年份 {year} 源数据 adj_factor 存在空值: {null_adj_count} 行")
 
+                required_fields = spec.get("required_fields", [])
+                factor_input_columns = ["ts_code", "trade_date", *required_fields]
+                missing_columns = [column for column in factor_input_columns if column not in df_factor_source.columns]
+                if missing_columns:
+                    raise ValueError(f"横截面因子 {factor_name} 缺少必要输入列: {missing_columns}")
+
+                df_factor_source = df_factor_source.select(factor_input_columns)
+
                 result_df = build_single_factor_frame_for_dates(
                         context=context,
                         df_factor_source=df_factor_source,

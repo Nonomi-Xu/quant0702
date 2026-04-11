@@ -4,6 +4,7 @@ import polars as pl
 
 
 RSI_6_COLUMN = "relative_strength_index_6"
+RSI_14_COLUMN = "relative_strength_index_14"
 RSI_12_COLUMN = "relative_strength_index_12"
 RSI_24_COLUMN = "relative_strength_index_24"
 

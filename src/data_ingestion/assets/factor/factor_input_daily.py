@@ -19,18 +19,18 @@ FILE_PATH_FRONT_ALL = "factor/factors"
 
 @dg.asset(
     group_name="data_ingestion_daily", 
-    description="每日使用A股信息基本面 计算因子 增量写入COS Parquet",
+    description="每日使用A股信息基本面计算横截面因子，增量写入COS Parquet",
     deps=[dg.AssetKey("Factor_Source_Daily")]
 )
 def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
-    每日使用A股信息基本面计算因子，按因子分目录、按年份写入 COS Parquet
+    每日使用A股信息基本面计算横截面因子，按因子分目录、按年份写入 COS Parquet
 
     存储结构:
     - factor/factors/{factor_category}/{factor_name}/{factor_name}_{year}.parquet
     """
 
-    context.log.info("开始按单因子分文件方式计算并写入 COS Parquet")
+    context.log.info("开始按单因子分文件方式计算横截面因子并写入 COS Parquet")
 
     parquet_resource = ParquetResource()
     current_year = datetime.now().year
@@ -47,7 +47,7 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
         FILE_PATH_BASE = f"{FILE_PATH_FRONT_ALL}/{category}/{factor_name}"
         FILE_NAME = f"{factor_name}"
         factor_counts += 1
-        context.log.info(f"处理因子进度 {factor_counts}/{len(FACTOR_LIST)}")
+        context.log.info(f"处理横截面因子进度 {factor_counts}/{len(FACTOR_LIST)}")
 
         try:
             factor_start_date = read_past_date(context = context, 
@@ -57,7 +57,7 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                                 current_year = current_year
                                 )
             
-            context.log.info(f"因子 {factor_name} 增量获取时间范围: {factor_start_date} -> {end_date}")
+            context.log.info(f"横截面因子 {factor_name} 增量获取时间范围: {factor_start_date} -> {end_date}")
 
             date_list = cal_day_length(
                     context=context,
@@ -143,7 +143,7 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 year_file_stats[str(year)] = year_rows
 
                 context.log.info(
-                    f"因子 {factor_name} 年份 {year} 写入完成: {output_file_path}, "
+                    f"横截面因子 {factor_name} 年份 {year} 写入完成: {output_file_path}, "
                     f"共 {year_rows} 行, {year_days_success} 个交易日"
                 )
 
@@ -152,7 +152,7 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
                 gc.collect()
 
             context.log.info(f"""
-            ========== 因子计算完成 ==========
+            ========== 横截面因子计算完成 ==========
             本次处理:
                 - 因子: {factor_name}
                 - 成功交易日数: {total_days_success}
@@ -171,7 +171,7 @@ def Factor_Input_Daily(context: dg.AssetExecutionContext) -> dg.MaterializeResul
             gc.collect()
 
         except Exception as e:
-            context.log.error(f"因子 {factor_name} 计算或写入失败: {e}")
+            context.log.error(f"横截面因子 {factor_name} 计算或写入失败: {e}")
             failed_factors.append(factor_name)
             continue
 
@@ -285,7 +285,7 @@ def load_factor(
         try:
             frame = parquet_resource.read(
                 path_extension=file_path,
-                force_download=True,
+                force_download=False,
             )
         except Exception:
             if source_year == year:
@@ -312,6 +312,4 @@ def load_factor(
             f"因子文件存在但内容为空: factor_name={factor_name}, mode={mode}, year={year}, year_list={year_list}"
         )
 
-    return (
-        df.sort(["ts_code", "trade_date"])
-    )
+    return df

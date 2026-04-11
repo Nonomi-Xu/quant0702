@@ -227,7 +227,7 @@ def latest_existing_summary_update(
             summary = parquet_resource.read_columns(
                 path_extension=path,
                 columns=sorted(REQUIRED_SUMMARY_COLUMNS),
-                force_download=True,
+                force_download=False,
                 strict=True,
             )
         except Exception:

@@ -11,7 +11,7 @@ from src.shared.read_trade_cal import read_trade_cal
 
 @dg.asset(
     group_name="factor_analysis",
-    description="读取云端单因子结果并生成 IC、分组收益、多空收益和覆盖率监控表",
+    description="读取云端横截面因子结果并生成 IC、分组收益、多空收益和覆盖率监控表",
     deps=[dg.AssetKey("Factor_Input_Daily")],
 )
 def Factor_Analysis(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
@@ -37,11 +37,11 @@ def Factor_Analysis(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         if should_skip:
             skipped_recent_factors += 1
             context.log.info(
-                f"因子 {factor_name} 已有近期 summary，updated_at={summary_updated_at}，距本次分析日期不超过25天，跳过"
+                f"横截面因子 {factor_name} 已有近期 summary，updated_at={summary_updated_at}，距本次分析日期不超过25天，跳过"
             )
             continue
 
-        context.log.info(f"开始分析因子: {factor_name}")
+        context.log.info(f"开始分析横截面因子: {factor_name}")
         outputs = run_factor_analysis(
             parquet_resource=parquet_resource,
             config=config,
@@ -50,12 +50,12 @@ def Factor_Analysis(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         summary = outputs["summary"]
         if summary.height == 0 or ("status" in summary.columns and summary.item(0, "status") == "empty"):
             empty_factors += 1
-            context.log.warning(f"因子 {factor_name} 无可分析数据，跳过")
+            context.log.warning(f"横截面因子 {factor_name} 无可分析数据，跳过")
             continue
 
         updated_factors += 1
         total_summary_rows += summary.height
-        context.log.info(f"因子 {factor_name} 分析完成，summary 行数: {summary.height}")
+        context.log.info(f"横截面因子 {factor_name} 分析完成，summary 行数: {summary.height}")
 
     return dg.MaterializeResult(
         metadata={
@@ -65,4 +65,3 @@ def Factor_Analysis(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
             "summary_rows": dg.MetadataValue.int(total_summary_rows),
         }
     )
-

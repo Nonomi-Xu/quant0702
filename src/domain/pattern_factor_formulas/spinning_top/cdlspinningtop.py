@@ -1,0 +1,24 @@
+from __future__ import annotations
+
+import polars as pl
+
+
+CDLSPINNINGTOP_COLUMN = "cdlspinningtop"
+
+
+def compute_cdlspinningtop(frame: pl.DataFrame) -> pl.DataFrame:
+    body = (pl.col("close_hfq") - pl.col("open_hfq")).abs()
+    range_ = pl.col("high_hfq") - pl.col("low_hfq")
+    upper_shadow = pl.col("high_hfq") - pl.max_horizontal("open_hfq", "close_hfq")
+    lower_shadow = pl.min_horizontal("open_hfq", "close_hfq") - pl.col("low_hfq")
+    signal = (
+        (body <= range_ * 0.3)
+        & (upper_shadow >= body)
+        & (lower_shadow >= body)
+    )
+    direction = pl.when(pl.col("close_hfq") > pl.col("open_hfq")).then(1).when(pl.col("close_hfq") < pl.col("open_hfq")).then(-1).otherwise(0)
+    return frame.select(
+        "trade_date",
+        "ts_code",
+        pl.when(signal).then(direction).otherwise(0).alias(CDLSPINNINGTOP_COLUMN),
+    )

@@ -16,6 +16,7 @@ from .stock.stock_adj_factor.stock_adj_factor_hfq_daily import Stock_Adj_Factor_
 
 from .factor.factor_source_daily import Factor_Source_Daily
 from .factor.factor_input_daily import Factor_Input_Daily
+from .factor.pattern_factor_input_daily import Pattern_Factor_Input_Daily
 from .index.index_list.index_all_list_now_daily import Index_All_List_Now_Daily
 from .index.index_list.index_selected_list_now_daily import Index_Selected_List_Now_Daily
 
@@ -34,6 +35,7 @@ Data_Ingestion_Daily_assets = [
     Stock_Adj_Factor_HFQ_Daily,
     Factor_Source_Daily,
     Factor_Input_Daily,
+    Pattern_Factor_Input_Daily,
     Index_All_List_Now_Daily,
     Index_Selected_List_Now_Daily,
 ]

@@ -294,7 +294,7 @@ def load_stock_active_list(
         try:
             frame = parquet_resource.read(
                 path_extension=file_path_daily,
-                force_download=True,
+                force_download=False,
             )
         except Exception:
             if source_year == year:
@@ -314,6 +314,4 @@ def load_stock_active_list(
     if df.is_empty():
         raise
 
-    return (
-        df.sort(["ts_code", "trade_date"])
-    )
+    return df

@@ -9,6 +9,7 @@ from resources.parquet_io import ParquetResource
 
 from src.orchestration.data_ingestion import get_data_ingestion_defs
 from src.orchestration.factor_analysis import get_factor_analysis_defs
+from src.orchestration.pattern_factor_analysis import get_pattern_factor_analysis_defs
 
 @dg.definitions
 def defs():
@@ -16,6 +17,7 @@ def defs():
     
     Data_Ingestion_Daily_defs = get_data_ingestion_defs()
     Factor_Analysis_defs = get_factor_analysis_defs()
+    Pattern_Factor_Analysis_defs = get_pattern_factor_analysis_defs()
     
     global_defs = dg.Definitions(
         resources={
@@ -28,5 +30,6 @@ def defs():
     return dg.Definitions.merge(
         Data_Ingestion_Daily_defs,
         Factor_Analysis_defs,
+        Pattern_Factor_Analysis_defs,
         global_defs
     )

@@ -5,6 +5,8 @@ import polars as pl
 
 DMI_M1 = 14
 DMI_M2 = 6
+DMI_PLUS_DM_COLUMN = "plus_directional_movement_14"
+DMI_MINUS_DM_COLUMN = "minus_directional_movement_14"
 DMI_PDI_COLUMN = "directional_movement_positive_indicator_14"
 DMI_MDI_COLUMN = "directional_movement_negative_indicator_14"
 DMI_ADX_COLUMN = "average_directional_index_14_6"
@@ -80,6 +82,8 @@ def compute_dmi_base(frame: pl.DataFrame) -> pl.DataFrame:
     return prepared.select(
         "trade_date",
         "ts_code",
+        pl.col("plus_dm_sum").alias(DMI_PLUS_DM_COLUMN),
+        pl.col("minus_dm_sum").alias(DMI_MINUS_DM_COLUMN),
         DMI_PDI_COLUMN,
         DMI_MDI_COLUMN,
         DMI_ADX_COLUMN,

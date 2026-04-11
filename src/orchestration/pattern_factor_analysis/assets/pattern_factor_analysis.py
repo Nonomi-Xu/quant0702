@@ -10,7 +10,7 @@ from src.shared.read_trade_cal import read_trade_cal
 
 
 @dg.asset(
-    group_name="pattern_factor_analysis",
+    group_name="factor_analysis",
     description="读取K线形态因子结果并生成事件收益、命中率和数据监控表",
     deps=[dg.AssetKey("Pattern_Factor_Input_Daily")],
 )

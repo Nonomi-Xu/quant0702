@@ -1,5 +1,13 @@
-from .factor_analysis import Factor_Analysis
+from .factor_analysis import (
+    Factor_Analysis_assets,
+    Factor_Evaluation,
+    Factor_Sample,
+    Factor_Style_Exposure,
+)
 
-Factor_Analysis_assets = [Factor_Analysis]
-
-__all__ = ["Factor_Analysis", "Factor_Analysis_assets"]
+__all__ = [
+    "Factor_Analysis_assets",
+    "Factor_Evaluation",
+    "Factor_Sample",
+    "Factor_Style_Exposure",
+]

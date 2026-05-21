@@ -11,33 +11,44 @@ def evaluate_factor(
     frame: pl.DataFrame,
     config: FactorAnalysisConfig,
 ) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
+    """对一个因子计算 IC、分组收益、多空收益。
+
+    可复用于两轨:轨 B 传入中性化 + 标准化后的因子,轨 A 传入未中性化的
+    原始(winsorized)因子,用于 raw vs neutralized 对比。
+
+    frame 需包含: ts_code, trade_date, <factor>, forward_return_{h}...
+    """
     summary_rows: list[dict[str, object]] = []
     ic_rows: list[dict[str, object]] = []
     group_rows: list[dict[str, object]] = []
 
     for horizon in config.horizons:
         label_column = f"forward_return_{horizon}"
+        if label_column not in frame.columns:
+            continue
         sample = frame.select("trade_date", "ts_code", config.factor_name, label_column).drop_nulls()
+
         ic_values: list[float] = []
         daily_sample_counts: list[int] = []
         long_short_values: list[float] = []
         long_short_gross_values: list[float] = []
         transaction_cost_values: list[float] = []
-        long_group_holdings: list[set[str]] = []
-        short_group_holdings: list[set[str]] = []
-        previous_long_holdings: set[str] | None = None
-        previous_short_holdings: set[str] | None = None
+        long_turnover_values: list[float] = []
+        short_turnover_values: list[float] = []
+        long_holdings_by_date: list[set[str]] = []
+        short_holdings_by_date: list[set[str]] = []
 
         for date_sample in sample.partition_by("trade_date", maintain_order=True):
             date_value = date_sample.item(0, "trade_date")
-            date_df = date_sample.sort(config.factor_name) # 排序
+            date_df = date_sample.sort(config.factor_name)
             if date_df.height < max(config.group_count, config.min_sample_per_date):
                 continue
 
+            # Rank IC(Spearman):并列值用平均秩,避免 ordinal 把并列强行分先后注入噪声
             ranked = date_df.with_columns(
                 [
-                    pl.col(config.factor_name).rank(method="ordinal").alias("_factor_rank"),
-                    pl.col(label_column).rank(method="ordinal").alias("_return_rank"),
+                    pl.col(config.factor_name).rank(method="average").alias("_factor_rank"),
+                    pl.col(label_column).rank(method="average").alias("_return_rank"),
                 ]
             )
             ic_value = pearson_corr(
@@ -66,10 +77,19 @@ def evaluate_factor(
             group_map = {row["_group"]: row["forward_return"] for row in group_return.to_dicts()}
             long_short_gross = safe_subtract(group_map.get(config.group_count), group_map.get(1))
 
-            current_long_holdings = set(grouped.filter(pl.col("_group") == config.group_count).get_column("ts_code").to_list())
-            current_short_holdings = set(grouped.filter(pl.col("_group") == 1).get_column("ts_code").to_list())
-            long_turnover = pair_turnover(previous_long_holdings, current_long_holdings)
-            short_turnover = pair_turnover(previous_short_holdings, current_short_holdings)
+            current_long = set(grouped.filter(pl.col("_group") == config.group_count).get_column("ts_code").to_list())
+            current_short = set(grouped.filter(pl.col("_group") == 1).get_column("ts_code").to_list())
+
+            # 换手成本:horizon 日因子按 horizon 日换仓,本次组合替换的是 horizon
+            # 个交易日前建立的组合,故换手要对 horizon 日前的持仓比较(而非 1 日前)。
+            if len(long_holdings_by_date) >= horizon:
+                long_turnover = pair_turnover(long_holdings_by_date[-horizon], current_long)
+                short_turnover = pair_turnover(short_holdings_by_date[-horizon], current_short)
+                long_turnover_values.append(long_turnover)
+                short_turnover_values.append(short_turnover)
+            else:
+                long_turnover = 0.0
+                short_turnover = 0.0
             transaction_cost = (
                 one_leg_rebalance_cost(long_turnover, config)
                 + one_leg_rebalance_cost(short_turnover, config)
@@ -81,10 +101,8 @@ def evaluate_factor(
                 long_short_gross_values.append(long_short_gross)
                 transaction_cost_values.append(transaction_cost)
 
-            long_group_holdings.append(current_long_holdings)
-            short_group_holdings.append(current_short_holdings)
-            previous_long_holdings = current_long_holdings
-            previous_short_holdings = current_short_holdings
+            long_holdings_by_date.append(current_long)
+            short_holdings_by_date.append(current_short)
 
             group_row: dict[str, object] = {"factor": config.factor_name, "trade_date": date_value, "horizon": horizon}
             for group_id in range(1, config.group_count + 1):
@@ -94,8 +112,11 @@ def evaluate_factor(
             group_row["long_short"] = long_short
             group_rows.append(group_row)
 
-        long_group_turnover = average_turnover(long_group_holdings)
-        short_group_turnover = average_turnover(short_group_holdings)
+        # 多空 Sharpe / 最大回撤:long_short_values 是按交易日排列的重叠 h 日收益,
+        # 直接按日复利得到的净值是错的(h 日收益被复利了 h 倍)。改为用 h 个非
+        # 重叠偏移分别建净值,各自算年化 Sharpe / 回撤后取平均。
+        long_short_sharpe, long_short_max_drawdown = annualized_stats(long_short_values, horizon)
+
         summary_rows.append(
             {
                 "factor": config.factor_name,
@@ -112,19 +133,19 @@ def evaluate_factor(
                 ),
                 "long_short_gross_mean": round(mean(long_short_gross_values), 6),
                 "long_short_mean": round(mean(long_short_values), 6),
-                "long_short_sharpe": round(
-                    safe_divide(mean(long_short_values), std(long_short_values)) * math.sqrt(252 / max(horizon, 1)),
-                    6,
-                ),
-                "long_short_max_drawdown": round(max_drawdown(long_short_values), 6),
+                "long_short_sharpe": round(long_short_sharpe, 6),
+                "long_short_max_drawdown": round(long_short_max_drawdown, 6),
                 "transaction_cost_mean": round(mean(transaction_cost_values), 6),
                 "win_rate": round(
                     safe_divide(sum(1 for value in long_short_values if value > 0), len(long_short_values)),
                     6,
                 ),
-                "long_group_turnover": round(long_group_turnover, 6),
-                "short_group_turnover": round(short_group_turnover, 6),
-                "long_short_turnover": round(mean([long_group_turnover, short_group_turnover]), 6),
+                "long_group_turnover": round(mean(long_turnover_values), 6),
+                "short_group_turnover": round(mean(short_turnover_values), 6),
+                "long_short_turnover": round(
+                    mean(long_turnover_values + short_turnover_values),
+                    6,
+                ),
                 "ic_observations": len(ic_values),
                 "avg_daily_sample_count": round(mean(daily_sample_counts), 2),
                 "min_daily_sample_count": min(daily_sample_counts) if daily_sample_counts else 0,
@@ -134,6 +155,28 @@ def evaluate_factor(
         )
 
     return pl.DataFrame(summary_rows), pl.DataFrame(ic_rows), pl.DataFrame(group_rows)
+
+
+def annualized_stats(per_date_returns: list[float], horizon: int) -> tuple[float, float]:
+    """从按交易日排列的重叠 h 日多空收益,用 h 个非重叠偏移分别建净值,
+    返回(平均年化 Sharpe, 平均最大回撤)。
+
+    每个偏移取 returns[offset::horizon],得到真正非重叠的 h 日收益序列,
+    复利得到净值是正确的;年化 Sharpe 乘 sqrt(252/h);最后对 h 个偏移取平均
+    以消除起点依赖。"""
+    horizon = max(int(horizon), 1)
+    sharpe_values: list[float] = []
+    drawdown_values: list[float] = []
+    for offset in range(horizon):
+        series = per_date_returns[offset::horizon]
+        if len(series) < 2:
+            continue
+        series_std = std(series)
+        sharpe_values.append(safe_divide(mean(series), series_std) * math.sqrt(252 / horizon))
+        drawdown_values.append(max_drawdown(series))
+    if not sharpe_values:
+        return 0.0, (max_drawdown(per_date_returns) if per_date_returns else 0.0)
+    return mean(sharpe_values), mean(drawdown_values)
 
 
 def pearson_corr(x_values: list[float], y_values: list[float]) -> float:
@@ -160,20 +203,6 @@ def std(values: list[float]) -> float:
     return math.sqrt(sum((value - mean_value) ** 2 for value in values) / len(values))
 
 
-def average_turnover(holdings_by_date: list[set[str]]) -> float:
-    if len(holdings_by_date) < 2:
-        return 0.0
-
-    turnover_values: list[float] = []
-    for previous_holdings, current_holdings in zip(holdings_by_date, holdings_by_date[1:]):
-        if not previous_holdings:
-            continue
-        kept_count = len(previous_holdings & current_holdings)
-        turnover_values.append(1 - safe_divide(kept_count, len(previous_holdings)))
-
-    return mean(turnover_values)
-
-
 def pair_turnover(previous_holdings: set[str] | None, current_holdings: set[str]) -> float:
     if previous_holdings is None or not previous_holdings:
         return 0.0
@@ -188,6 +217,7 @@ def one_leg_rebalance_cost(turnover: float, config: FactorAnalysisConfig) -> flo
 
 
 def max_drawdown(returns: list[float]) -> float:
+    """对一段 **非重叠** 收益序列复利得到净值,返回最大回撤。"""
     if not returns:
         return 0.0
 

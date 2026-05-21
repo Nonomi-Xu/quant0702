@@ -107,16 +107,21 @@ def Stock_Active_List_Daily(context: dg.AssetExecutionContext) -> dg.Materialize
 
         try:
             # 读取 daily
+            # mode="add past year": 流动性指标用 20 日滚动均值，必须带上一年数据做
+            # 回看，否则每年前 ~20 个交易日滚动窗口不足、股票池为空。
             df_stock_price_daily = load_stock_price_daily(
                 parquet_resource=parquet_resource,
                 year=year,
+                mode="add past year",
             )
             df_stock_price_daily = df_stock_price_daily.select(["ts_code", "trade_date", "amount"])
-            
+
             # 读取 stock_basic
+            # turnover_rate 同样进入 20 日滚动，需要上一年数据回看。
             df_stock_basic_metric = load_stock_basic_metric(
                 parquet_resource=parquet_resource,
                 year=year,
+                mode="add past year",
             )
             df_stock_basic_metric = df_stock_basic_metric.select(["ts_code", "trade_date", "turnover_rate", "circ_mv"])
 
@@ -274,9 +279,10 @@ def build_active_stock_list_frame(
 
 def load_stock_active_list(
         parquet_resource: ParquetResource,
-        year: int | None = datetime.now().year,
+        year: int | None = None,
         mode: str | None = None
     ) -> pl.DataFrame:
+    year = year or datetime.now().year
     frames: list[pl.DataFrame] = []
 
     if mode == "add past year":
@@ -309,9 +315,12 @@ def load_stock_active_list(
             .with_columns(pl.col("trade_date").cast(pl.Date))
         )
 
+    if not frames:
+        raise FileNotFoundError(f"未找到 {FILE_NAME} 任何年份数据 (year={year}, mode={mode})")
+
     df = pl.concat(frames, how="vertical_relaxed")
 
     if df.is_empty():
-        raise
+        raise ValueError(f"{FILE_NAME} 数据为空 (year={year}, mode={mode})")
 
     return df
